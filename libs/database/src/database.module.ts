@@ -1,13 +1,15 @@
-import { Module } from '@nestjs/common';
-import { DatabaseService } from './database.service';
+import { DynamicModule, Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { dataSourceOptions } from 'database/data-source';
+import { EntityClassOrSchema } from '@nestjs/typeorm/dist/interfaces/entity-class-or-schema.type';
+import { DataSourceOptions } from 'typeorm';
 
-@Module({
-  imports: [
-    TypeOrmModule.forRoot(dataSourceOptions)
-  ],
-  providers: [DatabaseService],
-  exports: [DatabaseService],
-})
-export class DatabaseModule {}
+@Module({})
+export class DatabaseModule {
+  static forRoot(dataSourceOptions: DataSourceOptions): DynamicModule {
+    return TypeOrmModule.forRoot(dataSourceOptions);
+  }
+
+  static forFeature(entities: EntityClassOrSchema[]): DynamicModule {
+    return TypeOrmModule.forFeature(entities);
+  }
+}
