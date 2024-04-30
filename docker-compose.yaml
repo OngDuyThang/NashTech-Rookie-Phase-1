@@ -1,0 +1,12 @@
+services:
+  auth:
+    build:
+      context: .
+      dockerfile: ./apps/auth/Dockerfile
+      target: development
+    command: npm run dev auth
+    ports:
+      - '3000:3000'
+    volumes: -.:/usr/src/app
+
+# docker-compose up
