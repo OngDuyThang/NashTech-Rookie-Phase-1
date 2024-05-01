@@ -3,16 +3,17 @@ import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
 import { DatabaseModule } from '@app/database';
 import { dataSourceOptions } from '../database/data-source';
-import { ConfigModule, ConfigService } from '@nestjs/config';
-import * as dotenv from "dotenv";
+import { ConfigModule } from '@nestjs/config';
+import { Env, EnvModule } from '@app/env';
+import { getEnvFilePath } from '@app/common';
+import { UserEntity } from './entities/user.entity';
+import { UserModule } from './users/users.module';
 
 @Module({
   imports: [
     DatabaseModule.forRoot(dataSourceOptions),
-    DatabaseModule.forFeature([]),
-    // ConfigModule.forRoot({
-    //   envFilePath: `./apps/auth/.env.${process.env.NODE_ENV}`
-    // })
+    EnvModule.forRoot(getEnvFilePath('auth')),
+    UserModule
   ],
   controllers: [AuthController],
   providers: [AuthService],
