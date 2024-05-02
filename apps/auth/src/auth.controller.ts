@@ -1,7 +1,11 @@
-import { Body, Controller, Get, Post } from '@nestjs/common';
+import { Body, Controller, Get, Post, Res, UseGuards, UseInterceptors, UsePipes } from '@nestjs/common';
 import { AuthService } from './auth.service';
-import { RegisterDto } from './dtos/register.dto';
-import * as bcrypt from 'bcrypt';
+import { GetUser } from './common/decorators';
+import { HashPasswordPipe } from './common/pipes';
+import { HidePasswordInterceptor } from './common/interceptors';
+import { LocalAuthGuard } from './common/guards';
+import { RegisterDto, UserEntity } from './modules/user';
+import { Response } from 'express';
 
 @Controller('auth')
 export class AuthController {
@@ -10,9 +14,20 @@ export class AuthController {
   ) {}
 
   @Post('register')
-  register(
+  @UsePipes(HashPasswordPipe)
+  @UseInterceptors(HidePasswordInterceptor)
+  async register(
     @Body() registerDto: RegisterDto
-  ) {
-    return this.authService.register(registerDto);
+  ): Promise<UserEntity> {
+    return await this.authService.register(registerDto);
+  }
+
+  @Post('login')
+  @UseGuards(LocalAuthGuard)
+  login(
+    @GetUser() user: UserEntity,
+    @Res({ passthrough: true }) res: Response
+  ): void {
+    this.authService.login(user, res);
   }
 }

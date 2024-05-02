@@ -7,8 +7,16 @@ export class Env {
         private readonly configService: ConfigService
     ) {}
 
-    get JWT_SECRET() {
-        return this.configService.get<string>('JWT_SECRET');
+    get NODE_ENV() {
+        return this.configService.get<string>('NODE_ENV');
+    }
+
+    get ACCESS_TOKEN_SECRET() {
+        return this.configService.get<string>('ACCESS_TOKEN_SECRET');
+    }
+
+    get REFRESH_TOKEN_SECRET() {
+        return this.configService.get<string>('REFRESH_TOKEN_SECRET');
     }
 
     get VALIDATE_OTP_ENDPONT() {

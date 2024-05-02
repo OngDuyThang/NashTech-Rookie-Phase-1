@@ -1,7 +1,7 @@
 import { DataSource, DataSourceOptions } from "typeorm";
 import * as dotenv from "dotenv";
 import { getEnvFilePath } from "@app/common";
-import { UserEntity } from "../src/entities/user.entity";
+import { UserEntity } from "../src/modules/user/entities/user.entity";
 
 dotenv.config({
     path: getEnvFilePath('auth')

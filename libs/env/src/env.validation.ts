@@ -4,7 +4,15 @@ import { IsNotEmpty, IsNumberString, IsString, validateSync } from "class-valida
 export class EnvValidation {
     @IsString()
     @IsNotEmpty()
-    JWT_SECRET: string
+    NODE_ENV: string
+
+    @IsString()
+    @IsNotEmpty()
+    ACCESS_TOKEN_SECRET: string
+
+    @IsString()
+    @IsNotEmpty()
+    REFRESH_TOKEN_SECRET: string
 
     @IsString()
     @IsNotEmpty()

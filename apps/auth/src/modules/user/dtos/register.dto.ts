@@ -8,7 +8,6 @@ export class RegisterDto {
 
     @IsString()
     @IsNotEmpty()
-    @MaxLength(50)
     password: string
 
     @IsString()
