@@ -1,5 +1,5 @@
-import { plainToInstance } from "class-transformer";
-import { IsNotEmpty, IsNumberString, IsString, validateSync } from "class-validator";
+import { classValidate } from "@app/common";
+import { IsNotEmpty, IsNumberString, IsString } from "class-validator";
 
 // Abstract here
 export class EnvValidation {
@@ -40,18 +40,8 @@ export class EnvValidation {
     DB_NAME: string
 }
 
-export default function validateEnv(config: Record<string, unknown>) {
-    const object = plainToInstance(EnvValidation, config, {
-        enableImplicitConversion: true
-    })
-
-    const errors = validateSync(object, {
-        skipMissingProperties: false
-    })
-
-    if (errors.length) {
-        throw new Error(errors.toString())
-    }
-
-    return object
+const validateEnv = (config: Record<string, unknown>) => {
+    return classValidate(EnvValidation, config)
 }
+
+export default validateEnv

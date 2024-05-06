@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Post, Req, Res, UseGuards, UseInterceptors, UsePipes } from '@nestjs/common';
+import { Body, Controller, Post, Req, Res, UseGuards, UseInterceptors, UsePipes } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { GetUser } from './common/decorators';
 import { HashPasswordPipe } from './common/pipes';
@@ -7,8 +7,6 @@ import { AccessTokenGuard, LocalAuthGuard, ValidateOtpGuard } from './common/gua
 import { RegisterDto, UserEntity } from './modules/user';
 import { Request, Response } from 'express';
 import { TEnableTwoFactorResponse, TLoginResponse } from './common/types';
-import { validate } from 'class-validator';
-import { ValidateOtpDto } from './common/dtos/validate-otp.dto';
 
 @Controller('auth')
 export class AuthController {
@@ -45,7 +43,6 @@ export class AuthController {
   @Post('/validate-otp')
   @UseGuards(ValidateOtpGuard)
   validateOtp(
-    @Body() _validateOtpDto: ValidateOtpDto,
     @Req() req: Request
   ): Promise<TLoginResponse> {
     return req.user as any

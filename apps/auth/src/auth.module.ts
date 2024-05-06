@@ -1,4 +1,4 @@
-import { Logger, Module } from '@nestjs/common';
+import { Logger, Module, Provider } from '@nestjs/common';
 import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
 import { DatabaseModule } from '@app/database';
@@ -10,7 +10,7 @@ import { APP_FILTER } from '@nestjs/core';
 import { TokenModule } from './modules/token/token.module';
 import { AccessTokenStrategy, LocalAuthStrategy } from './common/strategies';
 
-const providers = [
+const providers: Provider[] = [
   {
     provide: APP_FILTER,
     useClass: HttpExceptionFilter
