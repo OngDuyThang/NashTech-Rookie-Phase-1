@@ -61,4 +61,13 @@ export class UserService {
             twoFactorSecret: secret
         }
     }
+
+    async disableTwoFactor(
+        id: string
+    ): Promise<void> {
+        await this.userRepository.update({ id }, {
+            enableTwoFactor: false,
+            twoFactorSecret: null
+        });
+    }
 }

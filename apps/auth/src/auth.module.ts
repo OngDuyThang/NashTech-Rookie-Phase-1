@@ -9,6 +9,7 @@ import { UserModule } from './modules/user/user.module';
 import { APP_FILTER } from '@nestjs/core';
 import { TokenModule } from './modules/token/token.module';
 import { AccessTokenStrategy, LocalAuthStrategy } from './common/strategies';
+import { EnvValidation } from './env.validation';
 
 const providers: Provider[] = [
   {
@@ -24,7 +25,10 @@ const providers: Provider[] = [
 @Module({
   imports: [
     DatabaseModule.forRoot(dataSourceOptions),
-    EnvModule.forRoot(getEnvFilePath('auth')),
+    EnvModule.forRoot(
+      getEnvFilePath('auth'),
+      EnvValidation
+    ),
     UserModule,
     TokenModule
   ],

@@ -40,6 +40,14 @@ export class AuthController {
     return await this.authService.enableTwoFactor(user.id);
   }
 
+  @Post('/disable-2fa')
+  @UseGuards(AccessTokenGuard)
+  async disableTwoFactor(
+    @GetUser() user: UserEntity
+  ) {
+    await this.authService.disableTwoFactor(user.id)
+  }
+
   @Post('/validate-otp')
   @UseGuards(ValidateOtpGuard)
   validateOtp(

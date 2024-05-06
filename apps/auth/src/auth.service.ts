@@ -11,7 +11,6 @@ import { RegisterDto, UserEntity, UserService } from './modules/user';
 import { authenticator } from 'otplib';
 import { TokenService } from './modules/token/token.service';
 import { Env } from '@app/env';
-import { TOKEN_KEY_NAME } from './common/enums';
 
 @Injectable()
 export class AuthService {
@@ -120,6 +119,12 @@ export class AuthService {
       }
       throw e
     }
+  }
+
+  async disableTwoFactor(
+    userId: string
+  ): Promise<void> {
+    await this.userService.disableTwoFactor(userId);
   }
 
   async validateOtp(
