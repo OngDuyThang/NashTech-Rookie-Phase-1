@@ -1,6 +1,7 @@
 import { plainToInstance } from "class-transformer";
 import { IsNotEmpty, IsNumberString, IsString, validateSync } from "class-validator";
 
+// Abstract here
 export class EnvValidation {
     @IsString()
     @IsNotEmpty()

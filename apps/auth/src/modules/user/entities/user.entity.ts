@@ -13,7 +13,7 @@ export class UserEntity extends AbstractEntity {
     @Column({ type: 'text', nullable: false })
     @IsString()
     @IsNotEmpty()
-    password: string;
+    password?: string;
 
     @Column({ type: 'varchar', length: 50, nullable: false })
     @IsString()

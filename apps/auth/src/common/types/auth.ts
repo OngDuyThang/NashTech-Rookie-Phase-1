@@ -1,4 +1,10 @@
 export type TLoginResponse = {
     validateOtpEndpoint: string,
     userId: string
-} | void
+} | {
+    'access-token': string
+}
+
+export type TEnableTwoFactorResponse = {
+    twoFactorSecret: string
+}
