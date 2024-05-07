@@ -160,7 +160,9 @@ export class AuthService {
     }
   }
 
-  forgotPassword() {
+  forgotPassword(
+    email: string
+  ) {
 
   }
 }
