@@ -1,4 +1,9 @@
-export enum SUCCESS_CODE {}
+export enum SUCCESS_CODE {
+    OK = 200,
+    CREATED = 201,
+    ACCEPTED = 202,
+    NO_CONTENT = 204
+}
 
 export enum ERROR_CODE {
     INTERNAL_SERVER_ERROR = 500,

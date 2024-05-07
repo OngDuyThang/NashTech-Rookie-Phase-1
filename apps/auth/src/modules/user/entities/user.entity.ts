@@ -1,6 +1,9 @@
 import { AbstractEntity } from "@app/database";
-import { IsBoolean, IsEmail, IsNotEmpty, IsOptional, IsString, IsUUID, MaxLength } from "class-validator";
-import { Column, Entity } from "typeorm";
+import { IsArray, IsBoolean, IsEmail, IsNotEmpty, IsOptional, IsString, IsUUID, MaxLength, Validate, ValidateNested } from "class-validator";
+import { Column, Entity, OneToMany } from "typeorm";
+import { UserAddressEntity } from "./user-address.entity";
+import { Type } from "class-transformer";
+import { UserPaymentEntity } from "./user-payment.entity";
 
 @Entity({ name: 'user' })
 export class UserEntity extends AbstractEntity {
@@ -13,7 +16,7 @@ export class UserEntity extends AbstractEntity {
     @Column({ type: 'text', nullable: false })
     @IsString()
     @IsNotEmpty()
-    password: string;
+    password?: string;
 
     @Column({ type: 'varchar', length: 50, nullable: false })
     @IsString()
@@ -38,6 +41,20 @@ export class UserEntity extends AbstractEntity {
     @IsOptional()
     @MaxLength(50)
     phone?: string;
+
+    @OneToMany(() => UserAddressEntity, userAddress => userAddress.user)
+    @IsArray()
+    @IsOptional()
+    @ValidateNested({ each: true })
+    @Type(() => UserAddressEntity)
+    addresses?: UserAddressEntity[]
+
+    @OneToMany(() => UserPaymentEntity, userPayment => userPayment.user)
+    @IsArray()
+    @IsOptional()
+    @ValidateNested({ each: true })
+    @Type(() => UserPaymentEntity)
+    payments?: UserPaymentEntity[]
 
     @Column({ type: 'boolean', default: false })
     @IsBoolean()

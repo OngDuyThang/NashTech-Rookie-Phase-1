@@ -17,14 +17,17 @@ export class HttpExceptionFilter implements ExceptionFilter {
 
         const status = exception.getStatus()
         const message = exception.message
+
+        const detail = (exception.getResponse() as any)?.message
         const stack = exception.stack
 
         const { method, originalUrl: url } = req
-        this.logger.error(`Method: ${method} | URI: ${url} | Status: ${status} | Message: ${message}`)
+        this.logger.error(`Method: ${method} | URI: ${url} | Status: ${status} | Message: ${message} | Detail: ${detail}`)
 
         res.status(status).send({
             statusCode: status,
             message,
+            detail,
             ...(this.env.NODE_ENV == NODE_ENV.DEVELOPMENT ? { stack } : null)
         })
     }
