@@ -7,6 +7,7 @@ import { AccessTokenGuard, LocalAuthGuard, ValidateOtpGuard } from './common/gua
 import { RegisterDto, UserEntity } from './modules/user';
 import { Request, Response } from 'express';
 import { TEnableTwoFactorResponse, TLoginResponse } from './common/types';
+import { ForgotPasswordDto } from './common/dtos';
 
 @Controller('auth')
 export class AuthController {
@@ -54,5 +55,12 @@ export class AuthController {
     @Req() req: Request
   ): Promise<TLoginResponse> {
     return req.user as any
+  }
+
+  @Post('/forgot-password')
+  forgotPassword(
+    @Body() forgotPasswordDto: ForgotPasswordDto
+  ) {
+
   }
 }

@@ -17,7 +17,14 @@ export const classValidate = <T = unknown>(
     })
 
     if (errors.length) {
-        throw new BadRequestException()
+        let details = []
+        for (let i = 0; i < errors.length; i++) {
+            const error = errors[i]
+            details.push(
+                ...Object.values(error.constraints)
+            )
+        }
+        throw new BadRequestException(details)
     }
 
     return object as T

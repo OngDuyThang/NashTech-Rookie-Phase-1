@@ -159,4 +159,8 @@ export class AuthService {
       throw e;
     }
   }
+
+  forgotPassword() {
+
+  }
 }

@@ -2,7 +2,7 @@ import { CanActivate, ExecutionContext, Injectable } from "@nestjs/common";
 import { Request, Response } from "express";
 import { AuthService } from "../../auth.service";
 import { classValidate } from "@app/common";
-import { ValidateOtpDto } from "../dtos/validate-otp.dto";
+import { ValidateOtpDto } from "../dtos";
 
 @Injectable()
 export class ValidateOtpGuard implements CanActivate {
