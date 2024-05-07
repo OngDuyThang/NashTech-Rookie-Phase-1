@@ -3,7 +3,7 @@
   "collection": "@nestjs/schematics",
   "compilerOptions": {
     "deleteOutDir": true,
-    "webpack": true
+    "webpack": false
   },
   "monorepo": true,
   "projects": {
@@ -13,7 +13,10 @@
       "entryFile": "main",
       "sourceRoot": "apps/auth/src",
       "compilerOptions": {
-        "tsConfigPath": "apps/auth/tsconfig.app.json"
+        "tsConfigPath": "apps/auth/tsconfig.app.json",
+        "assets": [
+          {"include": "**/*.hbs", "watchAssets": true, "outDir": "dist/apps/auth"}
+        ]
       }
     },
     "database": {

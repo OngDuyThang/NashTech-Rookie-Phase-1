@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Post, Query, Req, Res, UseGuards, UseInterceptors, UsePipes } from '@nestjs/common';
+import { Body, Controller, Get, Post, Query, Render, Req, Res, UseGuards, UseInterceptors, UsePipes } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { GetUser } from './common/decorators';
 import { HashPasswordPipe } from './common/pipes';
@@ -66,6 +66,14 @@ export class AuthController {
 
   // Implement with front end page to reset password
   @Get('/reset-password')
+  @Render('index')
+  resetPasswordForm(
+    @Query() query: any
+  ) {
+    return {}
+  }
+
+  @Post('/reset-password')
   resetPassword(
     @Query() query: any
   ) {

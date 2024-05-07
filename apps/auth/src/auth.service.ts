@@ -177,15 +177,16 @@ export class AuthService {
         to: email,
         subject: 'Forgot Password',
         html: `<p><a href='${link}'>Click here to reset password</a></p>`
-      }, (error, _info) => {
-        if (error) {
-          throw new NotFoundException(ERROR_MESSAGE.INVALID_EMAIL);
-        } else {
-          resolve({
-            message: SUCCESS_MESSAGE.EMAIL_SENT
-          })
-        }
-      })
+      },
+        (error, _info) => {
+          if (error) {
+            throw new NotFoundException(ERROR_MESSAGE.INVALID_EMAIL);
+          } else {
+            resolve({
+              message: SUCCESS_MESSAGE.EMAIL_SENT
+            })
+          }
+        })
     })
   }
 }

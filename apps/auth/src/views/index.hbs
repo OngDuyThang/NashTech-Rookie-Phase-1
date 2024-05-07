@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reset Password</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f2f2f2;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+
+        .reset-password-container {
+            background-color: #fff;
+            padding: 40px;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            max-width: 400px;
+            width: 100%;
+        }
+
+        h2 {
+            text-align: center;
+            margin-bottom: 30px;
+            color: #333;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            font-weight: bold;
+            margin-bottom: 5px;
+            color: #555;
+        }
+
+        input[type="password"] {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            box-sizing: border-box;
+            font-size: 16px;
+        }
+
+        button[type="submit"] {
+            background-color: #4CAF50;
+            color: #fff;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            width: 100%;
+        }
+
+        button[type="submit"]:hover {
+            background-color: #45a049;
+        }
+
+        .error-message {
+            color: red;
+            font-size: 14px;
+            margin-top: 5px;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="reset-password-container">
+    <h2>Reset Password</h2>
+    <form action="/auth/reset-password" method="POST" onsubmit="validateForm()">
+        <div class="form-group">
+            <label for="newPassword">New Password</label>
+            <input type="password" id="newPassword" name="newPassword" >
+            <div class="error-message" id="newPasswordError">Password does not meet the requirements</div>
+        </div>
+        <div class="form-group">
+            <label for="confirmPassword">Confirm Password</label>
+            <input type="password" id="confirmPassword" name="confirmPassword" >
+            <div class="error-message" id="confirmPasswordError">Passwords do not match</div>
+        </div>
+        <button type="submit">Reset Password</button>
+    </form>
+    </div>
+
+    <script>
+        function validateForm() {
+            const newPassword = document.getElementById('newPassword').value.toString();
+            const confirmPassword = document.getElementById('confirmPassword').value;
+            const newPasswordError = document.getElementById('newPasswordError');
+            const confirmPasswordError = document.getElementById('confirmPasswordError');
+            const passwordPattern = new RegExp(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,30}$/);
+
+            console.log(passwordPattern)
+            console.log(passwordPattern.test('User2222!$$'))
+            newPasswordError.style.display = 'none';
+            confirmPasswordError.style.display = 'none';
+
+            if (!passwordPattern.test(newPassword)) {
+                event.preventDefault();
+                newPasswordError.style.display = 'block';
+                return false;
+            }
+
+            if (newPassword !== confirmPassword) {
+                event.preventDefault();
+                confirmPasswordError.style.display = 'block';
+                return false;
+            }
+
+            return true;
+        }
+    </script>
+</body>
+</html>
