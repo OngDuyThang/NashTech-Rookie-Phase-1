@@ -1,4 +1,6 @@
-export enum SUCCESS_MESSAGE {}
+export enum SUCCESS_MESSAGE {
+    EMAIL_SENT = 'We have sent you an email'
+}
 
 export enum ERROR_MESSAGE {
     INTERNAL_SERVER_ERROR = 'Internal Server Error',
@@ -15,5 +17,6 @@ export enum ERROR_MESSAGE {
     INVALID_CREDENTIAL = 'Invalid Credential',
     INVALID_OTP = 'Invalid OTP',
     USER_UNAUTHORIZED = 'User Unauthorized',
-    USER_NOT_EXIST = 'User Not Exist'
+    USER_NOT_EXIST = 'User Not Exist',
+    INVALID_EMAIL = 'Invalid Email'
 }

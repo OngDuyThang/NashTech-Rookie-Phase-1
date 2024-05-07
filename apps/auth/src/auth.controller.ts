@@ -1,13 +1,12 @@
-import { Body, Controller, Post, Req, Res, UseGuards, UseInterceptors, UsePipes } from '@nestjs/common';
+import { Body, Controller, Get, Post, Query, Req, Res, UseGuards, UseInterceptors, UsePipes } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { GetUser } from './common/decorators';
 import { HashPasswordPipe } from './common/pipes';
 import { HideSensitiveInterceptor } from './common/interceptors';
-import { AccessTokenGuard, LocalAuthGuard, ValidateOtpGuard } from './common/guards';
+import { AccessTokenGuard, LocalAuthGuard, ValidateOtpGuard, ForgotPasswordGuard } from './common/guards';
 import { RegisterDto, UserEntity } from './modules/user';
 import { Request, Response } from 'express';
-import { TEnableTwoFactorResponse, TLoginResponse } from './common/types';
-import { ForgotPasswordDto } from './common/dtos';
+import { TEnableTwoFactorResponse, TForgotPasswordResponse, TLoginResponse } from './common/types';
 
 @Controller('auth')
 export class AuthController {
@@ -58,9 +57,18 @@ export class AuthController {
   }
 
   @Post('/forgot-password')
-  forgotPassword(
-    @Body() forgotPasswordDto: ForgotPasswordDto
-  ) {
+  @UseGuards(ForgotPasswordGuard)
+  async forgotPassword(
+    @GetUser() user: UserEntity
+  ): Promise<TForgotPasswordResponse> {
+    return await this.authService.forgotPassword(user.email)
+  }
 
+  // Implement with front end page to reset password
+  @Get('/reset-password')
+  resetPassword(
+    @Query() query: any
+  ) {
+    console.log(query)
   }
 }

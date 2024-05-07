@@ -13,4 +13,12 @@ export class EnvValidation extends AbstractEnvValidation {
     @IsString()
     @IsNotEmpty()
     VALIDATE_OTP_ENDPONT: string
+
+    @IsString()
+    @IsNotEmpty()
+    MAILER_USERNAME: string
+
+    @IsString()
+    @IsNotEmpty()
+    MAILER_PASSWORD: string
 }

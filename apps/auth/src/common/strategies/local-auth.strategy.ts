@@ -20,6 +20,7 @@ export class LocalAuthStrategy extends PassportStrategy(Strategy) {
             usernameOrEmail,
             password
         )
+        delete user.password
         return user
     }
 }

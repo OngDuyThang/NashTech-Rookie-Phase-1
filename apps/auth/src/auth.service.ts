@@ -1,16 +1,20 @@
 import {
   ForbiddenException,
+  Inject,
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
 import * as bcrypt from 'bcrypt';
-import { TEnableTwoFactorResponse, TJwtPayload, TLoginResponse } from './common/types';
+import * as crypto from 'crypto';
+import { TEnableTwoFactorResponse, TForgotPasswordResponse, TJwtPayload, TLoginResponse } from './common/types';
 import { Response } from 'express';
-import { ERROR_MESSAGE } from '@app/common';
+import { ERROR_MESSAGE, SUCCESS_MESSAGE } from '@app/common';
 import { RegisterDto, UserEntity, UserService } from './modules/user';
 import { authenticator } from 'otplib';
 import { TokenService } from './modules/token/token.service';
 import { Env } from '@app/env';
+import { Transporter } from 'nodemailer';
+import { MAILER_SERVICE } from '@app/mailer';
 
 @Injectable()
 export class AuthService {
@@ -18,6 +22,8 @@ export class AuthService {
     private readonly userService: UserService,
     private readonly env: Env,
     private readonly tokenService: TokenService,
+    @Inject(MAILER_SERVICE)
+    private readonly mailerService: Transporter
   ) {}
 
   async register(
@@ -48,7 +54,7 @@ export class AuthService {
   }
 
   private generateFingerprint(): string {
-    return Math.random().toString(36).substring(2)
+    return crypto.randomBytes(32).toString("hex")
   }
 
   private async hashFingerprint(
@@ -160,9 +166,26 @@ export class AuthService {
     }
   }
 
-  forgotPassword(
+  async forgotPassword(
     email: string
-  ) {
+  ): Promise<TForgotPasswordResponse> {
+    const link = `http://localhost:3000/auth/reset-password?token=some-unhashed-token-here-then-hash-to-compare&id=user-id-here`
 
+    return new Promise((resolve) => {
+      this.mailerService.sendMail({
+        from: this.env.MAILER_USERNAME,
+        to: email,
+        subject: 'Forgot Password',
+        html: `<p><a href='${link}'>Click here to reset password</a></p>`
+      }, (error, _info) => {
+        if (error) {
+          throw new NotFoundException(ERROR_MESSAGE.INVALID_EMAIL);
+        } else {
+          resolve({
+            message: SUCCESS_MESSAGE.EMAIL_SENT
+          })
+        }
+      })
+    })
   }
 }

@@ -8,3 +8,7 @@ export type TLoginResponse = {
 export type TEnableTwoFactorResponse = {
     twoFactorSecret: string
 }
+
+export type TForgotPasswordResponse = {
+    message: string
+}

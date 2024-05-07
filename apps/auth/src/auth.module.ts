@@ -32,7 +32,7 @@ const providers: Provider[] = [
     ),
     UserModule,
     TokenModule,
-    MailerModule.forRoot()
+    MailerModule
   ],
   controllers: [AuthController],
   providers: [

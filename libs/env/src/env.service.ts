@@ -42,4 +42,12 @@ export class Env {
     get DB_NAME() {
         return this.configService.get<string>('DB_NAME');
     }
+
+    get MAILER_USERNAME() {
+        return this.configService.get<string>('MAILER_USERNAME');
+    }
+
+    get MAILER_PASSWORD() {
+        return this.configService.get<string>('MAILER_PASSWORD');
+    }
 }
