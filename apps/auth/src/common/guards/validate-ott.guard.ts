@@ -4,6 +4,7 @@ import { UserEntity, UserService } from "../../modules/user";
 import { AuthService } from "../../auth.service";
 import { ERROR_MESSAGE } from "@app/common";
 import { ResetPasswordDto } from "../dtos";
+import { OTT_KEY_NAME } from "../constants";
 
 @Injectable()
 export class ValidateOttGuard implements CanActivate {
@@ -22,7 +23,7 @@ export class ValidateOttGuard implements CanActivate {
         }
 
         const isMatch = await this.authService.validateOneTimeToken(
-            req.cookies?.['hashed-one-time-token'],
+            req.cookies?.[OTT_KEY_NAME],
             user.oneTimeToken
         );
         if (!isMatch) {

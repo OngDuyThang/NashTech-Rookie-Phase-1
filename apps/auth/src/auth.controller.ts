@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Post, Render, Req, Res, UseGuards, UseInterceptors, UsePipes } from '@nestjs/common';
+import { Body, Controller, Get, Patch, Post, Render, Req, Res, UseGuards, UseInterceptors, UsePipes } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { GetUser } from './common/decorators';
 import { HashPasswordPipe } from './common/pipes';
@@ -8,6 +8,7 @@ import { RegisterDto, UserEntity } from './modules/user';
 import { Request, Response } from 'express';
 import { TEnableTwoFactorResponse, TForgotPasswordResponse, TLoginResponse } from './common/types';
 import { ResetPasswordDto } from './common/dtos';
+import { OTT_KEY_NAME } from './common/constants';
 
 @Controller('auth')
 export class AuthController {
@@ -33,7 +34,7 @@ export class AuthController {
     return await this.authService.login(user, res);
   }
 
-  @Post('/enable-2fa')
+  @Patch('/enable-2fa')
   @UseGuards(AccessTokenGuard)
   async enableTwoFactor(
     @GetUser() user: UserEntity
@@ -41,7 +42,7 @@ export class AuthController {
     return await this.authService.enableTwoFactor(user.id);
   }
 
-  @Post('/disable-2fa')
+  @Patch('/disable-2fa')
   @UseGuards(AccessTokenGuard)
   async disableTwoFactor(
     @GetUser() user: UserEntity
@@ -67,13 +68,13 @@ export class AuthController {
 
   @Get('/reset-password')
   @UseGuards(UserExistGuard)
-  @Render('index')
+  @Render('reset-password')
   async resetPasswordForm(
     @GetUser() user: UserEntity,
     @Res({ passthrough: true }) res: Response
   ): Promise<void> {
     const hashedOneTimeToken = await this.authService.hashFingerprint(user.oneTimeToken)
-    res.cookie('hashed-one-time-token', hashedOneTimeToken, {
+    res.cookie(OTT_KEY_NAME, hashedOneTimeToken, {
       httpOnly: true,
       sameSite: true,
       secure: false,
@@ -82,7 +83,7 @@ export class AuthController {
     return
   }
 
-  @Post('/reset-password')
+  @Patch('/reset-password')
   @UseGuards(UserExistGuard, ValidateOttGuard)
   @UsePipes(HashPasswordPipe)
   async resetPassword(
@@ -91,4 +92,6 @@ export class AuthController {
     const { id, newPassword } = resetPasswordDto
     await this.authService.resetPassword(id, newPassword)
   }
+
+  // @Post('/google/callback')
 }
