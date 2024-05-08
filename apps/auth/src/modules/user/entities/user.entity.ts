@@ -1,5 +1,5 @@
 import { AbstractEntity } from "@app/database";
-import { IsArray, IsBoolean, IsEmail, IsNotEmpty, IsOptional, IsString, IsUUID, MaxLength, Validate, ValidateNested } from "class-validator";
+import { IsArray, IsBoolean, IsEmail, IsNotEmpty, IsOptional, IsString, IsUUID, MaxLength, ValidateNested } from "class-validator";
 import { Column, Entity, OneToMany } from "typeorm";
 import { UserAddressEntity } from "./user-address.entity";
 import { Type } from "class-transformer";
@@ -65,6 +65,11 @@ export class UserEntity extends AbstractEntity {
     @IsString()
     @IsOptional()
     twoFactorSecret?: string
+
+    @Column({ type: 'text', nullable: true })
+    @IsString()
+    @IsOptional()
+    oneTimeToken?: string
 
     @Column({ type: 'uuid', nullable: true })
     @IsUUID(4)

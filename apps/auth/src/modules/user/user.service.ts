@@ -70,4 +70,22 @@ export class UserService {
             twoFactorSecret: null
         });
     }
+
+    async updateOneTimeToken(
+        id: string,
+        token: string | null
+    ): Promise<void> {
+        await this.userRepository.update({ id }, {
+            oneTimeToken: token
+        });
+    }
+
+    async updatePassword(
+        id: string,
+        password: string
+    ): Promise<void> {
+        await this.userRepository.update({ id }, {
+            password
+        });
+    }
 }

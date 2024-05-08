@@ -1,16 +1,21 @@
 import {
   ForbiddenException,
+  Inject,
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
 import * as bcrypt from 'bcrypt';
-import { TEnableTwoFactorResponse, TJwtPayload, TLoginResponse } from './common/types';
+import * as crypto from 'crypto';
+import { TEnableTwoFactorResponse, TForgotPasswordResponse, TJwtPayload, TLoginResponse } from './common/types';
 import { Response } from 'express';
-import { ERROR_MESSAGE } from '@app/common';
+import { ERROR_MESSAGE, SUCCESS_MESSAGE } from '@app/common';
 import { RegisterDto, UserEntity, UserService } from './modules/user';
 import { authenticator } from 'otplib';
 import { TokenService } from './modules/token/token.service';
 import { Env } from '@app/env';
+import { Transporter } from 'nodemailer';
+import { MAILER_SERVICE } from '@app/mailer';
+import { resetPwMailTemplate } from './views';
 
 @Injectable()
 export class AuthService {
@@ -18,6 +23,8 @@ export class AuthService {
     private readonly userService: UserService,
     private readonly env: Env,
     private readonly tokenService: TokenService,
+    @Inject(MAILER_SERVICE)
+    private readonly mailerService: Transporter
   ) {}
 
   async register(
@@ -47,11 +54,11 @@ export class AuthService {
     }
   }
 
-  private generateFingerprint(): string {
-    return Math.random().toString(36).substring(2)
+  generateFingerprint(): string {
+    return crypto.randomBytes(32).toString("hex")
   }
 
-  private async hashFingerprint(
+  async hashFingerprint(
     fingerprint: string
   ): Promise<string> {
     try {
@@ -158,5 +165,52 @@ export class AuthService {
     } catch (e) {
       throw e;
     }
+  }
+
+  async forgotPassword(
+    id: string,
+    email: string
+  ): Promise<TForgotPasswordResponse> {
+
+    const oneTimeToken = this.generateFingerprint()
+    await this.userService.updateOneTimeToken(id, oneTimeToken)
+
+    const endpoint = `${this.env.RESET_PASSWORD_ENDPOINT}?id=${id}`
+
+    return new Promise((resolve) => {
+      this.mailerService.sendMail({
+        from: this.env.MAILER_USERNAME,
+        to: email,
+        subject: 'Forgot Password',
+        html: resetPwMailTemplate(endpoint)
+      },
+        (error, _info) => {
+          if (error) {
+            throw new NotFoundException(ERROR_MESSAGE.INVALID_EMAIL);
+          } else {
+            resolve({
+              message: SUCCESS_MESSAGE.EMAIL_SENT
+            })
+          }
+        })
+    })
+  }
+
+  async validateOneTimeToken(
+    hashedOneTimeToken: string,
+    oneTimeToken: string
+  ): Promise<boolean> {
+    try {
+      return await bcrypt.compare(oneTimeToken, hashedOneTimeToken);
+    } catch (e) {
+      throw e;
+    }
+  }
+
+  async resetPassword(
+    id: string,
+    newPassword: string
+  ): Promise<void> {
+    await this.userService.updatePassword(id, newPassword)
   }
 }

@@ -10,6 +10,7 @@ import { APP_FILTER } from '@nestjs/core';
 import { TokenModule } from './modules/token/token.module';
 import { AccessTokenStrategy, LocalAuthStrategy } from './common/strategies';
 import { EnvValidation } from './env.validation';
+import { MailerModule } from '@app/mailer';
 
 const providers: Provider[] = [
   {
@@ -30,7 +31,8 @@ const providers: Provider[] = [
       EnvValidation
     ),
     UserModule,
-    TokenModule
+    TokenModule,
+    MailerModule
   ],
   controllers: [AuthController],
   providers: [

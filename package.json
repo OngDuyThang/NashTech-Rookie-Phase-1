@@ -32,6 +32,7 @@
     "@nestjs/platform-express": "^10.0.0",
     "@nestjs/typeorm": "^10.0.2",
     "@types/bcrypt": "^5.0.2",
+    "@types/nodemailer": "^6.4.15",
     "@types/passport": "^1.0.16",
     "@types/passport-jwt": "^4.0.1",
     "@types/passport-local": "^1.0.38",
@@ -42,6 +43,8 @@
     "cookie-parser": "^1.4.6",
     "cross-env": "^7.0.3",
     "dotenv": "^16.4.5",
+    "hbs": "^4.2.0",
+    "nodemailer": "^6.9.13",
     "otplib": "^12.0.1",
     "passport": "^0.7.0",
     "passport-jwt": "^4.0.1",
@@ -100,7 +103,8 @@
       "^@app/db(|/.*)$": "<rootDir>/libs/db/src/$1",
       "^@app/database(|/.*)$": "<rootDir>/libs/database/src/$1",
       "^@app/env(|/.*)$": "<rootDir>/libs/env/src/$1",
-      "^@app/common(|/.*)$": "<rootDir>/libs/common/src/$1"
+      "^@app/common(|/.*)$": "<rootDir>/libs/common/src/$1",
+      "^@app/mailer(|/.*)$": "<rootDir>/libs/mailer/src/$1"
     }
   }
 }
