@@ -18,7 +18,7 @@ export class EnvModule {
         ConfigModule.forRoot({
           envFilePath: path,
           validate: (config: Record<string, unknown>) => {
-            return classValidate(validationClass, config)
+            return classValidate(validationClass, config, true)
           },
           isGlobal: true
         })

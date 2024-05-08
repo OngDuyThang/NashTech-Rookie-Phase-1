@@ -6,14 +6,19 @@ export const getEnvFilePath = (serviceName: string) => `./apps/${serviceName}/.e
 
 export const classValidate = <T = unknown>(
     validationClass: ClassConstructor<T>,
-    config: Record<string, unknown>
+    config: Record<string, unknown>,
+    isEnv = false
 ): T => {
     const object = plainToInstance(validationClass, config, {
         enableImplicitConversion: true
     }) as object
 
     const errors = validateSync(object, {
-        skipMissingProperties: false
+        skipMissingProperties: false,
+        ...(isEnv ? null : {
+            whitelist: true,
+            forbidNonWhitelisted: true
+        })
     })
 
     if (errors.length) {
@@ -25,6 +30,27 @@ export const classValidate = <T = unknown>(
             )
         }
         throw new BadRequestException(details)
+    }
+
+    return object as T
+}
+
+export const classValidateWithoutThrow = <T = unknown>(
+    validationClass: ClassConstructor<T>,
+    config: Record<string, unknown>
+): T | null => {
+    const object = plainToInstance(validationClass, config, {
+        enableImplicitConversion: true
+    }) as object
+
+    const errors = validateSync(object, {
+        skipMissingProperties: false,
+        whitelist: true,
+        forbidNonWhitelisted: true
+    })
+
+    if (errors.length) {
+        return null
     }
 
     return object as T

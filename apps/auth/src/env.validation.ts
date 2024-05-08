@@ -16,6 +16,10 @@ export class EnvValidation extends AbstractEnvValidation {
 
     @IsString()
     @IsNotEmpty()
+    RESET_PASSWORD_ENDPOINT: string
+
+    @IsString()
+    @IsNotEmpty()
     MAILER_USERNAME: string
 
     @IsString()

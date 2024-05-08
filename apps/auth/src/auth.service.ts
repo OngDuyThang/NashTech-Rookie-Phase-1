@@ -15,6 +15,7 @@ import { TokenService } from './modules/token/token.service';
 import { Env } from '@app/env';
 import { Transporter } from 'nodemailer';
 import { MAILER_SERVICE } from '@app/mailer';
+import { resetPwMailTemplate } from './views';
 
 @Injectable()
 export class AuthService {
@@ -53,11 +54,11 @@ export class AuthService {
     }
   }
 
-  private generateFingerprint(): string {
+  generateFingerprint(): string {
     return crypto.randomBytes(32).toString("hex")
   }
 
-  private async hashFingerprint(
+  async hashFingerprint(
     fingerprint: string
   ): Promise<string> {
     try {
@@ -167,16 +168,21 @@ export class AuthService {
   }
 
   async forgotPassword(
+    id: string,
     email: string
   ): Promise<TForgotPasswordResponse> {
-    const link = `http://localhost:3000/auth/reset-password?token=some-unhashed-token-here-then-hash-to-compare&id=user-id-here`
+
+    const oneTimeToken = this.generateFingerprint()
+    await this.userService.updateOneTimeToken(id, oneTimeToken)
+
+    const endpoint = `${this.env.RESET_PASSWORD_ENDPOINT}?id=${id}`
 
     return new Promise((resolve) => {
       this.mailerService.sendMail({
         from: this.env.MAILER_USERNAME,
         to: email,
         subject: 'Forgot Password',
-        html: `<p><a href='${link}'>Click here to reset password</a></p>`
+        html: resetPwMailTemplate(endpoint)
       },
         (error, _info) => {
           if (error) {
@@ -188,5 +194,23 @@ export class AuthService {
           }
         })
     })
+  }
+
+  async validateOneTimeToken(
+    hashedOneTimeToken: string,
+    oneTimeToken: string
+  ): Promise<boolean> {
+    try {
+      return await bcrypt.compare(oneTimeToken, hashedOneTimeToken);
+    } catch (e) {
+      throw e;
+    }
+  }
+
+  async resetPassword(
+    id: string,
+    newPassword: string
+  ): Promise<void> {
+    await this.userService.updatePassword(id, newPassword)
   }
 }

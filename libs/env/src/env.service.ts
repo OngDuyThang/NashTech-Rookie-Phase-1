@@ -23,6 +23,10 @@ export class Env {
         return this.configService.get<string>('VALIDATE_OTP_ENDPONT');
     }
 
+    get RESET_PASSWORD_ENDPOINT() {
+        return this.configService.get<string>('RESET_PASSWORD_ENDPOINT');
+    }
+
     get DB_HOST() {
         return this.configService.get<string>('DB_HOST');
     }

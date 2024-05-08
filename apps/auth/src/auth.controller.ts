@@ -1,12 +1,13 @@
-import { Body, Controller, Get, Post, Query, Render, Req, Res, UseGuards, UseInterceptors, UsePipes } from '@nestjs/common';
+import { Body, Controller, Get, Post, Render, Req, Res, UseGuards, UseInterceptors, UsePipes } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { GetUser } from './common/decorators';
 import { HashPasswordPipe } from './common/pipes';
 import { HideSensitiveInterceptor } from './common/interceptors';
-import { AccessTokenGuard, LocalAuthGuard, ValidateOtpGuard, ForgotPasswordGuard } from './common/guards';
+import { AccessTokenGuard, LocalAuthGuard, ValidateOtpGuard, ForgotPasswordGuard, UserExistGuard, ValidateOttGuard } from './common/guards';
 import { RegisterDto, UserEntity } from './modules/user';
 import { Request, Response } from 'express';
 import { TEnableTwoFactorResponse, TForgotPasswordResponse, TLoginResponse } from './common/types';
+import { ResetPasswordDto } from './common/dtos';
 
 @Controller('auth')
 export class AuthController {
@@ -52,31 +53,42 @@ export class AuthController {
   @UseGuards(ValidateOtpGuard)
   validateOtp(
     @Req() req: Request
-  ): Promise<TLoginResponse> {
-    return req.user as any
+  ): TLoginResponse {
+    return req.user as TLoginResponse
   }
 
   @Post('/forgot-password')
   @UseGuards(ForgotPasswordGuard)
-  async forgotPassword(
-    @GetUser() user: UserEntity
-  ): Promise<TForgotPasswordResponse> {
-    return await this.authService.forgotPassword(user.email)
+  forgotPassword(
+    @Req() req: Request
+  ): TForgotPasswordResponse {
+    return req.user as TForgotPasswordResponse
   }
 
-  // Implement with front end page to reset password
   @Get('/reset-password')
+  @UseGuards(UserExistGuard)
   @Render('index')
-  resetPasswordForm(
-    @Query() query: any
-  ) {
-    return {}
+  async resetPasswordForm(
+    @GetUser() user: UserEntity,
+    @Res({ passthrough: true }) res: Response
+  ): Promise<void> {
+    const hashedOneTimeToken = await this.authService.hashFingerprint(user.oneTimeToken)
+    res.cookie('hashed-one-time-token', hashedOneTimeToken, {
+      httpOnly: true,
+      sameSite: true,
+      secure: false,
+      maxAge: 10 * 60 * 1000, // 10 minutes
+    })
+    return
   }
 
   @Post('/reset-password')
-  resetPassword(
-    @Query() query: any
-  ) {
-    console.log(query)
+  @UseGuards(UserExistGuard, ValidateOttGuard)
+  @UsePipes(HashPasswordPipe)
+  async resetPassword(
+    @Body() resetPasswordDto: ResetPasswordDto
+  ): Promise<void> {
+    const { id, newPassword } = resetPasswordDto
+    await this.authService.resetPassword(id, newPassword)
   }
 }
