@@ -1,4 +1,9 @@
-export enum SUCCESS_CODE {}
+export enum SUCCESS_CODE {
+    OK = 200,
+    CREATED = 201,
+    ACCEPTED = 202,
+    NO_CONTENT = 204
+}
 
 export enum ERROR_CODE {
     INTERNAL_SERVER_ERROR = 500,
@@ -15,5 +20,6 @@ export enum ERROR_CODE {
     INVALID_CREDENTIAL = 404,
     INVALID_OTP = 403,
     INVALID_AUTHORIZATION = 401,
-    USER_NOT_EXIST = 404
+    USER_NOT_EXIST = 404,
+    INVALID_EMAIL = 404
 }

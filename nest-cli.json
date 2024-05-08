@@ -3,7 +3,7 @@
   "collection": "@nestjs/schematics",
   "compilerOptions": {
     "deleteOutDir": true,
-    "webpack": true
+    "webpack": false
   },
   "monorepo": true,
   "projects": {
@@ -13,7 +13,10 @@
       "entryFile": "main",
       "sourceRoot": "apps/auth/src",
       "compilerOptions": {
-        "tsConfigPath": "apps/auth/tsconfig.app.json"
+        "tsConfigPath": "apps/auth/tsconfig.app.json",
+        "assets": [
+          {"include": "**/*.hbs", "watchAssets": true, "outDir": "dist/apps/auth"}
+        ]
       }
     },
     "database": {
@@ -41,6 +44,15 @@
       "sourceRoot": "libs/common/src",
       "compilerOptions": {
         "tsConfigPath": "libs/common/tsconfig.lib.json"
+      }
+    },
+    "mailer": {
+      "type": "library",
+      "root": "libs/mailer",
+      "entryFile": "index",
+      "sourceRoot": "libs/mailer/src",
+      "compilerOptions": {
+        "tsConfigPath": "libs/mailer/tsconfig.lib.json"
       }
     }
   }

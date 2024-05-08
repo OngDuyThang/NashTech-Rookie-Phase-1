@@ -1,11 +1,11 @@
 import { Injectable } from '@nestjs/common';
 import { UserEntity } from '../user';
-import { TJwtPayload } from '../../common/types';
+import { TJwtPayload, TLoginResponse } from '../../common/types';
 import { Response, CookieOptions } from 'express';
-import { NODE_ENV } from '@app/common';
+import { NODE_ENV, SUCCESS_CODE } from '@app/common';
 import { Env } from '@app/env';
 import { JwtService } from '@nestjs/jwt';
-import { COOKIE_KEY } from '../../common/enums';
+import { TOKEN_KEY_NAME } from '../../common/enums';
 
 @Injectable()
 export class TokenService {
@@ -15,17 +15,19 @@ export class TokenService {
   ) {}
 
   generateTokenPayload(
-    user: UserEntity
+    user: UserEntity,
+    hashedFingerprint: string
   ): TJwtPayload {
     const { id, username, email } = user;
     return {
       id,
       username,
       email,
+      fingerprint: hashedFingerprint
     };
   }
 
-  generateTokens(
+  generateToken(
     payload: TJwtPayload,
     secret: string,
     expiresIn: string,
@@ -39,16 +41,20 @@ export class TokenService {
   sendTokens(
     accessToken: string,
     refreshToken: string,
+    originalFingerprint: string | undefined,
     res: Response
-  ): void {
+  ): TLoginResponse {
     const options: CookieOptions = {
       httpOnly: true,
       sameSite: 'none',
       secure: this.env.NODE_ENV == NODE_ENV.DEVELOPMENT ? false : true,
       maxAge: 24 * 60 * 60 * 1000,
     };
+    res.cookie(TOKEN_KEY_NAME.REFRESH_TOKEN, refreshToken, options);
+    res.cookie('fingerprint', originalFingerprint, options)
 
-    res.cookie(COOKIE_KEY.ACCESS_TOKEN, accessToken, options);
-    res.cookie(COOKIE_KEY.REFRESH_TOKEN, refreshToken, options);
+    return {
+      [TOKEN_KEY_NAME.ACCESS_TOKEN]: accessToken,
+    }
   }
 }

@@ -1,9 +1,9 @@
 {
   "extends": "../../tsconfig.json",
-  "compilerOptions": {
-    "declaration": false,
-    "outDir": "../../dist/apps/auth"
-  },
+  // "compilerOptions": {
+  //   "declaration": false,
+  //   "outDir": "../../dist/apps/auth"
+  // },
   "exclude": [
     "node_modules",
     "dist",
