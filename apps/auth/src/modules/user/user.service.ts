@@ -55,8 +55,8 @@ export class UserService {
     ): Promise<TEnableTwoFactorResponse> {
         const secret = authenticator.generateSecret()
         await this.userRepository.update({ id }, {
-            enableTwoFactor: true,
-            twoFactorSecret: secret
+            enable_two_factor: true,
+            two_factor_secret: secret
         });
         return {
             twoFactorSecret: secret
@@ -67,8 +67,8 @@ export class UserService {
         id: string
     ): Promise<void> {
         await this.userRepository.update({ id }, {
-            enableTwoFactor: false,
-            twoFactorSecret: null
+            enable_two_factor: false,
+            two_factor_secret: null
         });
     }
 
@@ -77,7 +77,7 @@ export class UserService {
         token: string | null
     ): Promise<void> {
         await this.userRepository.update({ id }, {
-            oneTimeToken: token
+            one_time_token: token
         });
     }
 
@@ -90,12 +90,25 @@ export class UserService {
         });
     }
 
+    async validateExistEmail(
+        email: string
+    ): Promise<UserEntity | null> {
+        try {
+            return await this.userRepository.findOne({ where: { email } });
+        } catch (e) {
+            if (e instanceof NotFoundException) {
+                return null;
+            }
+            throw e;
+        }
+    }
+
     async setOpenIDProvider(
         email: string,
         provider: OPEN_ID_PROVIDER
     ): Promise<void> {
         await this.userRepository.update({ email }, {
-            openIDProvider: provider
+            openID_provider: provider
         });
     }
 }

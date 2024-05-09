@@ -3,7 +3,7 @@ import { AuthService } from './auth.service';
 import { GetUser } from './common/decorators';
 import { HashPasswordPipe } from './common/pipes';
 import { HideSensitiveInterceptor } from './common/interceptors';
-import { AccessTokenGuard, LocalAuthGuard, ValidateOtpGuard, ForgotPasswordGuard, UserExistGuard, ValidateOttGuard, GoogleAuthGuard, IdTokenGuard } from './common/guards';
+import { AccessTokenGuard, LocalAuthGuard, ValidateOtpGuard, ForgotPasswordGuard, ResetPasswordGuard, ValidateOttGuard, GoogleAuthGuard, IdTokenGuard } from './common/guards';
 import { RegisterDto, UserEntity } from './modules/user';
 import { Request, Response } from 'express';
 import { TEnableTwoFactorResponse, TForgotPasswordResponse, TLoginResponse } from './common/types';
@@ -67,13 +67,13 @@ export class AuthController {
   }
 
   @Get('/reset-password')
-  @UseGuards(UserExistGuard)
+  @UseGuards(ResetPasswordGuard)
   @Render('reset-password')
   async resetPasswordForm(
     @GetUser() user: UserEntity,
     @Res({ passthrough: true }) res: Response
   ): Promise<void> {
-    const hashedOneTimeToken = await this.authService.hashFingerprint(user.oneTimeToken)
+    const hashedOneTimeToken = await this.authService.hashFingerprint(user.one_time_token)
     res.cookie(TOKEN_KEY_NAME.ONE_TIME_TOKEN, hashedOneTimeToken, {
       httpOnly: true,
       sameSite: true,
@@ -84,13 +84,13 @@ export class AuthController {
   }
 
   @Patch('/reset-password')
-  @UseGuards(UserExistGuard, ValidateOttGuard)
+  @UseGuards(ResetPasswordGuard, ValidateOttGuard)
   @UsePipes(HashPasswordPipe)
   async resetPassword(
     @Body() resetPasswordDto: ResetPasswordDto
   ): Promise<void> {
-    const { id, newPassword } = resetPasswordDto
-    await this.authService.resetPassword(id, newPassword)
+    const { userId, newPassword } = resetPasswordDto
+    await this.authService.resetPassword(userId, newPassword)
   }
 
   @Get('/google')
@@ -103,7 +103,7 @@ export class AuthController {
     @Req() req: Request
   ) {
     const googleEmail = req.user as string
-    this.authService.googleRedirect(googleEmail, OPEN_ID_PROVIDER.google)
+    // this.authService.googleRedirect(googleEmail, OPEN_ID_PROVIDER.google)
     // this.authService.sendGoogleIdToken(googleEmail, res)
   }
 

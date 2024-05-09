@@ -25,7 +25,7 @@ export class ValidateOttGuard implements CanActivate {
         const hashedOneTimeToken = req.cookies?.[TOKEN_KEY_NAME.ONE_TIME_TOKEN]
         const isMatch = await this.authService.validateOneTimeToken(
             hashedOneTimeToken,
-            user.oneTimeToken
+            user.one_time_token
         );
         if (!isMatch) {
             throw new ForbiddenException(ERROR_MESSAGE.UNAUTHORIZED)

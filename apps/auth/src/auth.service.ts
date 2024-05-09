@@ -101,7 +101,7 @@ export class AuthService {
     user: UserEntity,
     res: Response
   ): Promise<TLoginResponse> {
-    if (user.enableTwoFactor) {
+    if (user.enable_two_factor) {
       return {
         validateOtpEndpoint: this.env.VALIDATE_OTP_ENDPONT,
         userId: user.id,
@@ -117,9 +117,9 @@ export class AuthService {
     try {
       const user = await this.userService.findOneById(userId)
 
-      if (user.enableTwoFactor && user.twoFactorSecret) {
+      if (user.enable_two_factor && user.two_factor_secret) {
         return {
-          twoFactorSecret: user.twoFactorSecret
+          twoFactorSecret: user.two_factor_secret
         }
       }
 
@@ -145,13 +145,13 @@ export class AuthService {
   ): Promise<TLoginResponse> {
     try {
       const user = await this.userService.findOneById(userId);
-      if (!user.enableTwoFactor) {
+      if (!user.enable_two_factor) {
         throw new MethodNotAllowedException(ERROR_MESSAGE.METHOD_NOT_ALLOWED);
       }
 
       const isValid = authenticator.verify({
         token: otp,
-        secret: user.twoFactorSecret,
+        secret: user.two_factor_secret,
       });
 
       if (!isValid) {
@@ -165,35 +165,31 @@ export class AuthService {
   }
 
   async forgotPassword(
-    id: string,
+    userId: string,
     email: string
   ): Promise<TForgotPasswordResponse> {
     const oneTimeToken = this.generateFingerprint()
-    await this.userService.updateOneTimeToken(id, oneTimeToken)
+    await this.userService.updateOneTimeToken(userId, oneTimeToken)
 
-    const endpoint = `${this.env.RESET_PASSWORD_ENDPOINT}?id=${id}`
+    const endpoint = `${this.env.RESET_PASSWORD_ENDPOINT}?id=${userId}`
 
-    try {
-      return new Promise((resolve) => {
-        this.mailerService.sendMail({
-          from: this.env.MAILER_USERNAME,
-          to: email,
-          subject: 'Forgot Password',
-          html: resetPwMailTemplate(endpoint)
-        },
-          (error, _info) => {
-            if (error) {
-              throw new NotFoundException(ERROR_MESSAGE.INVALID_EMAIL);
-            } else {
-              resolve({
-                message: SUCCESS_MESSAGE.EMAIL_SENT
-              })
-            }
-          })
-      })
-    } catch (e) {
-      throw e
-    }
+    return new Promise((resolve) => {
+      this.mailerService.sendMail({
+        from: this.env.MAILER_USERNAME,
+        to: email,
+        subject: 'Forgot Password',
+        html: resetPwMailTemplate(endpoint)
+      },
+        (error, _info) => {
+          if (error) {
+            throw new NotFoundException(ERROR_MESSAGE.INVALID_EMAIL);
+          } else {
+            resolve({
+              message: SUCCESS_MESSAGE.EMAIL_SENT
+            })
+          }
+        })
+    })
   }
 
   async validateOneTimeToken(
@@ -211,10 +207,10 @@ export class AuthService {
   }
 
   async resetPassword(
-    id: string,
+    userId: string,
     newPassword: string
   ): Promise<void> {
-    await this.userService.updatePassword(id, newPassword)
+    await this.userService.updatePassword(userId, newPassword)
   }
 
   sendGoogleIdToken(
@@ -242,13 +238,20 @@ export class AuthService {
     }
   }
 
-  async googleRedirect(
-    email: string,
-    provider: OPEN_ID_PROVIDER
+  async loginWithGoogle(
+    email: string
   ): Promise<void> {
+    const user = await this.userService.validateExistEmail(email);
+    if (user) {
+      // throw new ConflictException(ERROR_MESSAGE.CONFLICT)
+      if (user.openID_provider) {
+
+      }
+    }
+
     await this.userService.setOpenIDProvider(
       email,
-      provider
+      OPEN_ID_PROVIDER.google
     )
   }
 }

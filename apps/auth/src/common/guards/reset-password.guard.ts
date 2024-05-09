@@ -5,7 +5,7 @@ import { classValidate } from "@app/common";
 import { ResetPasswordDto } from "../dtos";
 
 @Injectable()
-export class UserExistGuard implements CanActivate {
+export class ResetPasswordGuard implements CanActivate {
     constructor(
         private readonly userService: UserService
     ) {}

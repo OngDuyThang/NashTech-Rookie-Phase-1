@@ -3,7 +3,7 @@ import { IsNotEmpty, IsOptional, IsString, IsUUID, Matches } from "class-validat
 export class ResetPasswordDto {
     @IsUUID(4)
     @IsNotEmpty()
-    id: string
+    userId: string
 
     @IsString()
     @IsOptional()

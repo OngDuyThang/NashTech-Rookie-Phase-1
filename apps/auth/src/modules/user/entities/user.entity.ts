@@ -65,25 +65,25 @@ export class UserEntity extends AbstractEntity {
     @Column({ type: 'varchar', length: 20, nullable: true })
     @IsEnum(OPEN_ID_PROVIDER)
     @IsOptional()
-    openIDProvider?: OPEN_ID_PROVIDER
+    openID_provider?: OPEN_ID_PROVIDER
 
     @Column({ type: 'boolean', default: false })
     @IsBoolean()
     @IsOptional()
-    enableTwoFactor?: boolean
+    enable_two_factor?: boolean
 
     @Column({ type: 'text', nullable: true })
     @IsString()
     @IsOptional()
-    twoFactorSecret?: string
+    two_factor_secret?: string
 
     @Column({ type: 'text', nullable: true })
     @IsString()
     @IsOptional()
-    oneTimeToken?: string
+    one_time_token?: string
 
     @Column({ type: 'uuid', nullable: true })
     @IsUUID(4)
     @IsOptional()
-    apiKey?: string
+    api_key?: string
 }

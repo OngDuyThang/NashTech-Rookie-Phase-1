@@ -6,7 +6,7 @@ import { Strategy, VerifyCallback } from "passport-google-oauth2";
 @Injectable()
 export class GoogleAuthStrategy extends PassportStrategy(Strategy) {
     constructor(
-        private readonly env: Env,
+        private readonly env: Env
     ) {
         super({
             clientID: env.GOOGLE_CLIENT_ID,
@@ -14,7 +14,7 @@ export class GoogleAuthStrategy extends PassportStrategy(Strategy) {
             callbackURL: env.GOOGLE_CALLBACK_URL,
             passReqToCallback: true,
             scope: ['profile', 'email'],
-        }, (
+        }, async (
             _req: Request,
             _accessToken: string,
             _refreshToken: string,
