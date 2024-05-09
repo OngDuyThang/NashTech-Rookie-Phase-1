@@ -2,10 +2,10 @@ import { Injectable } from '@nestjs/common';
 import { UserEntity } from '../user';
 import { TJwtPayload, TLoginResponse } from '../../common/types';
 import { Response, CookieOptions } from 'express';
-import { NODE_ENV, SUCCESS_CODE } from '@app/common';
+import { NODE_ENV } from '@app/common';
 import { Env } from '@app/env';
 import { JwtService } from '@nestjs/jwt';
-import { TOKEN_KEY_NAME } from '../../common/enums';
+import { TOKEN_EXPIRY_TIME, TOKEN_KEY_NAME } from '../../common/enums';
 
 @Injectable()
 export class TokenService {
@@ -30,7 +30,7 @@ export class TokenService {
   generateToken(
     payload: TJwtPayload,
     secret: string,
-    expiresIn: string,
+    expiresIn: string | number,
   ): string {
     return this.jwtService.sign(payload, {
       secret,
@@ -48,10 +48,15 @@ export class TokenService {
       httpOnly: true,
       sameSite: 'none',
       secure: this.env.NODE_ENV == NODE_ENV.DEVELOPMENT ? false : true,
-      maxAge: 24 * 60 * 60 * 1000,
     };
-    res.cookie(TOKEN_KEY_NAME.REFRESH_TOKEN, refreshToken, options);
-    res.cookie('fingerprint', originalFingerprint, options)
+    res.cookie(TOKEN_KEY_NAME.REFRESH_TOKEN, refreshToken, {
+      ...options,
+      maxAge: TOKEN_EXPIRY_TIME.REFRESH_TOKEN
+    });
+    res.cookie(TOKEN_KEY_NAME.FINGERPRINT, originalFingerprint, {
+      ...options,
+      maxAge: TOKEN_EXPIRY_TIME.ACCESS_TOKEN // fingerprint inside cookie combine with access token, so equal expiry time
+    })
 
     return {
       [TOKEN_KEY_NAME.ACCESS_TOKEN]: accessToken,

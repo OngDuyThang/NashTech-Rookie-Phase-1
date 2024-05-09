@@ -16,9 +16,13 @@ import { Env } from '@app/env';
 import { Transporter } from 'nodemailer';
 import { MAILER_SERVICE } from '@app/mailer';
 import { resetPwMailTemplate } from './views';
+import { OAuth2Client } from 'google-auth-library'
+import { TOKEN_EXPIRY_TIME } from './common/enums';
 
 @Injectable()
 export class AuthService {
+  private readonly googleOAuthClient = new OAuth2Client();
+
   constructor(
     private readonly userService: UserService,
     private readonly env: Env,
@@ -74,10 +78,10 @@ export class AuthService {
     originalFingerprint: string,
     res: Response
   ): TLoginResponse {
-    const accessToken = this.tokenService.generateToken(jwtPayload, this.env.ACCESS_TOKEN_SECRET, '1d');
+    const accessToken = this.tokenService.generateToken(jwtPayload, this.env.ACCESS_TOKEN_SECRET, TOKEN_EXPIRY_TIME.ACCESS_TOKEN);
 
     delete jwtPayload.fingerprint
-    const refreshToken = this.tokenService.generateToken(jwtPayload, this.env.REFRESH_TOKEN_SECRET, '1d');
+    const refreshToken = this.tokenService.generateToken(jwtPayload, this.env.REFRESH_TOKEN_SECRET, TOKEN_EXPIRY_TIME.REFRESH_TOKEN);
 
     return this.tokenService.sendTokens(accessToken, refreshToken, originalFingerprint, res);
   }
@@ -212,5 +216,25 @@ export class AuthService {
     newPassword: string
   ): Promise<void> {
     await this.userService.updatePassword(id, newPassword)
+  }
+
+  //
+
+  async validateGoogleIdToken(
+    idToken: string
+  ): Promise<void> {
+    try {
+      const ticket = await this.googleOAuthClient.verifyIdToken({
+        idToken,
+        audience: this.env.GOOGLE_CLIENT_ID,
+      });
+      const payload = ticket.getPayload();
+      const userId = payload['sub'];
+
+      console.log('payload: ', payload)
+      console.log('userId: ', userId)
+    } catch (e) {
+      throw e
+    }
   }
 }

@@ -22,6 +22,10 @@ export const classValidate = <T = unknown>(
     })
 
     if (errors.length) {
+        if (isEnv) {
+            throw new Error(errors.map(error => error.toString()).join("\n"))
+        }
+
         let details = []
         for (let i = 0; i < errors.length; i++) {
             const error = errors[i]

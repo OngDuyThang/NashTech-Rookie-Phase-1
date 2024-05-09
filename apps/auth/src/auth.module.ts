@@ -4,11 +4,11 @@ import { AuthService } from './auth.service';
 import { DatabaseModule } from '@app/database';
 import { dataSourceOptions } from '../database/data-source';
 import { EnvModule } from '@app/env';
-import { HttpExceptionFilter, TypeORMExceptionFilter, getEnvFilePath } from '@app/common';
+import { ErrorInstanceFilter, HttpExceptionFilter, TypeORMExceptionFilter, getEnvFilePath } from '@app/common';
 import { UserModule } from './modules/user/user.module';
 import { APP_FILTER } from '@nestjs/core';
 import { TokenModule } from './modules/token/token.module';
-import { AccessTokenStrategy, LocalAuthStrategy } from './common/strategies';
+import { AccessTokenStrategy, GoogleAuthStrategy, LocalAuthStrategy } from './common/strategies';
 import { EnvValidation } from './env.validation';
 import { MailerModule } from '@app/mailer';
 
@@ -20,6 +20,10 @@ const providers: Provider[] = [
   {
     provide: APP_FILTER,
     useClass: TypeORMExceptionFilter
+  },
+  {
+    provide: APP_FILTER,
+    useClass: ErrorInstanceFilter
   }
 ]
 
@@ -40,6 +44,7 @@ const providers: Provider[] = [
     Logger,
     LocalAuthStrategy,
     AccessTokenStrategy,
+    GoogleAuthStrategy,
     ...providers
   ],
 })
