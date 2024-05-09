@@ -7,6 +7,7 @@ import { ERROR_MESSAGE } from "@app/common";
 import { Request } from "express";
 import { UserEntity, UserService } from "../../modules/user";
 import * as bcrypt from 'bcrypt';
+import { TOKEN_KEY_NAME } from "../enums";
 
 @Injectable()
 export class AccessTokenStrategy extends PassportStrategy(Strategy) {
@@ -31,7 +32,7 @@ export class AccessTokenStrategy extends PassportStrategy(Strategy) {
         if (!Object.keys(payload).length)
             throw error
 
-        const originalFingerprint = req.cookies?.fingerprint
+        const originalFingerprint = req.cookies?.[TOKEN_KEY_NAME.FINGERPRINT]
         const { id, fingerprint: hashedFingerprint } = payload
 
         try {

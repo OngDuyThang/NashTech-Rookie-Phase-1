@@ -1,8 +1,10 @@
+import { TOKEN_KEY_NAME } from "../enums"
+
 export type TLoginResponse = {
     validateOtpEndpoint: string,
     userId: string
 } | {
-    'access-token': string
+    [TOKEN_KEY_NAME.ACCESS_TOKEN]: string
 }
 
 export type TEnableTwoFactorResponse = {

@@ -7,26 +7,6 @@ export class Env {
         private readonly configService: ConfigService
     ) {}
 
-    get NODE_ENV() {
-        return this.configService.get<string>('NODE_ENV');
-    }
-
-    get ACCESS_TOKEN_SECRET() {
-        return this.configService.get<string>('ACCESS_TOKEN_SECRET');
-    }
-
-    get REFRESH_TOKEN_SECRET() {
-        return this.configService.get<string>('REFRESH_TOKEN_SECRET');
-    }
-
-    get VALIDATE_OTP_ENDPONT() {
-        return this.configService.get<string>('VALIDATE_OTP_ENDPONT');
-    }
-
-    get RESET_PASSWORD_ENDPOINT() {
-        return this.configService.get<string>('RESET_PASSWORD_ENDPOINT');
-    }
-
     get DB_HOST() {
         return this.configService.get<string>('DB_HOST');
     }
@@ -53,5 +33,41 @@ export class Env {
 
     get MAILER_PASSWORD() {
         return this.configService.get<string>('MAILER_PASSWORD');
+    }
+
+    get NODE_ENV() {
+        return this.configService.get<string>('NODE_ENV');
+    }
+
+    get ACCESS_TOKEN_SECRET() {
+        return this.configService.get<string>('ACCESS_TOKEN_SECRET');
+    }
+
+    get REFRESH_TOKEN_SECRET() {
+        return this.configService.get<string>('REFRESH_TOKEN_SECRET');
+    }
+
+    get VALIDATE_OTP_ENDPONT() {
+        return this.configService.get<string>('VALIDATE_OTP_ENDPONT');
+    }
+
+    get RESET_PASSWORD_ENDPOINT() {
+        return this.configService.get<string>('RESET_PASSWORD_ENDPOINT');
+    }
+
+    get GOOGLE_CLIENT_ID() {
+        return this.configService.get<string>('GOOGLE_CLIENT_ID');
+    }
+
+    get GOOGLE_CLIENT_SECRET() {
+        return this.configService.get<string>('GOOGLE_CLIENT_SECRET');
+    }
+
+    get GOOGLE_CALLBACK_URL() {
+        return this.configService.get<string>('GOOGLE_CALLBACK_URL');
+    }
+
+    get GOOGLE_ISSUER() {
+        return this.configService.get<string>('GOOGLE_ISSUER');
     }
 }

@@ -3,12 +3,12 @@ import { AuthService } from './auth.service';
 import { GetUser } from './common/decorators';
 import { HashPasswordPipe } from './common/pipes';
 import { HideSensitiveInterceptor } from './common/interceptors';
-import { AccessTokenGuard, LocalAuthGuard, ValidateOtpGuard, ForgotPasswordGuard, UserExistGuard, ValidateOttGuard } from './common/guards';
+import { AccessTokenGuard, LocalAuthGuard, ValidateOtpGuard, ForgotPasswordGuard, UserExistGuard, ValidateOttGuard, GoogleAuthGuard } from './common/guards';
 import { RegisterDto, UserEntity } from './modules/user';
 import { Request, Response } from 'express';
 import { TEnableTwoFactorResponse, TForgotPasswordResponse, TLoginResponse } from './common/types';
 import { ResetPasswordDto } from './common/dtos';
-import { OTT_KEY_NAME } from './common/constants';
+import { TOKEN_KEY_NAME } from './common/enums';
 
 @Controller('auth')
 export class AuthController {
@@ -74,7 +74,7 @@ export class AuthController {
     @Res({ passthrough: true }) res: Response
   ): Promise<void> {
     const hashedOneTimeToken = await this.authService.hashFingerprint(user.oneTimeToken)
-    res.cookie(OTT_KEY_NAME, hashedOneTimeToken, {
+    res.cookie(TOKEN_KEY_NAME.ONE_TIME_TOKEN, hashedOneTimeToken, {
       httpOnly: true,
       sameSite: true,
       secure: false,
@@ -93,5 +93,13 @@ export class AuthController {
     await this.authService.resetPassword(id, newPassword)
   }
 
-  // @Post('/google/callback')
+  @Get('/google')
+  @UseGuards(GoogleAuthGuard)
+  testgoogle() {}
+
+  @Get('/google/callback')
+  @UseGuards(GoogleAuthGuard)
+  testgoogle2() {
+    return 'google callback'
+  }
 }

@@ -25,4 +25,20 @@ export class EnvValidation extends AbstractEnvValidation {
     @IsString()
     @IsNotEmpty()
     MAILER_PASSWORD: string
+
+    @IsString()
+    @IsNotEmpty()
+    GOOGLE_CLIENT_ID: string
+
+    @IsString()
+    @IsNotEmpty()
+    GOOGLE_CLIENT_SECRET: string
+
+    @IsString()
+    @IsNotEmpty()
+    GOOGLE_CALLBACK_URL: string
+
+    @IsString()
+    @IsNotEmpty()
+    GOOGLE_ISSUER: string
 }

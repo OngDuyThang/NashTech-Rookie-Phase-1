@@ -1,1 +1,0 @@
-export const OTT_KEY_NAME = 'hashed-one-time-token'
