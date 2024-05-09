@@ -3,12 +3,12 @@ import { AuthService } from './auth.service';
 import { GetUser } from './common/decorators';
 import { HashPasswordPipe } from './common/pipes';
 import { HideSensitiveInterceptor } from './common/interceptors';
-import { AccessTokenGuard, LocalAuthGuard, ValidateOtpGuard, ForgotPasswordGuard, UserExistGuard, ValidateOttGuard, GoogleAuthGuard } from './common/guards';
+import { AccessTokenGuard, LocalAuthGuard, ValidateOtpGuard, ForgotPasswordGuard, UserExistGuard, ValidateOttGuard, GoogleAuthGuard, IdTokenGuard } from './common/guards';
 import { RegisterDto, UserEntity } from './modules/user';
 import { Request, Response } from 'express';
 import { TEnableTwoFactorResponse, TForgotPasswordResponse, TLoginResponse } from './common/types';
 import { ResetPasswordDto } from './common/dtos';
-import { TOKEN_KEY_NAME } from './common/enums';
+import { OPEN_ID_PROVIDER, TOKEN_KEY_NAME } from './common/enums';
 
 @Controller('auth')
 export class AuthController {
@@ -95,11 +95,23 @@ export class AuthController {
 
   @Get('/google')
   @UseGuards(GoogleAuthGuard)
-  testgoogle() {}
+  loginWithGoogle() {}
 
   @Get('/google/callback')
   @UseGuards(GoogleAuthGuard)
-  testgoogle2() {
-    return 'google callback'
+  googleRedirect(
+    @Req() req: Request
+  ) {
+    const googleEmail = req.user as string
+    this.authService.googleRedirect(googleEmail, OPEN_ID_PROVIDER.google)
+    // this.authService.sendGoogleIdToken(googleEmail, res)
+  }
+
+  @Get('/something')
+  @UseGuards(IdTokenGuard)
+  something(
+    @Req() req: Request,
+  ) {
+    console.log(req.cookies)
   }
 }

@@ -29,11 +29,15 @@ export class AccessTokenStrategy extends PassportStrategy(Strategy) {
     ): Promise<UserEntity> {
         const error = new UnauthorizedException(ERROR_MESSAGE.USER_UNAUTHORIZED)
 
-        if (!Object.keys(payload).length)
+        if (!Object.keys(payload).length) {
             throw error
+        }
 
         const originalFingerprint = req.cookies?.[TOKEN_KEY_NAME.FINGERPRINT]
         const { id, fingerprint: hashedFingerprint } = payload
+        if (!originalFingerprint || !hashedFingerprint) {
+            throw error
+        }
 
         try {
             const user = await this.userService.findOneById(id)

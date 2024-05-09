@@ -1,7 +1,6 @@
 export * from './utils/helpers'
 export * from './filters/http-exception.filter'
 export * from './filters/typeorm-exception.filter'
-export * from './filters/error-instance.filter'
 export * from './enums/node-env'
 export * from './enums/messages'
 export * from './enums/codes'

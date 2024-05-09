@@ -2,6 +2,7 @@ import {
   ForbiddenException,
   Inject,
   Injectable,
+  MethodNotAllowedException,
   NotFoundException,
 } from '@nestjs/common';
 import * as bcrypt from 'bcrypt';
@@ -11,13 +12,13 @@ import { Response } from 'express';
 import { ERROR_MESSAGE, SUCCESS_MESSAGE } from '@app/common';
 import { RegisterDto, UserEntity, UserService } from './modules/user';
 import { authenticator } from 'otplib';
-import { TokenService } from './modules/token/token.service';
+import { TokenService } from './modules/token';
 import { Env } from '@app/env';
 import { Transporter } from 'nodemailer';
 import { MAILER_SERVICE } from '@app/mailer';
 import { resetPwMailTemplate } from './views';
 import { OAuth2Client } from 'google-auth-library'
-import { TOKEN_EXPIRY_TIME } from './common/enums';
+import { OPEN_ID_PROVIDER, TOKEN_EXPIRY_TIME } from './common/enums';
 
 @Injectable()
 export class AuthService {
@@ -41,6 +42,9 @@ export class AuthService {
     usernameOrEmail: string,
     password: string,
   ): Promise<UserEntity> {
+    if (!usernameOrEmail || !password) {
+      throw new NotFoundException(ERROR_MESSAGE.INVALID_CREDENTIAL);
+    }
     try {
       const user = await this.userService.findOne(usernameOrEmail);
       const isMatch = await bcrypt.compare(password, user.password);
@@ -73,25 +77,30 @@ export class AuthService {
     }
   }
 
-  private authenticated(
-    jwtPayload: TJwtPayload,
-    originalFingerprint: string,
+  private async authenticated(
+    user: UserEntity,
     res: Response
-  ): TLoginResponse {
+  ): Promise<TLoginResponse> {
+    const fingerprint = this.generateFingerprint()
+    const hashedFingerprint = await this.hashFingerprint(fingerprint)
+
+    const jwtPayload: TJwtPayload = this.tokenService.generateTokenPayload(
+      user,
+      hashedFingerprint
+    )
+
     const accessToken = this.tokenService.generateToken(jwtPayload, this.env.ACCESS_TOKEN_SECRET, TOKEN_EXPIRY_TIME.ACCESS_TOKEN);
 
     delete jwtPayload.fingerprint
     const refreshToken = this.tokenService.generateToken(jwtPayload, this.env.REFRESH_TOKEN_SECRET, TOKEN_EXPIRY_TIME.REFRESH_TOKEN);
 
-    return this.tokenService.sendTokens(accessToken, refreshToken, originalFingerprint, res);
+    return this.tokenService.sendTokens(accessToken, refreshToken, fingerprint, res);
   }
 
   async login(
     user: UserEntity,
     res: Response
   ): Promise<TLoginResponse> {
-    const fingerprint = this.generateFingerprint()
-
     if (user.enableTwoFactor) {
       return {
         validateOtpEndpoint: this.env.VALIDATE_OTP_ENDPONT,
@@ -99,16 +108,7 @@ export class AuthService {
       };
     }
 
-    const jwtPayload: TJwtPayload = this.tokenService.generateTokenPayload(
-      user,
-      await this.hashFingerprint(fingerprint)
-    )
-
-    return this.authenticated(
-      jwtPayload,
-      fingerprint,
-      res
-    );
+    return this.authenticated(user, res);
   }
 
   async enableTwoFactor(
@@ -145,6 +145,9 @@ export class AuthService {
   ): Promise<TLoginResponse> {
     try {
       const user = await this.userService.findOneById(userId);
+      if (!user.enableTwoFactor) {
+        throw new MethodNotAllowedException(ERROR_MESSAGE.METHOD_NOT_ALLOWED);
+      }
 
       const isValid = authenticator.verify({
         token: otp,
@@ -155,17 +158,7 @@ export class AuthService {
         throw new ForbiddenException(ERROR_MESSAGE.INVALID_OTP);
       }
 
-      const fingerprint = this.generateFingerprint()
-      const jwtPayload: TJwtPayload = this.tokenService.generateTokenPayload(
-        user,
-        await this.hashFingerprint(fingerprint)
-      )
-
-      return this.authenticated(
-        jwtPayload,
-        fingerprint,
-        res
-      );
+      return await this.authenticated(user, res);
     } catch (e) {
       throw e;
     }
@@ -175,35 +168,41 @@ export class AuthService {
     id: string,
     email: string
   ): Promise<TForgotPasswordResponse> {
-
     const oneTimeToken = this.generateFingerprint()
     await this.userService.updateOneTimeToken(id, oneTimeToken)
 
     const endpoint = `${this.env.RESET_PASSWORD_ENDPOINT}?id=${id}`
 
-    return new Promise((resolve) => {
-      this.mailerService.sendMail({
-        from: this.env.MAILER_USERNAME,
-        to: email,
-        subject: 'Forgot Password',
-        html: resetPwMailTemplate(endpoint)
-      },
-        (error, _info) => {
-          if (error) {
-            throw new NotFoundException(ERROR_MESSAGE.INVALID_EMAIL);
-          } else {
-            resolve({
-              message: SUCCESS_MESSAGE.EMAIL_SENT
-            })
-          }
-        })
-    })
+    try {
+      return new Promise((resolve) => {
+        this.mailerService.sendMail({
+          from: this.env.MAILER_USERNAME,
+          to: email,
+          subject: 'Forgot Password',
+          html: resetPwMailTemplate(endpoint)
+        },
+          (error, _info) => {
+            if (error) {
+              throw new NotFoundException(ERROR_MESSAGE.INVALID_EMAIL);
+            } else {
+              resolve({
+                message: SUCCESS_MESSAGE.EMAIL_SENT
+              })
+            }
+          })
+      })
+    } catch (e) {
+      throw e
+    }
   }
 
   async validateOneTimeToken(
     hashedOneTimeToken: string,
     oneTimeToken: string
   ): Promise<boolean> {
+    if (!hashedOneTimeToken || !oneTimeToken) {
+      throw new ForbiddenException(ERROR_MESSAGE.UNAUTHORIZED)
+    }
     try {
       return await bcrypt.compare(oneTimeToken, hashedOneTimeToken);
     } catch (e) {
@@ -218,7 +217,12 @@ export class AuthService {
     await this.userService.updatePassword(id, newPassword)
   }
 
-  //
+  sendGoogleIdToken(
+    idToken: string,
+    res: Response
+  ): void {
+    this.tokenService.sendGoogleIdToken(idToken, res)
+  }
 
   async validateGoogleIdToken(
     idToken: string
@@ -236,5 +240,15 @@ export class AuthService {
     } catch (e) {
       throw e
     }
+  }
+
+  async googleRedirect(
+    email: string,
+    provider: OPEN_ID_PROVIDER
+  ): Promise<void> {
+    await this.userService.setOpenIDProvider(
+      email,
+      provider
+    )
   }
 }

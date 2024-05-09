@@ -1,9 +1,10 @@
 import { AbstractEntity } from "@app/database";
-import { IsArray, IsBoolean, IsEmail, IsNotEmpty, IsOptional, IsString, IsUUID, MaxLength, ValidateNested } from "class-validator";
+import { IsArray, IsBoolean, IsEmail, IsEnum, IsNotEmpty, IsOptional, IsString, IsUUID, MaxLength, ValidateNested } from "class-validator";
 import { Column, Entity, OneToMany } from "typeorm";
 import { UserAddressEntity } from "./user-address.entity";
 import { Type } from "class-transformer";
 import { UserPaymentEntity } from "./user-payment.entity";
+import { OPEN_ID_PROVIDER } from "../../../common/enums";
 
 @Entity({ name: 'user' })
 export class UserEntity extends AbstractEntity {
@@ -55,6 +56,16 @@ export class UserEntity extends AbstractEntity {
     @ValidateNested({ each: true })
     @Type(() => UserPaymentEntity)
     payments?: UserPaymentEntity[]
+
+    @Column({ type: 'text', nullable: true })
+    @IsString()
+    @IsOptional()
+    picture?: string
+
+    @Column({ type: 'varchar', length: 20, nullable: true })
+    @IsEnum(OPEN_ID_PROVIDER)
+    @IsOptional()
+    openIDProvider?: OPEN_ID_PROVIDER
 
     @Column({ type: 'boolean', default: false })
     @IsBoolean()
