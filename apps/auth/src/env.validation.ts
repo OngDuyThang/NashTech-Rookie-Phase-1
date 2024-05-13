@@ -1,7 +1,31 @@
 import { AbstractEnvValidation } from "@app/env"
-import { IsNotEmpty, IsString } from "class-validator"
+import { IsNotEmpty, IsNumberString, IsString } from "class-validator"
 
 export class EnvValidation extends AbstractEnvValidation {
+    @IsString()
+    @IsNotEmpty()
+    SERVICE_HOST_NAME: string
+
+    @IsNumberString()
+    @IsNotEmpty()
+    SERVICE_PORT: string
+
+    @IsString()
+    @IsNotEmpty()
+    REDIS_HOST: string
+
+    @IsNumberString()
+    @IsNotEmpty()
+    REDIS_PORT: string
+
+    @IsString()
+    @IsNotEmpty()
+    REDIS_USERNAME: string
+
+    @IsString()
+    @IsNotEmpty()
+    REDIS_PASSWORD: string
+
     @IsString()
     @IsNotEmpty()
     ACCESS_TOKEN_SECRET: string
@@ -12,11 +36,11 @@ export class EnvValidation extends AbstractEnvValidation {
 
     @IsString()
     @IsNotEmpty()
-    VALIDATE_OTP_ENDPONT: string
+    VALIDATE_OTP_PATH_NAME: string
 
     @IsString()
     @IsNotEmpty()
-    RESET_PASSWORD_ENDPOINT: string
+    RESET_PASSWORD_PATH_NAME: string
 
     @IsString()
     @IsNotEmpty()

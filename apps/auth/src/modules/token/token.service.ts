@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { UserEntity } from '../user';
-import { TJwtPayload, TLoginResponse } from '../../common/types';
+import { TJwtPayload, TTokenResponse } from '../../common/types';
 import { Response, CookieOptions } from 'express';
 import { NODE_ENV } from '@app/common';
 import { Env } from '@app/env';
@@ -49,7 +49,7 @@ export class TokenService {
     refreshToken: string,
     originalFingerprint: string | undefined,
     res: Response
-  ): TLoginResponse {
+  ): TTokenResponse {
     res.cookie(TOKEN_KEY_NAME.REFRESH_TOKEN, refreshToken, {
       ...this.cookieOptions,
       maxAge: TOKEN_EXPIRY_TIME.REFRESH_TOKEN
@@ -65,17 +65,5 @@ export class TokenService {
 
     // Bonus idea: when access token and fingerprint are expired
     // then when sending refresh token, also check for different domain in Redis, if true, send email to warning user about hacker
-  }
-
-  sendGoogleIdToken(
-    idToken: string,
-    res: Response
-  ): void {
-    res.cookie(TOKEN_KEY_NAME.GOOGLE_ID_TOKEN, idToken, {
-      httpOnly: true,
-      sameSite: true,
-      secure: false,
-      maxAge: TOKEN_EXPIRY_TIME.GOOGLE_ID_TOKEN
-    })
   }
 }

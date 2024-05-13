@@ -1,4 +1,4 @@
-import { Logger, Module, Provider } from '@nestjs/common';
+import { Inject, Logger, Module, Provider } from '@nestjs/common';
 import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
 import { DatabaseModule } from '@app/database';
@@ -11,6 +11,7 @@ import { TokenModule } from './modules/token';
 import { AccessTokenStrategy, GoogleAuthStrategy, LocalAuthStrategy } from './common/strategies';
 import { EnvValidation } from './env.validation';
 import { MailerModule } from '@app/mailer';
+import { CACHE_SERVICE, CacheModule, RedisCache } from '@app/cache';
 
 const providers: Provider[] = [
   {
@@ -32,7 +33,8 @@ const providers: Provider[] = [
     ),
     UserModule,
     TokenModule,
-    MailerModule
+    MailerModule,
+    CacheModule.register(30)
   ],
   controllers: [AuthController],
   providers: [
@@ -44,4 +46,16 @@ const providers: Provider[] = [
     ...providers
   ],
 })
-export class AuthModule {}
+export class AuthModule {
+  constructor(
+    @Inject(CACHE_SERVICE)
+    private readonly cacheManager: RedisCache,
+    private readonly logger: Logger
+  ) {
+    const client = this.cacheManager.store.getClient();
+
+    client.on('error', (e) => {
+      this.logger.error(e);
+    });
+  }
+}

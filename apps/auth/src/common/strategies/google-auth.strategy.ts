@@ -2,6 +2,7 @@ import { Env } from "@app/env";
 import { Injectable } from "@nestjs/common";
 import { PassportStrategy } from "@nestjs/passport";
 import { Strategy, VerifyCallback } from "passport-google-oauth2";
+import { TGoogleLoginResponse } from "../types";
 
 @Injectable()
 export class GoogleAuthStrategy extends PassportStrategy(Strategy) {
@@ -28,7 +29,11 @@ export class GoogleAuthStrategy extends PassportStrategy(Strategy) {
             profile: any,
             done: VerifyCallback
         ) => {
-            done(null, profile?.email);
+            const res: TGoogleLoginResponse = {
+                email: profile?.email,
+                verify: profile?.verified
+            }
+            done(null, res);
         });
     }
 }

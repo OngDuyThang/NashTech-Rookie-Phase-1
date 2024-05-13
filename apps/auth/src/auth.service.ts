@@ -1,4 +1,6 @@
 import {
+  BadRequestException,
+  ConflictException,
   ForbiddenException,
   Inject,
   Injectable,
@@ -7,9 +9,9 @@ import {
 } from '@nestjs/common';
 import * as bcrypt from 'bcrypt';
 import * as crypto from 'crypto';
-import { TEnableTwoFactorResponse, TForgotPasswordResponse, TJwtPayload, TLoginResponse } from './common/types';
+import { TEnableTwoFactorResponse, TForgotPasswordResponse, TJwtPayload, TLoginResponse, TTokenResponse } from './common/types';
 import { Response } from 'express';
-import { ERROR_MESSAGE, SUCCESS_MESSAGE } from '@app/common';
+import { ERROR_MESSAGE, SUCCESS_CODE, SUCCESS_MESSAGE, getUrlEndpoint } from '@app/common';
 import { RegisterDto, UserEntity, UserService } from './modules/user';
 import { authenticator } from 'otplib';
 import { TokenService } from './modules/token';
@@ -18,7 +20,9 @@ import { Transporter } from 'nodemailer';
 import { MAILER_SERVICE } from '@app/mailer';
 import { resetPwMailTemplate } from './views';
 import { OAuth2Client } from 'google-auth-library'
-import { OPEN_ID_PROVIDER, TOKEN_EXPIRY_TIME } from './common/enums';
+import { OPEN_ID_PROVIDER, TOKEN_EXPIRY_TIME, TOKEN_KEY_NAME } from './common/enums';
+import { CACHE_SERVICE } from '@app/cache';
+import { Cache } from 'cache-manager';
 
 @Injectable()
 export class AuthService {
@@ -29,13 +33,15 @@ export class AuthService {
     private readonly env: Env,
     private readonly tokenService: TokenService,
     @Inject(MAILER_SERVICE)
-    private readonly mailerService: Transporter
+    private readonly mailerService: Transporter,
+    @Inject(CACHE_SERVICE)
+    private readonly cacheService: Cache
   ) {}
 
   async register(
     registerDto: RegisterDto
-  ): Promise<UserEntity> {
-    return await this.userService.create(registerDto);
+  ): Promise<void> {
+    await this.userService.create(registerDto)
   }
 
   async validateCredential(
@@ -77,38 +83,54 @@ export class AuthService {
     }
   }
 
-  private async authenticated(
-    user: UserEntity,
-    res: Response
-  ): Promise<TLoginResponse> {
-    const fingerprint = this.generateFingerprint()
-    const hashedFingerprint = await this.hashFingerprint(fingerprint)
+  private async cacheAuthCode(
+    authCode: string,
+    userId: string
+  ): Promise<void> {
+    try {
+      const existCache = await this.cacheService.get<string>(authCode)
+      if (existCache) {
+        return
+      }
 
-    const jwtPayload: TJwtPayload = this.tokenService.generateTokenPayload(
-      user,
-      hashedFingerprint
-    )
+      await this.cacheService.set(
+        authCode,
+        userId
+      )
+    } catch (e) {
+      throw e
+    }
+  }
 
-    const accessToken = this.tokenService.generateToken(jwtPayload, this.env.ACCESS_TOKEN_SECRET, TOKEN_EXPIRY_TIME.ACCESS_TOKEN);
+  private async getClientCallbackUrl(
+    userId: string
+  ): Promise<string> {
+    const authCode = this.generateFingerprint()
+    await this.cacheAuthCode(authCode, userId)
 
-    delete jwtPayload.fingerprint
-    const refreshToken = this.tokenService.generateToken(jwtPayload, this.env.REFRESH_TOKEN_SECRET, TOKEN_EXPIRY_TIME.REFRESH_TOKEN);
-
-    return this.tokenService.sendTokens(accessToken, refreshToken, fingerprint, res);
+    // Url to trigger client to send token request
+    return `/auth/something?code=${authCode}`
   }
 
   async login(
-    user: UserEntity,
-    res: Response
+    user: UserEntity
   ): Promise<TLoginResponse> {
     if (user.enable_two_factor) {
       return {
-        validateOtpEndpoint: this.env.VALIDATE_OTP_ENDPONT,
+        validateOtpEndpoint: getUrlEndpoint(
+          this.env.SERVICE_HOST_NAME,
+          this.env.SERVICE_PORT,
+          this.env.VALIDATE_OTP_PATH_NAME
+        ),
         userId: user.id,
       };
     }
 
-    return this.authenticated(user, res);
+    // Return client callback url to client with authorization code in query
+    const clientCallbackUrl = await this.getClientCallbackUrl(user.id)
+    return {
+      clientCallbackUrl
+    }
   }
 
   async enableTwoFactor(
@@ -140,8 +162,7 @@ export class AuthService {
 
   async validateOtp(
     otp: string,
-    userId: string,
-    res: Response
+    userId: string
   ): Promise<TLoginResponse> {
     try {
       const user = await this.userService.findOneById(userId);
@@ -158,10 +179,34 @@ export class AuthService {
         throw new ForbiddenException(ERROR_MESSAGE.INVALID_OTP);
       }
 
-      return await this.authenticated(user, res);
+      // Return client call back url to client with authorization code in query
+      const clientCallbackUrl = await this.getClientCallbackUrl(user.id)
+      return {
+        clientCallbackUrl
+      }
     } catch (e) {
       throw e;
     }
+  }
+
+  async authenticated(
+    user: UserEntity,
+    res: Response
+  ): Promise<TTokenResponse> {
+    const fingerprint = this.generateFingerprint()
+    const hashedFingerprint = await this.hashFingerprint(fingerprint)
+
+    const jwtPayload: TJwtPayload = this.tokenService.generateTokenPayload(
+      user,
+      hashedFingerprint
+    )
+
+    const accessToken = this.tokenService.generateToken(jwtPayload, this.env.ACCESS_TOKEN_SECRET, TOKEN_EXPIRY_TIME.ACCESS_TOKEN);
+
+    delete jwtPayload.fingerprint
+    const refreshToken = this.tokenService.generateToken(jwtPayload, this.env.REFRESH_TOKEN_SECRET, TOKEN_EXPIRY_TIME.REFRESH_TOKEN);
+
+    return this.tokenService.sendTokens(accessToken, refreshToken, fingerprint, res);
   }
 
   async forgotPassword(
@@ -171,7 +216,12 @@ export class AuthService {
     const oneTimeToken = this.generateFingerprint()
     await this.userService.updateOneTimeToken(userId, oneTimeToken)
 
-    const endpoint = `${this.env.RESET_PASSWORD_ENDPOINT}?id=${userId}`
+    const endpoint = getUrlEndpoint(
+      this.env.SERVICE_HOST_NAME,
+      this.env.SERVICE_PORT,
+      this.env.RESET_PASSWORD_PATH_NAME,
+      { userId }
+    )
 
     return new Promise((resolve) => {
       this.mailerService.sendMail({
@@ -213,13 +263,6 @@ export class AuthService {
     await this.userService.updatePassword(userId, newPassword)
   }
 
-  sendGoogleIdToken(
-    idToken: string,
-    res: Response
-  ): void {
-    this.tokenService.sendGoogleIdToken(idToken, res)
-  }
-
   async validateGoogleIdToken(
     idToken: string
   ): Promise<void> {
@@ -239,19 +282,26 @@ export class AuthService {
   }
 
   async loginWithGoogle(
-    email: string
-  ): Promise<void> {
+    email: string,
+    res: Response
+  ): Promise<TLoginResponse> {
     const user = await this.userService.validateExistEmail(email);
+    const provider = user.openID_provider
+
     if (user) {
-      // throw new ConflictException(ERROR_MESSAGE.CONFLICT)
-      if (user.openID_provider) {
-
+      if (provider == OPEN_ID_PROVIDER.google) {
+        // Return client call back url to client with authorization code in query
+        const clientCallbackUrl = await this.getClientCallbackUrl(user.id)
+        return {
+          clientCallbackUrl
+        }
+      } else {
+        // redirect to exist email page
+        res.redirect('http://localhost:3000/auth/used-email')
       }
+    } else {
+      // redirect to register page
+      res.redirect('http://localhost:3000/auth/register')
     }
-
-    await this.userService.setOpenIDProvider(
-      email,
-      OPEN_ID_PROVIDER.google
-    )
   }
 }

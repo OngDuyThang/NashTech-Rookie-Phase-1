@@ -32,8 +32,9 @@ export class TypeORMExceptionFilter implements ExceptionFilter {
         this.logger.error(`Method: ${method} | URI: ${url} | Status: ${status} | Message: ${message}`)
 
         res.status(status).send({
-            statusCode: status,
+            data: null,
             message,
+            statusCode: status,
             ...(this.env.NODE_ENV == NODE_ENV.DEVELOPMENT ? { stack } : null)
         })
     }

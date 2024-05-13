@@ -1,6 +1,10 @@
 import { BadRequestException } from "@nestjs/common"
 import { ClassConstructor, plainToInstance } from "class-transformer"
 import { validateSync } from "class-validator"
+import * as url from 'node:url'
+import { NODE_ENV } from "../enums/node-env"
+import { ParsedUrlQueryInput } from "node:querystring"
+import { SUCCESS_CODE } from "../enums/codes"
 
 export const getEnvFilePath = (serviceName: string) => `./apps/${serviceName}/.env.${process.env.NODE_ENV}`
 
@@ -58,4 +62,30 @@ export const classValidateWithoutThrow = <T = unknown>(
     }
 
     return object as T
+}
+
+export const getUrlEndpoint = (
+    hostname: string,
+    port: string | number,
+    pathname: string,
+    query?: ParsedUrlQueryInput
+): string => {
+    return url.format({
+        protocol: process.env.NODE_ENV == NODE_ENV.DEVELOPMENT ? 'http' : 'https',
+        hostname,
+        port,
+        pathname,
+        query
+    })
+}
+
+export const getSuccessMessage = (
+    statusCode: number
+): string => {
+    switch (statusCode) {
+        case 200: return 'OK'
+        case 201: return 'Created'
+        case 204: return 'No Content'
+        case 202: return 'Accepted'
+    }
 }

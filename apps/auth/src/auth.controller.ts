@@ -3,10 +3,10 @@ import { AuthService } from './auth.service';
 import { GetUser } from './common/decorators';
 import { HashPasswordPipe } from './common/pipes';
 import { HideSensitiveInterceptor } from './common/interceptors';
-import { AccessTokenGuard, LocalAuthGuard, ValidateOtpGuard, ForgotPasswordGuard, ResetPasswordGuard, ValidateOttGuard, GoogleAuthGuard, IdTokenGuard } from './common/guards';
+import { AccessTokenGuard, LocalAuthGuard, ValidateOtpGuard, ForgotPasswordGuard, ResetPasswordGuard, ValidateOttGuard, GoogleAuthGuard, ValidateAuthCodeGuard } from './common/guards';
 import { RegisterDto, UserEntity } from './modules/user';
 import { Request, Response } from 'express';
-import { TEnableTwoFactorResponse, TForgotPasswordResponse, TLoginResponse } from './common/types';
+import { TEnableTwoFactorResponse, TForgotPasswordResponse, TGoogleLoginResponse, TLoginResponse, TTokenResponse } from './common/types';
 import { ResetPasswordDto } from './common/dtos';
 import { OPEN_ID_PROVIDER, TOKEN_KEY_NAME } from './common/enums';
 
@@ -16,22 +16,29 @@ export class AuthController {
     private readonly authService: AuthService
   ) {}
 
+  @Get('/register')
+  @Render('register')
+  registerPage(): void {}
+
   @Post('/register')
   @UsePipes(HashPasswordPipe)
   @UseInterceptors(HideSensitiveInterceptor)
   async register(
     @Body() registerDto: RegisterDto
-  ): Promise<UserEntity> {
-    return await this.authService.register(registerDto);
+  ): Promise<void> {
+    await this.authService.register(registerDto);
   }
+
+  @Get('/login')
+  @Render('login')
+  loginPage(): void {}
 
   @Post('/login')
   @UseGuards(LocalAuthGuard)
   async login(
-    @GetUser() user: UserEntity,
-    @Res({ passthrough: true }) res: Response
+    @GetUser() user: UserEntity
   ): Promise<TLoginResponse> {
-    return await this.authService.login(user, res);
+    return await this.authService.login(user);
   }
 
   @Patch('/enable-2fa')
@@ -50,12 +57,25 @@ export class AuthController {
     await this.authService.disableTwoFactor(user.id)
   }
 
+  @Get('/2fa')
+  @Render('2fa')
+  twoFactorPage(): void {}
+
   @Post('/validate-otp')
   @UseGuards(ValidateOtpGuard)
   validateOtp(
     @Req() req: Request
   ): TLoginResponse {
     return req.user as TLoginResponse
+  }
+
+  @Post('/token')
+  @UseGuards(ValidateAuthCodeGuard)
+  async exchangeToken(
+    @GetUser() user: UserEntity,
+    @Res({ passthrough: true }) res: Response
+  ): Promise<TTokenResponse> {
+    return await this.authService.authenticated(user, res)
   }
 
   @Post('/forgot-password')
@@ -100,18 +120,37 @@ export class AuthController {
   @Get('/google/callback')
   @UseGuards(GoogleAuthGuard)
   googleRedirect(
-    @Req() req: Request
+    @Req() req: Request,
+    @Res() res: Response
   ) {
-    const googleEmail = req.user as string
+    const googleRes = req.user as TGoogleLoginResponse
+    res.redirect('http://localhost:3000/auth/something')
     // this.authService.googleRedirect(googleEmail, OPEN_ID_PROVIDER.google)
     // this.authService.sendGoogleIdToken(googleEmail, res)
   }
 
   @Get('/something')
-  @UseGuards(IdTokenGuard)
   something(
     @Req() req: Request,
+    @Res({ passthrough: true }) res: Response
   ) {
-    console.log(req.cookies)
+    console.log(req.query.code)
+    fetch('http://localhost:3000/auth/token', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        authCode: req.query.code
+      })
+    })
+      .then(res => res.json())
+      .then(data => console.log(data))
+      .catch(err => console.log(err))
+  }
+
+  @Get('/used-email')
+  usedEmailPage() {
+    console.log('used email')
   }
 }

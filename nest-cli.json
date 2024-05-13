@@ -15,7 +15,11 @@
       "compilerOptions": {
         "tsConfigPath": "apps/auth/tsconfig.app.json",
         "assets": [
-          {"include": "**/*.hbs", "watchAssets": true, "outDir": "dist/apps/auth"}
+          {
+            "include": "**/*.hbs",
+            "watchAssets": true,
+            "outDir": "dist/apps/auth"
+          }
         ]
       }
     },
@@ -53,6 +57,15 @@
       "sourceRoot": "libs/mailer/src",
       "compilerOptions": {
         "tsConfigPath": "libs/mailer/tsconfig.lib.json"
+      }
+    },
+    "cache": {
+      "type": "library",
+      "root": "libs/cache",
+      "entryFile": "index",
+      "sourceRoot": "libs/cache/src",
+      "compilerOptions": {
+        "tsConfigPath": "libs/cache/tsconfig.lib.json"
       }
     }
   }
