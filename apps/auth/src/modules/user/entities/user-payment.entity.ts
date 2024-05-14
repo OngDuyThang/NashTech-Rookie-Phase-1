@@ -1,13 +1,16 @@
 import { AbstractEntity } from "@app/database";
-import { IsNotEmpty, IsString, IsUUID } from "class-validator";
+import { IsNotEmpty, IsOptional, IsString, IsUUID } from "class-validator";
 import { Column, Entity, JoinColumn, ManyToOne } from "typeorm";
 import { UserEntity } from "./user.entity";
 import { PAYMENT_TYPE } from "../../../common/enums";
+import { Type } from "class-transformer";
 
 @Entity({ name: 'user_payment' })
 export class UserPaymentEntity extends AbstractEntity {
     @ManyToOne(() => UserEntity, user => user.payments)
     @JoinColumn({ name: 'user_id' })
+    @IsOptional()
+    @Type(() => UserEntity)
     user: UserEntity
 
     @Column({ type: 'uuid', nullable: false })

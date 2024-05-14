@@ -8,7 +8,7 @@ import { RegisterDto, UserEntity } from './modules/user';
 import { Request, Response } from 'express';
 import { TEnableTwoFactorResponse, TForgotPasswordResponse, TGoogleLoginResponse, TLoginResponse, TTokenResponse } from './common/types';
 import { ResetPasswordDto } from './common/dtos';
-import { OPEN_ID_PROVIDER, TOKEN_KEY_NAME } from './common/enums';
+import { TOKEN_KEY_NAME } from './common/enums';
 
 @Controller('auth')
 export class AuthController {
@@ -41,6 +41,7 @@ export class AuthController {
     return await this.authService.login(user);
   }
 
+  // event pattern
   @Patch('/enable-2fa')
   @UseGuards(AccessTokenGuard)
   async enableTwoFactor(
@@ -49,6 +50,7 @@ export class AuthController {
     return await this.authService.enableTwoFactor(user.id);
   }
 
+  // event pattern
   @Patch('/disable-2fa')
   @UseGuards(AccessTokenGuard)
   async disableTwoFactor(
@@ -125,14 +127,11 @@ export class AuthController {
   ) {
     const googleRes = req.user as TGoogleLoginResponse
     this.authService.loginWithGoogle(googleRes, res)
-    // this.authService.googleRedirect(googleEmail, OPEN_ID_PROVIDER.google)
-    // this.authService.sendGoogleIdToken(googleEmail, res)
   }
 
   @Get('/something')
   something(
-    @Req() req: Request,
-    @Res({ passthrough: true }) res: Response
+    @Req() req: Request
   ) {
     console.log(req.query.code)
     fetch('http://localhost:3000/auth/token', {

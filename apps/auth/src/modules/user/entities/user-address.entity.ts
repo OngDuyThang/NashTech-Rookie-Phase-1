@@ -2,12 +2,15 @@ import { AbstractEntity } from "@app/database";
 import { IsNotEmpty, IsOptional, IsString, IsUUID } from "class-validator";
 import { Column, Entity, JoinColumn, ManyToOne } from "typeorm";
 import { UserEntity } from "./user.entity";
+import { Type } from "class-transformer";
 
 @Entity({ name: 'user_address' })
 export class UserAddressEntity extends AbstractEntity {
     @ManyToOne(() => UserEntity, user => user.addresses)
     @JoinColumn({ name: 'user_id' })
-    user: UserEntity
+    @IsOptional()
+    @Type(() => UserEntity)
+    user?: UserEntity
 
     @Column({ type: 'uuid', nullable: false })
     @IsUUID(4)
