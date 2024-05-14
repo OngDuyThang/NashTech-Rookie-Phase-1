@@ -119,12 +119,12 @@ export class AuthController {
 
   @Get('/google/callback')
   @UseGuards(GoogleAuthGuard)
-  googleRedirect(
+  googleCallback(
     @Req() req: Request,
     @Res() res: Response
   ) {
     const googleRes = req.user as TGoogleLoginResponse
-    res.redirect('http://localhost:3000/auth/something')
+    this.authService.loginWithGoogle(googleRes, res)
     // this.authService.googleRedirect(googleEmail, OPEN_ID_PROVIDER.google)
     // this.authService.sendGoogleIdToken(googleEmail, res)
   }

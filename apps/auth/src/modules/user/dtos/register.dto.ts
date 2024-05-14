@@ -1,5 +1,6 @@
 import { Trim } from "@app/common"
-import { IsEmail, IsNotEmpty, IsString, Matches, MaxLength } from "class-validator"
+import { OPEN_ID_PROVIDER } from "../../../common/enums"
+import { IsEmail, IsEnum, IsNotEmpty, IsOptional, IsString, Matches, MaxLength } from "class-validator"
 
 export class RegisterDto {
     @IsString()
@@ -31,4 +32,8 @@ export class RegisterDto {
         message: 'password must contain 8-30 characters, one uppercase, one lowercase, one number and one special character'
     })
     password: string
+
+    @IsEnum(OPEN_ID_PROVIDER)
+    @IsOptional()
+    openID_provider?: OPEN_ID_PROVIDER
 }

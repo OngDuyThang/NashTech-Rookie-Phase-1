@@ -100,6 +100,15 @@
             transition: all 0.2s ease;
         }
 
+        .link-text {
+            margin-top: 30px;
+            width: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 16px;
+        }
+
         .input-field input:is(:focus, :valid) {
             border-bottom-color: #4070f4;
         }
@@ -127,18 +136,6 @@
             padding: 10px;
         }
 
-        .form .checkbox-text {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            margin-top: 20px;
-        }
-
-        .checkbox-text .checkbox-content {
-            display: flex;
-            align-items: center;
-        }
-
         .checkbox-content input {
             margin-right: 10px;
             accent-color: #4070f4;
@@ -162,7 +159,8 @@
             margin-top: 35px;
         }
 
-        .form .button input {
+        .form .button input,
+        .form .google input {
             border: none;
             color: #fff;
             font-size: 17px;
@@ -178,9 +176,53 @@
             background-color: #265df2;
         }
 
-        .form .login-register {
+        .login-with {
+            width: 100%;
             margin-top: 30px;
-            text-align: center;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: #333;
+            font-size: 14;
+            font-weight: 500;
+            position: relative;
+        }
+
+        .login-with span {
+            position: absolute;
+            z-index: 10;
+            background-color: #fff;
+            padding: 0 8px;
+        }
+
+        .login-with div {
+            position: absolute;
+            top: 50%;
+            width: 100%;
+            border: 0.5px solid #ccc
+        }
+
+        .form .google input {
+            background-color: #de5246;
+        }
+
+        .form .google {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .google input:hover {
+            background-color: rgb(225, 85, 72);
+        }
+
+        .google input:is(:focus, :valid)~i {
+            color: #fff;
+        }
+
+        .google .google-icon {
+            color: #fff;
+            cursor: pointer;
         }
     </style>
 </head>
@@ -206,11 +248,8 @@
                         <i class="uil uil-eye-slash showHidePw"></i>
                     </div>
 
-                    <div class="checkbox-text">
-                        <div class="checkbox-content">
-                            <input type="checkbox" id="logCheck">
-                            <label for="logCheck" class="text">Remember me</label>
-                        </div>
+                    <div class="link-text">
+                        <a href="/auth/register" class="text register-link">Register Now</a>
 
                         <a href="#" class="text">Forgot password?</a>
                     </div>
@@ -220,10 +259,14 @@
                     </div>
                 </form>
 
-                <div class="login-register">
-                    <span class="text">Not a member?
-                        <a href="/auth/register" class="text register-link">Register Now</a>
-                    </span>
+                <div class="login-with">
+                    <span>Or login with</span>
+                    <div></div>
+                </div>
+
+                <div class="input-field google">
+                    <input id="google" type="button" value="">
+                    <i class="uil uil-google google-icon"></i>
                 </div>
             </div>
         </div>
@@ -233,6 +276,8 @@
         const container = document.querySelector(".container")
         const pwShowHide = document.querySelectorAll(".showHidePw")
         const pwFields = document.querySelectorAll(".password")
+        const loginGoogleBtn = document.getElementById("google")
+        const loginGoogleIcon = document.querySelector(".google-icon")
 
         // show/hide password
         pwShowHide.forEach(eyeIcon => {
@@ -287,6 +332,13 @@
                 })
                 .catch(err => console.log(err))
         }
+
+        loginGoogleBtn.addEventListener('click', () => {
+            window.location.href = '/auth/google'
+        })
+        loginGoogleIcon.addEventListener('click', () => {
+            window.location.href = '/auth/google'
+        })
     </script>
 </body>
 

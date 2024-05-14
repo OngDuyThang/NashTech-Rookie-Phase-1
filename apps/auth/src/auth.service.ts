@@ -6,10 +6,11 @@ import {
   Injectable,
   MethodNotAllowedException,
   NotFoundException,
+  UnauthorizedException,
 } from '@nestjs/common';
 import * as bcrypt from 'bcrypt';
 import * as crypto from 'crypto';
-import { TEnableTwoFactorResponse, TForgotPasswordResponse, TJwtPayload, TLoginResponse, TTokenResponse } from './common/types';
+import { TEnableTwoFactorResponse, TForgotPasswordResponse, TGoogleLoginResponse, TJwtPayload, TLoginResponse, TTokenResponse } from './common/types';
 import { Response } from 'express';
 import { ERROR_MESSAGE, SUCCESS_CODE, SUCCESS_MESSAGE, getUrlEndpoint } from '@app/common';
 import { RegisterDto, UserEntity, UserService } from './modules/user';
@@ -109,7 +110,12 @@ export class AuthService {
     await this.cacheAuthCode(authCode, userId)
 
     // Url to trigger client to send token request
-    return `/auth/something?code=${authCode}`
+    return getUrlEndpoint(
+      this.env.SERVICE_HOST_NAME,
+      this.env.SERVICE_PORT,
+      '/auth/something',
+      { code: authCode }
+    )
   }
 
   async login(
@@ -282,26 +288,36 @@ export class AuthService {
   }
 
   async loginWithGoogle(
-    email: string,
+    googleRes: TGoogleLoginResponse,
     res: Response
-  ): Promise<TLoginResponse> {
-    const user = await this.userService.validateExistEmail(email);
-    const provider = user.openID_provider
+  ): Promise<void> {
+    const { email, verify } = googleRes
+    if (!verify) {
+      throw new UnauthorizedException(ERROR_MESSAGE.UNAUTHORIZED_GOOGLE_ACCOUNT)
+    }
 
+    const user = await this.userService.validateExistEmail(email);
     if (user) {
-      if (provider == OPEN_ID_PROVIDER.google) {
+      if (user.openID_provider == OPEN_ID_PROVIDER.google) {
         // Return client call back url to client with authorization code in query
         const clientCallbackUrl = await this.getClientCallbackUrl(user.id)
-        return {
-          clientCallbackUrl
-        }
+        res.redirect(clientCallbackUrl)
       } else {
-        // redirect to exist email page
-        res.redirect('http://localhost:3000/auth/used-email')
+        // Redirect to exist email page
+        res.redirect(getUrlEndpoint(
+          this.env.SERVICE_HOST_NAME,
+          this.env.SERVICE_PORT,
+          '/auth/used-email'
+        ))
       }
     } else {
-      // redirect to register page
-      res.redirect('http://localhost:3000/auth/register')
+      // Redirect to register page
+      res.redirect(getUrlEndpoint(
+        this.env.SERVICE_HOST_NAME,
+        this.env.SERVICE_PORT,
+        '/auth/register',
+        { gmail: email }
+      ))
     }
   }
 }

@@ -23,4 +23,5 @@ export enum ERROR_MESSAGE {
     PASSWORD_NOT_MATCH = 'Passwords Not Matching',
     EMAIL_ALREADY_USED = 'Email Already Used',
     INVALID_FORMAT_DATA = 'Invalid Format Data',
+    UNAUTHORIZED_GOOGLE_ACCOUNT = 'Unauthorized Google Account'
 }
