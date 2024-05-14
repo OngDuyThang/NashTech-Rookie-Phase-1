@@ -16,7 +16,10 @@ export class AccessTokenStrategy extends PassportStrategy(Strategy) {
         private readonly userService: UserService
     ) {
         super({
-            jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
+            // two scenario: request object from http and request payload from rpc
+            jwtFromRequest: ExtractJwt.fromExtractors([
+                (req: any) => req?.headers?.authorization || req?.accessToken
+            ]),
             ignoreExpiration: false,
             secretOrKey: env.ACCESS_TOKEN_SECRET,
             passReqToCallback: true
@@ -24,7 +27,7 @@ export class AccessTokenStrategy extends PassportStrategy(Strategy) {
     }
 
     async validate(
-        req: Request,
+        req: any, // two scenario: request object from http and request payload from rpc
         payload: TJwtPayload
     ): Promise<UserEntity> {
         const error = new UnauthorizedException(ERROR_MESSAGE.USER_UNAUTHORIZED)
@@ -33,7 +36,7 @@ export class AccessTokenStrategy extends PassportStrategy(Strategy) {
             throw error
         }
 
-        const originalFingerprint = req.cookies?.[TOKEN_KEY_NAME.FINGERPRINT]
+        const originalFingerprint = req?.cookies?.[TOKEN_KEY_NAME.FINGERPRINT] || req?.fingerprint
         const { id, fingerprint: hashedFingerprint } = payload
         if (!originalFingerprint || !hashedFingerprint) {
             throw error

@@ -9,6 +9,8 @@ import { Request, Response } from 'express';
 import { TEnableTwoFactorResponse, TForgotPasswordResponse, TGoogleLoginResponse, TLoginResponse, TTokenResponse } from './common/types';
 import { ResetPasswordDto } from './common/dtos';
 import { TOKEN_KEY_NAME } from './common/enums';
+import { MessagePattern, Payload } from '@nestjs/microservices';
+import { SERVICE_MESSAGE } from '@app/common';
 
 @Controller('auth')
 export class AuthController {
@@ -127,6 +129,14 @@ export class AuthController {
   ) {
     const googleRes = req.user as TGoogleLoginResponse
     this.authService.loginWithGoogle(googleRes, res)
+  }
+
+  @MessagePattern({ cmd: SERVICE_MESSAGE.VALIDATE_JWT })
+  @UseGuards(AccessTokenGuard)
+  permissionProvider(
+    @GetUser() user: UserEntity
+  ): UserEntity {
+    return user
   }
 
   @Get('/something')

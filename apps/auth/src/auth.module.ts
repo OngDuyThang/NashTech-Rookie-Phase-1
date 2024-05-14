@@ -12,6 +12,7 @@ import { AccessTokenStrategy, GoogleAuthStrategy, LocalAuthStrategy } from './co
 import { EnvValidation } from './env.validation';
 import { MailerModule } from '@app/mailer';
 import { CACHE_SERVICE, CacheModule, RedisCache } from '@app/cache';
+import { RmqModule } from '@app/rmq';
 
 const providers: Provider[] = [
   {
@@ -34,7 +35,8 @@ const providers: Provider[] = [
     UserModule,
     TokenModule,
     MailerModule,
-    CacheModule.register(30)
+    CacheModule.register(30),
+    RmqModule
   ],
   controllers: [AuthController],
   providers: [
