@@ -5,7 +5,7 @@ import { classValidate } from "@app/common";
 import { ResetPasswordDto } from "../dtos";
 
 @Injectable()
-export class UserExistGuard implements CanActivate {
+export class ResetPasswordGuard implements CanActivate {
     constructor(
         private readonly userService: UserService
     ) {}
@@ -14,7 +14,7 @@ export class UserExistGuard implements CanActivate {
         const req = context.switchToHttp().getRequest<Request>();
 
         if (req.method == 'GET') {
-            classValidate(ResetPasswordDto, { id: req.query?.id })
+            classValidate(ResetPasswordDto, { userId: req.query?.userId })
         }
 
         if (req.method == 'POST') {
@@ -22,7 +22,7 @@ export class UserExistGuard implements CanActivate {
         }
 
         const user = await this.userService.findOneById(
-            req.method == 'GET' ? req.query?.id as string : req.body?.id
+            req.method == 'GET' ? req.query?.userId as string : req.body?.userId
         )
         delete user.password
         req.user = user

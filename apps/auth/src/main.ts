@@ -4,6 +4,7 @@ import { Logger, ValidationPipe } from '@nestjs/common';
 import * as cookieParser from 'cookie-parser';
 import { NestExpressApplication } from '@nestjs/platform-express';
 import { join } from 'path';
+import { ReshapeDataInteceptor } from '@app/common';
 
 async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AuthModule);
@@ -11,13 +12,14 @@ async function bootstrap() {
 
   app.enableCors({
     origin: true,
-    credentials: true,
+    credentials: true
   });
 
   app.useGlobalPipes(new ValidationPipe({
     whitelist: true,
     forbidNonWhitelisted: true
   }))
+  app.useGlobalInterceptors(new ReshapeDataInteceptor())
 
   app.use(cookieParser());
 

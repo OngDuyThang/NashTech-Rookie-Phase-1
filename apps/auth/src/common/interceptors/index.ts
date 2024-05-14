@@ -1,1 +1,1 @@
-export * from './hide-password.interceptor'
+export * from './hide-sensitive.interceptor'

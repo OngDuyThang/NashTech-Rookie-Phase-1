@@ -1,7 +1,8 @@
-import { ArgumentMetadata, Injectable, PipeTransform } from "@nestjs/common";
+import { ArgumentMetadata, BadRequestException, Injectable, PipeTransform } from "@nestjs/common";
 import * as bcrypt from 'bcrypt';
 import { RegisterDto } from "../../modules/user/dtos/register.dto";
 import { ResetPasswordDto } from "../dtos";
+import { ERROR_MESSAGE } from "@app/common";
 
 @Injectable()
 export class HashPasswordPipe implements PipeTransform {
@@ -18,11 +19,15 @@ export class HashPasswordPipe implements PipeTransform {
                 }
             }
 
-            const hashedPassword = await bcrypt.hash(dto?.newPassword, salt);
-            return {
-                ...dto,
-                newPassword: hashedPassword
+            if (dto?.newPassword) {
+                const hashedPassword = await bcrypt.hash(dto?.newPassword, salt);
+                return {
+                    ...dto,
+                    newPassword: hashedPassword
+                }
             }
+
+            throw new BadRequestException(ERROR_MESSAGE.INVALID_CREDENTIAL)
         } catch (e) {
             throw e;
         }

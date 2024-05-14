@@ -12,11 +12,10 @@ export class ValidateOtpGuard implements CanActivate {
 
     async canActivate(context: ExecutionContext) {
         const req = context.switchToHttp().getRequest<Request>();
-        const res = context.switchToHttp().getResponse<Response>();
 
         const { otp, userId } = classValidate(ValidateOtpDto, req.body)
-        const user = await this.authService.validateOtp(otp, userId, res)
-        req.user = user
+        const loginRes = await this.authService.validateOtp(otp, userId)
+        req.user = loginRes
 
         return true
     }

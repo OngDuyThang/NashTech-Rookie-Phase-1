@@ -22,15 +22,16 @@ export class ValidateOttGuard implements CanActivate {
             throw new BadRequestException(ERROR_MESSAGE.PASSWORD_NOT_MATCH)
         }
 
+        const hashedOneTimeToken = req.cookies?.[TOKEN_KEY_NAME.ONE_TIME_TOKEN]
         const isMatch = await this.authService.validateOneTimeToken(
-            req.cookies?.[TOKEN_KEY_NAME.ONE_TIME_TOKEN],
-            user.oneTimeToken
+            hashedOneTimeToken,
+            user.one_time_token
         );
         if (!isMatch) {
             throw new ForbiddenException(ERROR_MESSAGE.UNAUTHORIZED)
         }
-        await this.userService.updateOneTimeToken(user.id, null)
 
+        await this.userService.updateOneTimeToken(user.id, null)
         return true
     }
 }

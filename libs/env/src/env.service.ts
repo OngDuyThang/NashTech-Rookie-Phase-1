@@ -7,6 +7,18 @@ export class Env {
         private readonly configService: ConfigService
     ) {}
 
+    get NODE_ENV() {
+        return this.configService.get<string>('NODE_ENV');
+    }
+
+    get SERVICE_HOST_NAME() {
+        return this.configService.get<string>('SERVICE_HOST_NAME');
+    }
+
+    get SERVICE_PORT() {
+        return this.configService.get<string>('SERVICE_PORT');
+    }
+
     get DB_HOST() {
         return this.configService.get<string>('DB_HOST');
     }
@@ -27,16 +39,20 @@ export class Env {
         return this.configService.get<string>('DB_NAME');
     }
 
-    get MAILER_USERNAME() {
-        return this.configService.get<string>('MAILER_USERNAME');
+    get REDIS_HOST() {
+        return this.configService.get<string>('REDIS_HOST');
     }
 
-    get MAILER_PASSWORD() {
-        return this.configService.get<string>('MAILER_PASSWORD');
+    get REDIS_PORT() {
+        return this.configService.get<string>('REDIS_PORT');
     }
 
-    get NODE_ENV() {
-        return this.configService.get<string>('NODE_ENV');
+    get REDIS_USERNAME() {
+        return this.configService.get<string>('REDIS_USERNAME');
+    }
+
+    get REDIS_PASSWORD() {
+        return this.configService.get<string>('REDIS_PASSWORD');
     }
 
     get ACCESS_TOKEN_SECRET() {
@@ -47,12 +63,20 @@ export class Env {
         return this.configService.get<string>('REFRESH_TOKEN_SECRET');
     }
 
-    get VALIDATE_OTP_ENDPONT() {
-        return this.configService.get<string>('VALIDATE_OTP_ENDPONT');
+    get VALIDATE_OTP_PATH_NAME() {
+        return this.configService.get<string>('VALIDATE_OTP_PATH_NAME');
     }
 
-    get RESET_PASSWORD_ENDPOINT() {
-        return this.configService.get<string>('RESET_PASSWORD_ENDPOINT');
+    get RESET_PASSWORD_PATH_NAME() {
+        return this.configService.get<string>('RESET_PASSWORD_PATH_NAME');
+    }
+
+    get MAILER_USERNAME() {
+        return this.configService.get<string>('MAILER_USERNAME');
+    }
+
+    get MAILER_PASSWORD() {
+        return this.configService.get<string>('MAILER_PASSWORD');
     }
 
     get GOOGLE_CLIENT_ID() {
@@ -70,4 +94,5 @@ export class Env {
     get GOOGLE_ISSUER() {
         return this.configService.get<string>('GOOGLE_ISSUER');
     }
+
 }

@@ -25,8 +25,9 @@ export class HttpExceptionFilter implements ExceptionFilter {
         this.logger.error(`Method: ${method} | URI: ${url} | Status: ${status} | Message: ${message} | Detail: ${detail}`)
 
         res.status(status).send({
-            statusCode: status,
+            data: null,
             message,
+            statusCode: status,
             detail,
             ...(this.env.NODE_ENV == NODE_ENV.DEVELOPMENT ? { stack } : null)
         })
