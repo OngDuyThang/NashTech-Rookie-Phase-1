@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Patch, Post, Render, Req, Res, UseGuards, UseInterceptors, UsePipes } from '@nestjs/common';
+import { BadGatewayException, Body, Controller, Get, Patch, Post, Render, Req, Res, UseFilters, UseGuards, UseInterceptors, UsePipes } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { GetUser } from './common/decorators';
 import { HashPasswordPipe } from './common/pipes';
@@ -9,8 +9,8 @@ import { Request, Response } from 'express';
 import { TEnableTwoFactorResponse, TForgotPasswordResponse, TGoogleLoginResponse, TLoginResponse, TTokenResponse } from './common/types';
 import { ResetPasswordDto } from './common/dtos';
 import { TOKEN_KEY_NAME } from './common/enums';
-import { MessagePattern, Payload } from '@nestjs/microservices';
-import { SERVICE_MESSAGE } from '@app/common';
+import { MessagePattern, Payload, RpcException } from '@nestjs/microservices';
+import { RpcExceptionFilter, SERVICE_MESSAGE } from '@app/common';
 
 @Controller('auth')
 export class AuthController {
@@ -134,9 +134,11 @@ export class AuthController {
   // Authorization for other services
   @MessagePattern({ cmd: SERVICE_MESSAGE.VALIDATE_JWT })
   @UseGuards(AccessTokenGuard)
+  @UseFilters(new RpcExceptionFilter())
   permissionProvider(
     @GetUser() user: UserEntity
   ): UserEntity {
+    throw new RpcException(new BadGatewayException())
     return user
   }
 

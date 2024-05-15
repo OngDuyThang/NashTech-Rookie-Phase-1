@@ -1,4 +1,4 @@
-import { CanActivate, ExecutionContext, Inject, Injectable, UnauthorizedException } from "@nestjs/common";
+import { CanActivate, ExecutionContext, HttpException, Inject, Injectable, UnauthorizedException } from "@nestjs/common";
 import { Request } from "express";
 import { ERROR_MESSAGE } from "../enums/messages";
 import { SERVICE_MESSAGE, SERVICE_NAME } from "../enums/rmq";
@@ -6,6 +6,7 @@ import { ClientProxy } from "@nestjs/microservices";
 import { catchError, tap } from "rxjs";
 import { TPermissionRequest } from "../types/permission-request";
 import { COOKIE_KEY_NAME } from "../enums/cookie";
+import { convertRpcException } from "../utils/helpers";
 
 @Injectable()
 export class PermissionRequestGuard implements CanActivate {
@@ -77,7 +78,7 @@ export class PermissionRequestGuard implements CanActivate {
             payload
         ).pipe(
             tap(resUser => { this.attachUserInRequest(context, resUser) }),
-            catchError(e => { throw e })
+            catchError(e => { throw convertRpcException(e) })
         )
     }
 }

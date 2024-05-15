@@ -4,7 +4,7 @@ import { AuthService } from './auth.service';
 import { DatabaseModule } from '@app/database';
 import { dataSourceOptions } from './database/data-source';
 import { EnvModule } from '@app/env';
-import { HttpExceptionFilter, TypeORMExceptionFilter, getEnvFilePath } from '@app/common';
+import { HttpExceptionFilter, RpcExceptionFilter, TypeORMExceptionFilter, getEnvFilePath } from '@app/common';
 import { UserModule } from './modules/user/user.module';
 import { APP_FILTER } from '@nestjs/core';
 import { TokenModule } from './modules/token';
@@ -22,6 +22,10 @@ const providers: Provider[] = [
   {
     provide: APP_FILTER,
     useClass: TypeORMExceptionFilter
+  },
+  {
+    provide: APP_FILTER,
+    useClass: RpcExceptionFilter
   }
 ]
 

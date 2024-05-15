@@ -1,10 +1,11 @@
-import { BadRequestException } from "@nestjs/common"
+import { BadRequestException, HttpException, InternalServerErrorException } from "@nestjs/common"
 import { ClassConstructor, plainToInstance } from "class-transformer"
 import { validateSync } from "class-validator"
 import * as url from 'node:url'
 import { NODE_ENV } from "../enums/node-env"
 import { ParsedUrlQueryInput } from "node:querystring"
 import { SUCCESS_CODE } from "../enums/codes"
+import { ERROR_MESSAGE } from "../enums/messages"
 
 export const getEnvFilePath = (serviceName: string) => `./apps/${serviceName}/.env.${process.env.NODE_ENV}`
 
@@ -88,4 +89,16 @@ export const getSuccessMessage = (
         case 204: return 'No Content'
         case 202: return 'Accepted'
     }
+}
+
+export const convertRpcException = (e: any) => {
+    if (e?.response && e?.status) {
+        const response = e.response
+        if (!Object.keys(response).length) {
+            return new HttpException(e.message, e.status)
+        }
+        return new HttpException(response, e.status)
+    }
+
+    return new InternalServerErrorException(ERROR_MESSAGE.INTERNAL_SERVER_ERROR)
 }

@@ -4,7 +4,6 @@ import { PassportStrategy } from "@nestjs/passport";
 import { ExtractJwt, Strategy } from "passport-jwt";
 import { TJwtPayload } from "../types";
 import { ERROR_MESSAGE } from "@app/common";
-import { Request } from "express";
 import { UserEntity, UserService } from "../../modules/user";
 import * as bcrypt from 'bcrypt';
 import { TOKEN_KEY_NAME } from "../enums";
@@ -32,6 +31,7 @@ export class AccessTokenStrategy extends PassportStrategy(Strategy) {
         });
     }
 
+    // single responsibility: validate access token and fingerprint, then give back user entity
     async validate(
         req: any, // two scenario: request object from http and request payload from rpc
         payload: TJwtPayload
