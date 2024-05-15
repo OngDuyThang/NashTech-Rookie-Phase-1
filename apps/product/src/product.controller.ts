@@ -1,8 +1,8 @@
-import { Controller, Get, Param, ParseUUIDPipe, Post, UseGuards } from '@nestjs/common';
+import { Controller, Get, Param, ParseUUIDPipe, Post, Req, UseGuards } from '@nestjs/common';
 import { ProductService } from './product.service';
 import { ProductEntity } from './entities';
 import { CreateProductDto } from './dtos';
-import { ROLES, Roles } from '@app/common';
+import { PermissionRequestGuard, ROLES, Roles } from '@app/common';
 
 @Controller('product')
 @Roles([ROLES.ADMIN])
@@ -10,6 +10,14 @@ export class ProductController {
   constructor(
     private readonly productService: ProductService
   ) {}
+
+  @Get('/hello')
+  @UseGuards(PermissionRequestGuard)
+  hello(
+    @Req() req: any
+  ) {
+    console.log(req.user);
+  }
 
   @Get()
   @Roles([ROLES.USER])

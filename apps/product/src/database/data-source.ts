@@ -1,7 +1,7 @@
 import { DataSource, DataSourceOptions } from "typeorm";
 import * as dotenv from "dotenv";
 import { getEnvFilePath } from "@app/common";
-import { ProductCategoryEntity, ProductEntity, ProductSubCatEntity } from "../src/entities";
+import { ProductCategoryEntity, ProductEntity, ProductSubCatEntity } from "../entities";
 
 dotenv.config({
     path: getEnvFilePath('product')

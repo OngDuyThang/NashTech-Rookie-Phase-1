@@ -131,6 +131,7 @@ export class AuthController {
     this.authService.loginWithGoogle(googleRes, res)
   }
 
+  // Authorization for other services
   @MessagePattern({ cmd: SERVICE_MESSAGE.VALIDATE_JWT })
   @UseGuards(AccessTokenGuard)
   permissionProvider(

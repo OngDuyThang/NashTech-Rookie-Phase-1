@@ -11,7 +11,7 @@ export class RmqService {
 
     getMicroserviceOptions(
         queueName: QUEUE_NAME,
-        noAck = false
+        noAck = true
     ): MicroserviceOptions {
         return {
             transport: Transport.RMQ,

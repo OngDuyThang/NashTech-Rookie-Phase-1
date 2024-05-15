@@ -27,8 +27,4 @@ export abstract class AbstractEnvValidation {
     @IsString()
     @IsNotEmpty()
     RABBIT_MQ_URI: string
-
-    @IsString()
-    @IsNotEmpty()
-    QUEUE_NAME: string
 }

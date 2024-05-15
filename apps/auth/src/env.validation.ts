@@ -12,6 +12,10 @@ export class EnvValidation extends AbstractEnvValidation {
 
     @IsString()
     @IsNotEmpty()
+    AUTH_QUEUE: string
+
+    @IsString()
+    @IsNotEmpty()
     REDIS_HOST: string
 
     @IsNumberString()

@@ -18,7 +18,13 @@ export class AccessTokenStrategy extends PassportStrategy(Strategy) {
         super({
             // two scenario: request object from http and request payload from rpc
             jwtFromRequest: ExtractJwt.fromExtractors([
-                (req: any) => req?.headers?.authorization || req?.accessToken
+                (req: any) => {
+                    const accessToken = (req?.headers?.authorization || req?.accessToken) as string
+                    if (accessToken.includes('Bearer')) {
+                        return accessToken.split(' ')[1]
+                    }
+                    return accessToken
+                }
             ]),
             ignoreExpiration: false,
             secretOrKey: env.ACCESS_TOKEN_SECRET,

@@ -2,6 +2,7 @@ import { DynamicModule, Global, Module } from "@nestjs/common";
 import { RmqService } from "./rmq.service";
 import { ClientsModule, Transport } from "@nestjs/microservices";
 import { ConfigService } from "@nestjs/config";
+import { RmqClientOption } from "@app/common";
 
 @Global()
 @Module({
@@ -10,10 +11,7 @@ import { ConfigService } from "@nestjs/config";
 })
 export class RmqModule {
   static register(
-    clients: {
-      provide: string,
-      queueName: string
-    }[],
+    clients: RmqClientOption[],
     isGlobal = true
   ): DynamicModule {
     return {
@@ -29,7 +27,7 @@ export class RmqModule {
                 transport: Transport.RMQ,
                 options: {
                   urls: [config.get<string>('RABBIT_MQ_URI')],
-                  queue: config.get<string>(`${queueName}_QUEUE`)
+                  queue: config.get<string>(queueName)
                 }
               })
             }

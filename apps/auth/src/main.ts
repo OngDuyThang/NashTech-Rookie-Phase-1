@@ -6,10 +6,12 @@ import { NestExpressApplication } from '@nestjs/platform-express';
 import { join } from 'path';
 import { QUEUE_NAME, ReshapeDataInteceptor } from '@app/common';
 import { RmqService } from '@app/rmq';
+import { Env } from '@app/env';
 
 async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AuthModule);
   const logger = app.get(Logger);
+  const env = app.get(Env)
   const rmqService = app.get(RmqService);
 
   app.connectMicroservice(
@@ -36,7 +38,7 @@ async function bootstrap() {
   app.setViewEngine('hbs');
 
   await app.startAllMicroservices()
-  await app.listen(3000);
-  logger.log(`App is listening on port 3000`);
+  await app.listen(env.SERVICE_PORT);
+  logger.log(`Auth server is listening on port ${env.SERVICE_PORT}`);
 }
 bootstrap();
