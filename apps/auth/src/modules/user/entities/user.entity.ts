@@ -5,6 +5,7 @@ import { UserAddressEntity } from "./user-address.entity";
 import { Type } from "class-transformer";
 import { UserPaymentEntity } from "./user-payment.entity";
 import { OPEN_ID_PROVIDER } from "../../../common/enums";
+import { ROLE } from "@app/common";
 
 @Entity({ name: 'user' })
 export class UserEntity extends AbstractEntity {
@@ -86,4 +87,9 @@ export class UserEntity extends AbstractEntity {
     @IsUUID(4)
     @IsOptional()
     api_key?: string
+
+    @Column({ type: 'varchar', length: 20, nullable: false, default: ROLE.USER })
+    @IsEnum(ROLE)
+    @IsNotEmpty()
+    role: ROLE
 }

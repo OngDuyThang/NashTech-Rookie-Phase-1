@@ -1,4 +1,4 @@
-import { CanActivate, ExecutionContext, HttpException, Inject, Injectable, UnauthorizedException } from "@nestjs/common";
+import { CanActivate, ExecutionContext, HttpException, Inject, Injectable, MethodNotAllowedException, UnauthorizedException } from "@nestjs/common";
 import { Request } from "express";
 import { ERROR_MESSAGE } from "../enums/messages";
 import { SERVICE_MESSAGE, SERVICE_NAME } from "../enums/rmq";
@@ -7,6 +7,7 @@ import { catchError, tap } from "rxjs";
 import { TPermissionRequest } from "../types/permission-request";
 import { COOKIE_KEY_NAME } from "../enums/cookie";
 import { convertRpcException } from "../utils/helpers";
+import { UserEntity } from "./user.entity";
 
 @Injectable()
 export class PermissionRequestGuard implements CanActivate {
@@ -18,54 +19,32 @@ export class PermissionRequestGuard implements CanActivate {
     private getTokenAndFingerprint(
         context: ExecutionContext
     ): TPermissionRequest {
-        const error = new UnauthorizedException(ERROR_MESSAGE.USER_UNAUTHORIZED)
-
-        // Http request: get bearer token from headers and fingerprint from cookie
-        if (context.getType() == 'http') {
-            const req = context.switchToHttp().getRequest<Request>()
-            const accessToken = req?.headers?.authorization.split(' ')[1]
-            const fingerprint = req?.cookies?.[COOKIE_KEY_NAME.FINGERPRINT]
-            if (!accessToken || !fingerprint) {
-                throw error
-            }
-            return {
-                accessToken,
-                fingerprint
-            }
+        if (context.getType() != 'http') {
+            throw new MethodNotAllowedException(ERROR_MESSAGE.METHOD_NOT_ALLOWED)
         }
 
-        // Rpc: get access token and fingerprint in payload object
-        if (context.getType() == 'rpc') {
-            const req = context.switchToRpc().getData()
-            const accessToken = req?.accessToken
-            const fingerprint = req?.fingerprint
-            if (!accessToken || !fingerprint) {
-                throw error
-            }
-            return {
-                accessToken,
-                fingerprint
-            }
+        // Http request: get bearer token from headers and fingerprint from cookie
+        const req = context.switchToHttp().getRequest<Request>()
+        const accessToken = req?.headers?.authorization.split(' ')[1]
+        const fingerprint = req?.cookies?.[COOKIE_KEY_NAME.FINGERPRINT]
+        if (!accessToken || !fingerprint) {
+            throw new UnauthorizedException(ERROR_MESSAGE.USER_UNAUTHORIZED)
+        }
+        return {
+            accessToken,
+            fingerprint
         }
     }
 
     private attachUserInRequest(
         context: ExecutionContext,
-        user: any
+        user: UserEntity
     ): void {
-        // Attach user in http request object
-        if (context.getType() == 'http') {
-            const req = context.switchToHttp().getRequest<Request>()
-            req.user = user
-        }
-
-        // Attach user in rpc payload object
-        if (context.getType() == 'rpc') {
-            const req = context.switchToRpc().getData()
-            req.user = user
-        }
+        const req = context.switchToHttp().getRequest<Request>()
+        req.user = user
     }
 
+    // single responsibility: send access token and fingerprint to receive user entity, then attach to request object
     canActivate(context: ExecutionContext) {
         const { accessToken, fingerprint } = this.getTokenAndFingerprint(context);
         const payload: TPermissionRequest = {

@@ -1,4 +1,4 @@
-import { BadGatewayException, Body, Controller, Get, Patch, Post, Render, Req, Res, UseFilters, UseGuards, UseInterceptors, UsePipes } from '@nestjs/common';
+import { BadGatewayException, BadRequestException, Body, Controller, Get, Patch, Post, Render, Req, Res, UseFilters, UseGuards, UseInterceptors, UsePipes } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { GetUser } from './common/decorators';
 import { HashPasswordPipe } from './common/pipes';
@@ -134,11 +134,9 @@ export class AuthController {
   // Authorization for other services
   @MessagePattern({ cmd: SERVICE_MESSAGE.VALIDATE_JWT })
   @UseGuards(AccessTokenGuard)
-  @UseFilters(new RpcExceptionFilter())
   permissionProvider(
     @GetUser() user: UserEntity
   ): UserEntity {
-    throw new RpcException(new BadGatewayException())
     return user
   }
 
