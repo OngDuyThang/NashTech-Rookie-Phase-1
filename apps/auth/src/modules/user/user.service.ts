@@ -5,7 +5,7 @@ import { UserEntity } from "./entities/user.entity";
 import { ERROR_MESSAGE } from "@app/common";
 import { authenticator } from "otplib";
 import { TEnableTwoFactorResponse } from "../../common/types";
-import { OPEN_ID_PROVIDER } from "../../common/enums";
+import { OPENID_PROVIDER } from "../../common/enums";
 
 @Injectable()
 export class UserService {
@@ -105,10 +105,10 @@ export class UserService {
 
     async setOpenIDProvider(
         email: string,
-        provider: OPEN_ID_PROVIDER
+        provider: OPENID_PROVIDER
     ): Promise<void> {
         await this.userRepository.update({ email }, {
-            openID_provider: provider
+            openid_provider: provider
         });
     }
 }

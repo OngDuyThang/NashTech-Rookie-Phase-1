@@ -8,7 +8,7 @@ export class UserEntity {
     email?: string;
     phone?: string;
     picture?: string;
-    openID_provider?: string;
+    openid_provider?: string;
     enable_two_factor?: boolean;
     two_factor_secret?: string;
     one_time_token?: string;

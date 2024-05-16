@@ -1,3 +1,6 @@
 export * from './product.entity'
 export * from './product-category.entity'
 export * from './product-sub-category.entity'
+export * from './author.entity'
+export * from './promotion.entity'
+export * from './review.entity'

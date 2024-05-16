@@ -1,4 +1,4 @@
-export enum OPEN_ID_PROVIDER {
+export enum OPENID_PROVIDER {
     google = 'google',
     facebook = 'facebook',
     twitter = 'twitter'
