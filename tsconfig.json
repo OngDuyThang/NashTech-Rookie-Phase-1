@@ -53,6 +53,12 @@
       ],
       "@app/rmq/*": [
         "libs/rmq/src/*"
+      ],
+      "@app/graphql": [
+        "libs/graphql/src"
+      ],
+      "@app/graphql/*": [
+        "libs/graphql/src/*"
       ]
     }
   }

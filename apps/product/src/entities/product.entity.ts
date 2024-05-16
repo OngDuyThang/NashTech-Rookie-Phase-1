@@ -2,11 +2,10 @@ import { AbstractEntity } from "@app/database";
 import { IsArray, IsNotEmpty, IsNumber, IsOptional, IsString, IsUUID, MaxLength, ValidateNested } from "class-validator";
 import { Column, Entity, JoinColumn, ManyToOne, OneToMany, UpdateDateColumn } from "typeorm";
 import { Type } from "class-transformer";
-import { ProductCategoryEntity } from "./product-category.entity";
-import { ProductSubCatEntity } from "./product-sub-category.entity";
-import { AuthorEntity } from "./author.entity";
-import { PromotionEntity } from "./promotion.entity";
-import { ReviewEntity } from "./review.entity";
+import { AuthorEntity } from "../modules/author";
+import { CategoryEntity, SubCategoryEntity } from "../modules/category";
+import { PromotionEntity } from "../modules/promotion";
+import { ReviewEntity } from "../modules/review";
 
 @Entity({ name: 'product' })
 export class ProductEntity extends AbstractEntity {
@@ -38,11 +37,11 @@ export class ProductEntity extends AbstractEntity {
     author_id: string;
 
     // category id
-    @ManyToOne(() => ProductCategoryEntity, (category) => category.products)
+    @ManyToOne(() => CategoryEntity, (category) => category.products)
     @JoinColumn({ name: 'category_id' })
     @IsOptional()
-    @Type(() => ProductCategoryEntity)
-    category?: ProductCategoryEntity
+    @Type(() => CategoryEntity)
+    category?: CategoryEntity
 
     @Column({ type: 'uuid', nullable: false })
     @IsUUID(4)
@@ -50,11 +49,11 @@ export class ProductEntity extends AbstractEntity {
     category_id: string;
 
     // sub category id
-    @ManyToOne(() => ProductSubCatEntity, (subCat) => subCat.products)
+    @ManyToOne(() => SubCategoryEntity, (subCat) => subCat.products)
     @JoinColumn({ name: 'sub_cat_id' })
     @IsOptional()
-    @Type(() => ProductSubCatEntity)
-    sub_cat?: ProductSubCatEntity
+    @Type(() => SubCategoryEntity)
+    sub_cat?: SubCategoryEntity
 
     @Column({ type: 'uuid', nullable: false })
     @IsUUID(4)

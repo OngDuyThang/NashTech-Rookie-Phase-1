@@ -85,6 +85,15 @@
       "compilerOptions": {
         "tsConfigPath": "libs/rmq/tsconfig.lib.json"
       }
+    },
+    "graphql": {
+      "type": "library",
+      "root": "libs/graphql",
+      "entryFile": "index",
+      "sourceRoot": "libs/graphql/src",
+      "compilerOptions": {
+        "tsConfigPath": "libs/graphql/tsconfig.lib.json"
+      }
     }
   }
 }

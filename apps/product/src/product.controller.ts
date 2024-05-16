@@ -12,8 +12,13 @@ export class ProductController {
   ) {}
 
   @Get()
-  async findAll() {
+  async findAll(): Promise<ProductEntity[]> {
     return await this.productService.findAll();
+  }
+
+  @Get('/promotion')
+  async findAllOnSale(): Promise<ProductEntity[]> {
+    return this.productService.findAllOnSale()
   }
 
   @Get('/:id')

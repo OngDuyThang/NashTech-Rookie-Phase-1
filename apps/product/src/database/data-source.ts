@@ -1,7 +1,11 @@
 import { DataSource, DataSourceOptions } from "typeorm";
 import * as dotenv from "dotenv";
 import { getEnvFilePath } from "@app/common";
-import { AuthorEntity, ProductCategoryEntity, ProductEntity, ProductSubCatEntity, PromotionEntity, ReviewEntity } from "../entities";
+import { ProductEntity } from "../entities";
+import { AuthorEntity } from "../modules/author";
+import { PromotionEntity } from "../modules/promotion";
+import { ReviewEntity } from "../modules/review";
+import { CategoryEntity, SubCategoryEntity } from "../modules/category";
 
 dotenv.config({
     path: getEnvFilePath('product')
@@ -17,8 +21,8 @@ export const dataSourceOptions: DataSourceOptions = {
     synchronize: true,
     entities: [
         ProductEntity,
-        ProductCategoryEntity,
-        ProductSubCatEntity,
+        CategoryEntity,
+        SubCategoryEntity,
         AuthorEntity,
         PromotionEntity,
         ReviewEntity

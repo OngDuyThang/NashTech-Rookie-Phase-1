@@ -1,15 +1,19 @@
 import { Logger, Module, Provider } from '@nestjs/common';
 import { ProductController } from './product.controller';
 import { ProductService } from './product.service';
+import { ProductEntity } from './entities';
+import { ProductRepository } from './repositories';
 import { DatabaseModule } from '@app/database';
 import { dataSourceOptions } from './database/data-source';
 import { EnvModule } from '@app/env';
 import { HttpExceptionFilter, QUEUE_NAME, RmqClientOption, RpcExceptionFilter, SERVICE_NAME, TypeORMExceptionFilter, getEnvFilePath } from '@app/common';
 import { EnvValidation } from './env.validation';
-import { ProductRepository } from './repositories';
 import { RmqModule } from '@app/rmq';
-import { ProductEntity } from './entities';
 import { APP_FILTER } from '@nestjs/core';
+import { PromotionModule } from './modules/promotion';
+import { CategoryModule } from './modules/category';
+import { AuthorModule } from './modules/author';
+import { ReviewModule } from './modules/review';
 
 const rmqClients: RmqClientOption[] = [
   {
@@ -41,7 +45,11 @@ const providers: Provider[] = [
       getEnvFilePath('product'),
       EnvValidation
     ),
-    RmqModule.register(rmqClients)
+    RmqModule.register(rmqClients),
+    AuthorModule,
+    CategoryModule,
+    PromotionModule,
+    ReviewModule
   ],
   controllers: [ProductController],
   providers: [

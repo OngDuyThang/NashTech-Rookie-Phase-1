@@ -2,7 +2,7 @@ import { AbstractEntity } from "@app/database";
 import { IsNotEmpty, IsNumber, IsOptional, IsString, IsUUID, MaxLength } from "class-validator";
 import { Column, Entity, JoinColumn, ManyToOne, UpdateDateColumn } from "typeorm";
 import { Type } from "class-transformer";
-import { ProductEntity } from "./product.entity";
+import { ProductEntity } from "../../../entities/product.entity";
 
 @Entity({ name: 'review' })
 export class ReviewEntity extends AbstractEntity {

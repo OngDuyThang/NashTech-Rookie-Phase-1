@@ -2,11 +2,13 @@ import { Injectable } from '@nestjs/common';
 import { ProductRepository } from './repositories';
 import { ProductEntity } from './entities';
 import { CreateProductDto, UpdateProductDto } from './dtos';
+import { PromotionService } from './modules/promotion';
 
 @Injectable()
 export class ProductService {
     constructor(
-        private readonly productRepository: ProductRepository
+        private readonly productRepository: ProductRepository,
+        private readonly promotionService: PromotionService,
     ) {}
 
     async create(
@@ -23,6 +25,19 @@ export class ProductService {
 
     async findAll(): Promise<ProductEntity[]> {
         return await this.productRepository.find();
+    }
+
+    async findAllOnSale(): Promise<ProductEntity[]> {
+        const promotions = await this.promotionService.findAll()
+        const products: ProductEntity[] = []
+
+        // Nestjs Bull
+        for (let i = 0; i < promotions.length; i++) {
+            const promotion = promotions[i]
+            products.push(...promotion.products)
+        }
+
+        return products
     }
 
     async update(

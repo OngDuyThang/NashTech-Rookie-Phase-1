@@ -24,10 +24,13 @@
     "migration:revert": "npm run typeorm -- migration:revert"
   },
   "dependencies": {
+    "@apollo/server": "^4.10.4",
+    "@nestjs/apollo": "^12.1.0",
     "@nestjs/cache-manager": "^2.2.2",
     "@nestjs/common": "^10.0.0",
     "@nestjs/config": "^3.2.2",
     "@nestjs/core": "^10.0.0",
+    "@nestjs/graphql": "^12.1.1",
     "@nestjs/jwt": "^10.2.0",
     "@nestjs/microservices": "^10.3.8",
     "@nestjs/passport": "^10.0.3",
@@ -52,6 +55,7 @@
     "cross-env": "^7.0.3",
     "dotenv": "^16.4.5",
     "google-auth-library": "^9.9.0",
+    "graphql": "^16.8.1",
     "hbs": "^4.2.0",
     "nodemailer": "^6.9.13",
     "otplib": "^12.0.1",
@@ -117,7 +121,8 @@
       "^@app/common(|/.*)$": "<rootDir>/libs/common/src/$1",
       "^@app/mailer(|/.*)$": "<rootDir>/libs/mailer/src/$1",
       "^@app/cache(|/.*)$": "<rootDir>/libs/cache/src/$1",
-      "^@app/rmq(|/.*)$": "<rootDir>/libs/rmq/src/$1"
+      "^@app/rmq(|/.*)$": "<rootDir>/libs/rmq/src/$1",
+      "^@app/graphql(|/.*)$": "<rootDir>/libs/graphql/src/$1"
     }
   }
 }

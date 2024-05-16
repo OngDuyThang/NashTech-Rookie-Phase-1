@@ -1,23 +1,23 @@
 import { AbstractEntity } from "@app/database";
 import { IsArray, IsNotEmpty, IsOptional, IsString, IsUUID, MaxLength, ValidateNested } from "class-validator";
 import { Column, Entity, JoinColumn, ManyToOne, OneToMany, UpdateDateColumn } from "typeorm";
-import { ProductCategoryEntity } from "./product-category.entity";
+import { CategoryEntity } from "./category.entity";
 import { Type } from "class-transformer";
-import { ProductEntity } from "./product.entity";
+import { ProductEntity } from "../../../entities/product.entity";
 
 @Entity({ name: 'product_sub_category' })
-export class ProductSubCatEntity extends AbstractEntity {
+export class SubCategoryEntity extends AbstractEntity {
     @Column({ type: 'varchar', length: 255, nullable: false, unique: true })
     @IsString()
     @IsNotEmpty()
     @MaxLength(255)
     name: string;
 
-    @ManyToOne(() => ProductCategoryEntity, (category) => category.sub_cats)
+    @ManyToOne(() => CategoryEntity, (category) => category.sub_cats)
     @JoinColumn({ name: 'category_id' })
     @IsOptional()
-    @Type(() => ProductCategoryEntity)
-    category?: ProductCategoryEntity;
+    @Type(() => CategoryEntity)
+    category?: CategoryEntity;
 
     @Column({ type: 'uuid', nullable: false })
     @IsUUID(4)
