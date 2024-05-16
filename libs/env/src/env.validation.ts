@@ -23,4 +23,8 @@ export abstract class AbstractEnvValidation {
     @IsString()
     @IsNotEmpty()
     DB_NAME: string
+
+    @IsString()
+    @IsNotEmpty()
+    RABBIT_MQ_URI: string
 }

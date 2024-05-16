@@ -302,7 +302,7 @@
                 },
                 body: JSON.stringify({
                     ...body,
-                    ...(gmail ? { openID_provider: 'google' } : null)
+                    ...(gmail ? { openid_provider: 'google' } : null)
                 })
             })
                 .then(res => res.json())

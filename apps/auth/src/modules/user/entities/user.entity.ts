@@ -1,10 +1,11 @@
 import { AbstractEntity } from "@app/database";
 import { IsArray, IsBoolean, IsEmail, IsEnum, IsNotEmpty, IsOptional, IsString, IsUUID, MaxLength, ValidateNested } from "class-validator";
-import { Column, Entity, OneToMany } from "typeorm";
+import { Column, Entity, OneToMany, UpdateDateColumn } from "typeorm";
 import { UserAddressEntity } from "./user-address.entity";
 import { Type } from "class-transformer";
 import { UserPaymentEntity } from "./user-payment.entity";
-import { OPEN_ID_PROVIDER } from "../../../common/enums";
+import { OPENID_PROVIDER } from "../../../common/enums";
+import { ROLE } from "@app/common";
 
 @Entity({ name: 'user' })
 export class UserEntity extends AbstractEntity {
@@ -63,9 +64,9 @@ export class UserEntity extends AbstractEntity {
     picture?: string
 
     @Column({ type: 'varchar', length: 20, nullable: true })
-    @IsEnum(OPEN_ID_PROVIDER)
+    @IsEnum(OPENID_PROVIDER)
     @IsOptional()
-    openID_provider?: OPEN_ID_PROVIDER
+    openid_provider?: OPENID_PROVIDER
 
     @Column({ type: 'boolean', default: false })
     @IsBoolean()
@@ -86,4 +87,13 @@ export class UserEntity extends AbstractEntity {
     @IsUUID(4)
     @IsOptional()
     api_key?: string
+
+    @Column({ type: 'varchar', length: 20, nullable: false, default: ROLE.USER })
+    @IsEnum(ROLE)
+    @IsNotEmpty()
+    role: ROLE
+
+    @UpdateDateColumn({ type: 'timestamp', default: null })
+    @IsNotEmpty()
+    deleted_at: Date
 }

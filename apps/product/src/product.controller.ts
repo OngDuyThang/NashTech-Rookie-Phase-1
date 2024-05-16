@@ -1,24 +1,22 @@
-import { Controller, Get, Param, ParseUUIDPipe, Post, UseGuards } from '@nestjs/common';
+import { Controller, Get, Param, ParseUUIDPipe, Post, Req, UseGuards } from '@nestjs/common';
 import { ProductService } from './product.service';
 import { ProductEntity } from './entities';
 import { CreateProductDto } from './dtos';
-import { ROLES, Roles } from '@app/common';
+import { PermissionRequestGuard, ROLE, Roles } from '@app/common';
+import { RolesGuard } from '@app/common/auth/roles.guard';
 
 @Controller('product')
-@Roles([ROLES.ADMIN])
 export class ProductController {
   constructor(
     private readonly productService: ProductService
   ) {}
 
   @Get()
-  @Roles([ROLES.USER])
   async findAll() {
     return await this.productService.findAll();
   }
 
   @Get('/:id')
-  @Roles([ROLES.USER])
   async findOneById(
     @Param('id', new ParseUUIDPipe({ version: '4' }))
     id: string
@@ -29,7 +27,11 @@ export class ProductController {
   // Search
 
   @Post()
-  @UseGuards()
+  @Roles([ROLE.ADMIN])
+  @UseGuards(
+    PermissionRequestGuard,
+    RolesGuard
+  )
   createProduct(
     createProductDto: CreateProductDto
   ): Promise<ProductEntity> {

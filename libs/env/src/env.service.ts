@@ -39,6 +39,14 @@ export class Env {
         return this.configService.get<string>('DB_NAME');
     }
 
+    get RABBIT_MQ_URI() {
+        return this.configService.get<string>('RABBIT_MQ_URI');
+    }
+
+    get QUEUE_NAME() {
+        return this.configService.get<string>('QUEUE_NAME');
+    }
+
     get REDIS_HOST() {
         return this.configService.get<string>('REDIS_HOST');
     }

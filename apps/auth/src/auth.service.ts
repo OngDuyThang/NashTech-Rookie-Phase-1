@@ -21,7 +21,7 @@ import { Transporter } from 'nodemailer';
 import { MAILER_SERVICE } from '@app/mailer';
 import { resetPwMailTemplate } from './views';
 import { OAuth2Client } from 'google-auth-library'
-import { OPEN_ID_PROVIDER, TOKEN_EXPIRY_TIME, TOKEN_KEY_NAME } from './common/enums';
+import { OPENID_PROVIDER, TOKEN_EXPIRY_TIME, TOKEN_KEY_NAME } from './common/enums';
 import { CACHE_SERVICE } from '@app/cache';
 import { Cache } from 'cache-manager';
 
@@ -298,7 +298,7 @@ export class AuthService {
 
     const user = await this.userService.validateExistEmail(email);
     if (user) {
-      if (user.openID_provider == OPEN_ID_PROVIDER.google) {
+      if (user.openid_provider == OPENID_PROVIDER.google) {
         // Return client call back url to client with authorization code in query
         const clientCallbackUrl = await this.getClientCallbackUrl(user.id)
         res.redirect(clientCallbackUrl)

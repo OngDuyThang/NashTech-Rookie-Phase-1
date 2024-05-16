@@ -9,4 +9,12 @@ export class EnvValidation extends AbstractEnvValidation {
     @IsNumberString()
     @IsNotEmpty()
     SERVICE_PORT: string
+
+    @IsString()
+    @IsNotEmpty()
+    AUTH_QUEUE: string
+
+    @IsString()
+    @IsNotEmpty()
+    PRODUCT_QUEUE: string
 }

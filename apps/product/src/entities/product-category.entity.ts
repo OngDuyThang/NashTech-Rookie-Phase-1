@@ -1,6 +1,6 @@
 import { AbstractEntity } from "@app/database";
 import { IsArray, IsNotEmpty, IsOptional, IsString, MaxLength, ValidateNested } from "class-validator";
-import { Column, Entity, OneToMany } from "typeorm";
+import { Column, Entity, OneToMany, UpdateDateColumn } from "typeorm";
 import { ProductSubCatEntity } from "./product-sub-category.entity";
 import { Type } from "class-transformer";
 import { ProductEntity } from "./product.entity";
@@ -26,4 +26,8 @@ export class ProductCategoryEntity extends AbstractEntity {
     @ValidateNested({ each: true })
     @Type(() => ProductEntity)
     products?: ProductEntity[];
+
+    @UpdateDateColumn({ type: 'timestamp', default: null })
+    @IsNotEmpty()
+    deleted_at: Date
 }

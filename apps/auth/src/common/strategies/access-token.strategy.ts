@@ -4,7 +4,6 @@ import { PassportStrategy } from "@nestjs/passport";
 import { ExtractJwt, Strategy } from "passport-jwt";
 import { TJwtPayload } from "../types";
 import { ERROR_MESSAGE } from "@app/common";
-import { Request } from "express";
 import { UserEntity, UserService } from "../../modules/user";
 import * as bcrypt from 'bcrypt';
 import { TOKEN_KEY_NAME } from "../enums";
@@ -16,15 +15,25 @@ export class AccessTokenStrategy extends PassportStrategy(Strategy) {
         private readonly userService: UserService
     ) {
         super({
-            jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
+            // two scenario: request object from http and request payload from rpc
+            jwtFromRequest: ExtractJwt.fromExtractors([
+                (req: any) => {
+                    const accessToken = (req?.headers?.authorization || req?.accessToken) as string
+                    if (accessToken.includes('Bearer')) {
+                        return accessToken.split(' ')[1]
+                    }
+                    return accessToken
+                }
+            ]),
             ignoreExpiration: false,
             secretOrKey: env.ACCESS_TOKEN_SECRET,
             passReqToCallback: true
         });
     }
 
+    // single responsibility: validate access token and fingerprint, then give back user entity
     async validate(
-        req: Request,
+        req: any, // two scenario: request object from http and request payload from rpc
         payload: TJwtPayload
     ): Promise<UserEntity> {
         const error = new UnauthorizedException(ERROR_MESSAGE.USER_UNAUTHORIZED)
@@ -33,7 +42,7 @@ export class AccessTokenStrategy extends PassportStrategy(Strategy) {
             throw error
         }
 
-        const originalFingerprint = req.cookies?.[TOKEN_KEY_NAME.FINGERPRINT]
+        const originalFingerprint = req?.cookies?.[TOKEN_KEY_NAME.FINGERPRINT] || req?.fingerprint
         const { id, fingerprint: hashedFingerprint } = payload
         if (!originalFingerprint || !hashedFingerprint) {
             throw error

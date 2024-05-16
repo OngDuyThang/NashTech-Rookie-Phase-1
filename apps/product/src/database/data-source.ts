@@ -1,7 +1,7 @@
 import { DataSource, DataSourceOptions } from "typeorm";
 import * as dotenv from "dotenv";
 import { getEnvFilePath } from "@app/common";
-import { ProductCategoryEntity, ProductEntity, ProductSubCatEntity } from "../src/entities";
+import { AuthorEntity, ProductCategoryEntity, ProductEntity, ProductSubCatEntity, PromotionEntity, ReviewEntity } from "../entities";
 
 dotenv.config({
     path: getEnvFilePath('product')
@@ -18,7 +18,10 @@ export const dataSourceOptions: DataSourceOptions = {
     entities: [
         ProductEntity,
         ProductCategoryEntity,
-        ProductSubCatEntity
+        ProductSubCatEntity,
+        AuthorEntity,
+        PromotionEntity,
+        ReviewEntity
     ],
     // migrations: ["dist/apps/auth/database/migrations/*.js"],
 }

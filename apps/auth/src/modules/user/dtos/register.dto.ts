@@ -1,5 +1,5 @@
 import { Trim } from "@app/common"
-import { OPEN_ID_PROVIDER } from "../../../common/enums"
+import { OPENID_PROVIDER } from "../../../common/enums"
 import { IsEmail, IsEnum, IsNotEmpty, IsOptional, IsString, Matches, MaxLength } from "class-validator"
 
 export class RegisterDto {
@@ -33,7 +33,7 @@ export class RegisterDto {
     })
     password: string
 
-    @IsEnum(OPEN_ID_PROVIDER)
+    @IsEnum(OPENID_PROVIDER)
     @IsOptional()
-    openID_provider?: OPEN_ID_PROVIDER
+    openid_provider?: OPENID_PROVIDER
 }

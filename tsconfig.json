@@ -47,6 +47,12 @@
       ],
       "@app/cache/*": [
         "libs/cache/src/*"
+      ],
+      "@app/rmq": [
+        "libs/rmq/src"
+      ],
+      "@app/rmq/*": [
+        "libs/rmq/src/*"
       ]
     }
   }

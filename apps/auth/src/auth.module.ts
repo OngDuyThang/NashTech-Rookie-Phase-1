@@ -2,9 +2,9 @@ import { Inject, Logger, Module, Provider } from '@nestjs/common';
 import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
 import { DatabaseModule } from '@app/database';
-import { dataSourceOptions } from '../database/data-source';
+import { dataSourceOptions } from './database/data-source';
 import { EnvModule } from '@app/env';
-import { HttpExceptionFilter, TypeORMExceptionFilter, getEnvFilePath } from '@app/common';
+import { HttpExceptionFilter, RpcExceptionFilter, TypeORMExceptionFilter, getEnvFilePath } from '@app/common';
 import { UserModule } from './modules/user/user.module';
 import { APP_FILTER } from '@nestjs/core';
 import { TokenModule } from './modules/token';
@@ -12,6 +12,7 @@ import { AccessTokenStrategy, GoogleAuthStrategy, LocalAuthStrategy } from './co
 import { EnvValidation } from './env.validation';
 import { MailerModule } from '@app/mailer';
 import { CACHE_SERVICE, CacheModule, RedisCache } from '@app/cache';
+import { RmqModule } from '@app/rmq';
 
 const providers: Provider[] = [
   {
@@ -21,6 +22,10 @@ const providers: Provider[] = [
   {
     provide: APP_FILTER,
     useClass: TypeORMExceptionFilter
+  },
+  {
+    provide: APP_FILTER,
+    useClass: RpcExceptionFilter
   }
 ]
 
@@ -34,7 +39,8 @@ const providers: Provider[] = [
     UserModule,
     TokenModule,
     MailerModule,
-    CacheModule.register(30)
+    CacheModule.register(30),
+    RmqModule
   ],
   controllers: [AuthController],
   providers: [

@@ -1,0 +1,13 @@
+export enum QUEUE_NAME {
+    AUTH = 'AUTH_QUEUE',
+    PRODUCT = 'PRODUCT_QUEUE',
+}
+
+export enum SERVICE_NAME {
+    AUTH_SERVICE = 'AUTH_SERVICE',
+    PRODUCT_SERVICE = 'PRODUCT_SERVICE',
+}
+
+export enum SERVICE_MESSAGE {
+    VALIDATE_JWT = 'VALIDATE_JWT',
+}
