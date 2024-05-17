@@ -2,8 +2,8 @@ import { AbstractEntity } from "@app/database";
 import { IsArray, IsNotEmpty, IsOptional, IsString, MaxLength, ValidateNested } from "class-validator";
 import { Column, Entity, OneToMany } from "typeorm";
 import { Type } from "class-transformer";
-import { ProductEntity } from "../../../common/entities/product.entity";
 import { Field, ObjectType } from "@nestjs/graphql";
+import { ProductEntity } from "../../product";
 
 @Entity({ name: 'author' })
 @ObjectType()

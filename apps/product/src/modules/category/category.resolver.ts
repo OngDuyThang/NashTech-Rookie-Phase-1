@@ -1,4 +1,4 @@
-import { Resolver, Query, Args } from '@nestjs/graphql';
+import { Resolver, Query, Args, Parent, ResolveField } from '@nestjs/graphql';
 import { CategoryService } from './category.service';
 import { CategoryEntity } from './entities/category.entity';
 
@@ -9,14 +9,21 @@ export class CategoryResolver {
   ) {}
 
   @Query(() => [CategoryEntity])
-  findAll(): Promise<CategoryEntity[]> {
-    return this.categoryService.findAll();
+  async categories(): Promise<CategoryEntity[]> {
+    return await this.categoryService.findAll();
   }
 
   @Query(() => CategoryEntity)
-  findOneById(
+  async category(
     @Args('id') id: string
   ): Promise<CategoryEntity> {
-    return this.categoryService.findOneById(id);
+    return await this.categoryService.findOneById(id);
   }
+
+  // @ResolveField(() => [ProductEntity])
+  // async products(
+  //   @Parent() category: CategoryEntity
+  // ) {
+  //   return await this.productRepository.find({ where: { category_id: category.id } });
+  // }
 }

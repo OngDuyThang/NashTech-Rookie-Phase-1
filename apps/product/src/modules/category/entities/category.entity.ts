@@ -1,9 +1,9 @@
 import { AbstractEntity } from "@app/database";
-import { IsArray, IsNotEmpty, IsOptional, IsString, IsUUID, MaxLength, ValidateNested } from "class-validator";
-import { Column, Entity, JoinColumn, OneToMany, OneToOne, UpdateDateColumn } from "typeorm";
+import { IsArray, IsBoolean, IsNotEmpty, IsOptional, IsString, IsUUID, MaxLength, ValidateNested } from "class-validator";
+import { Column, Entity, JoinColumn, OneToMany, OneToOne } from "typeorm";
 import { Type } from "class-transformer";
-import { ProductEntity } from "../../../common/entities/product.entity";
 import { Field, ObjectType } from "@nestjs/graphql";
+import { ProductEntity } from "../../product";
 
 @Entity({ name: 'product_category' })
 @ObjectType()
@@ -15,17 +15,17 @@ export class CategoryEntity extends AbstractEntity {
     @Field()
     name: string;
 
-    @OneToOne(() => CategoryEntity, category => category.id)
+    @OneToOne(() => CategoryEntity, category => category.id, { onDelete: 'SET NULL' })
     @JoinColumn({ name: 'parent_id' })
     @IsOptional()
     @Type(() => CategoryEntity)
-    @Field(() => CategoryEntity)
+    @Field(() => CategoryEntity, { nullable: true })
     parent?: CategoryEntity;
 
     @Column({ type: 'uuid', nullable: true })
     @IsUUID(4)
     @IsOptional()
-    @Field()
+    @Field({ nullable: true })
     parent_id?: string;
 
     @OneToMany(() => ProductEntity, product => product.category)
@@ -33,10 +33,11 @@ export class CategoryEntity extends AbstractEntity {
     @IsOptional()
     @ValidateNested({ each: true })
     @Type(() => ProductEntity)
-    @Field(() => [ProductEntity])
+    @Field(() => [ProductEntity], { nullable: true })
     products?: ProductEntity[];
 
-    @UpdateDateColumn({ type: 'timestamp', default: null })
-    @IsNotEmpty()
-    deleted_at: Date
+    @Column({ type: 'boolean', default: true })
+    @IsOptional()
+    @IsBoolean()
+    active?: boolean
 }

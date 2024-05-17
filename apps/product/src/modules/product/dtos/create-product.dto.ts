@@ -3,21 +3,25 @@ import { IsNotEmpty, IsNumber, IsOptional, IsString, IsUUID } from "class-valida
 export class CreateProductDto {
     @IsString()
     @IsNotEmpty()
-    name: string;
+    title: string;
 
     @IsString()
     @IsOptional()
     description?: string;
 
-    @IsUUID(4)
-    @IsNotEmpty()
-    category_id: string;
-
-    @IsUUID(4)
-    @IsNotEmpty()
-    sub_cat_id: string;
-
     @IsNumber()
     @IsNotEmpty()
     price: number;
+
+    @IsUUID(4)
+    @IsOptional()
+    author_id?: string;
+
+    @IsUUID(4)
+    @IsOptional()
+    category_id?: string;
+
+    @IsUUID(4)
+    @IsOptional()
+    promotion_id?: string;
 }

@@ -1,12 +1,13 @@
 import { AbstractEntity } from "@app/database";
-import { IsArray, IsNotEmpty, IsNumber, IsOptional, IsString, IsUUID, MaxLength, ValidateNested } from "class-validator";
-import { Column, Entity, JoinColumn, ManyToOne, OneToMany, UpdateDateColumn } from "typeorm";
+import { IsArray, IsBoolean, IsNotEmpty, IsNumber, IsOptional, IsString, IsUUID, MaxLength, ValidateNested } from "class-validator";
+import { Column, Entity, JoinColumn, ManyToOne, OneToMany } from "typeorm";
 import { Type } from "class-transformer";
-import { AuthorEntity } from "../../modules/author";
-import { CategoryEntity } from "../../modules/category";
-import { PromotionEntity } from "../../modules/promotion";
-import { ReviewEntity } from "../../modules/review";
+
 import { Field, ObjectType } from "@nestjs/graphql";
+import { AuthorEntity } from "../../author";
+import { CategoryEntity } from "../../category";
+import { PromotionEntity } from "../../promotion";
+import { ReviewEntity } from "../../review";
 
 @Entity({ name: 'product' })
 @ObjectType()
@@ -21,7 +22,7 @@ export class ProductEntity extends AbstractEntity {
     @Column({ type: 'text', nullable: true })
     @IsOptional()
     @IsString()
-    @Field()
+    @Field({ nullable: true })
     description?: string;
 
     @Column({ type: 'int', nullable: false })
@@ -30,42 +31,42 @@ export class ProductEntity extends AbstractEntity {
     @Field()
     price: number;
 
-    @ManyToOne(() => AuthorEntity, (author) => author.products)
+    @ManyToOne(() => AuthorEntity, (author) => author.products, { onDelete: 'SET NULL' })
     @JoinColumn({ name: 'author_id' })
     @IsOptional()
     @Type(() => AuthorEntity)
     author?: AuthorEntity;
 
-    @Column({ type: 'uuid', nullable: false })
+    @Column({ type: 'uuid', nullable: true })
     @IsUUID(4)
-    @IsNotEmpty()
-    @Field()
-    author_id: string;
+    @IsOptional()
+    @Field({ nullable: true })
+    author_id?: string;
 
     // category id
-    @ManyToOne(() => CategoryEntity, (category) => category.products)
+    @ManyToOne(() => CategoryEntity, (category) => category.products, { onDelete: 'SET NULL' })
     @JoinColumn({ name: 'category_id' })
     @IsOptional()
     @Type(() => CategoryEntity)
     category?: CategoryEntity
 
-    @Column({ type: 'uuid', nullable: false })
+    @Column({ type: 'uuid', nullable: true })
     @IsUUID(4)
-    @IsNotEmpty()
-    @Field()
-    category_id: string;
+    @IsOptional()
+    @Field({ nullable: true })
+    category_id?: string;
 
-    @ManyToOne(() => PromotionEntity, promotion => promotion.products)
+    @ManyToOne(() => PromotionEntity, promotion => promotion.products, { onDelete: 'SET NULL' })
     @JoinColumn({ name: 'promotion_id' })
     @IsOptional()
     @Type(() => PromotionEntity)
     promotion?: PromotionEntity;
 
-    @Column({ type: 'uuid', nullable: false })
+    @Column({ type: 'uuid', nullable: true })
     @IsUUID(4)
-    @IsNotEmpty()
-    @Field()
-    promotion_id: string;
+    @IsOptional()
+    @Field({ nullable: true })
+    promotion_id?: string;
 
     @OneToMany(() => ReviewEntity, review => review.product)
     @IsArray()
@@ -75,9 +76,9 @@ export class ProductEntity extends AbstractEntity {
     @Field(() => [ReviewEntity])
     reviews: ReviewEntity[]
 
-    @UpdateDateColumn({ type: 'timestamp', default: null })
-    @IsNotEmpty()
-    deleted_at: Date
-
+    @Column({ type: 'boolean', default: true })
+    @IsOptional()
+    @IsBoolean()
+    active?: boolean
     // inventory id
 }

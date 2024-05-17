@@ -1,13 +1,13 @@
 import { NestFactory } from '@nestjs/core';
-import { ProductModule } from './product.module';
+import { AppModule } from './app.module';
 import { RmqService } from '@app/rmq';
-import { QUEUE_NAME, RpcExceptionFilter } from '@app/common';
-import { Logger } from '@nestjs/common';
+import { QUEUE_NAME, ReshapeDataInteceptor, RpcExceptionFilter } from '@app/common';
+import { Logger, ValidationPipe } from '@nestjs/common';
 import { Env } from '@app/env';
 import * as cookieParser from 'cookie-parser';
 
 async function bootstrap() {
-  const app = await NestFactory.create(ProductModule);
+  const app = await NestFactory.create(AppModule);
   const logger = app.get(Logger);
   const env = app.get(Env)
   const rmqService = app.get(RmqService);
@@ -23,6 +23,12 @@ async function bootstrap() {
     origin: true,
     credentials: true
   });
+
+  app.useGlobalPipes(new ValidationPipe({
+    whitelist: true,
+    forbidNonWhitelisted: true
+  }))
+  app.useGlobalInterceptors(new ReshapeDataInteceptor())
 
   app.use(cookieParser());
 

@@ -4,24 +4,27 @@
 
 type CategoryEntity {
   name: String!
-  parent: CategoryEntity!
-  parent_id: String!
-  products: [ProductEntity!]!
+  parent: CategoryEntity
+  parent_id: String
+  products: [ProductEntity!]
 }
 
 type ProductEntity {
-  author_id: String!
-  category_id: String!
-  description: String!
+  author_id: String
+  category_id: String
+  description: String
   price: Float!
-  promotion_id: String!
+  promotion_id: String
   reviews: [ReviewEntity!]!
   title: String!
 }
 
 type Query {
-  findAll: [CategoryEntity!]!
-  findOneById(id: String!): CategoryEntity!
+  categories: [CategoryEntity!]!
+  category(id: String!): CategoryEntity!
+  product(id: String!): ProductEntity!
+  products: [ProductEntity!]!
+  searchProducts: [ProductEntity!]!
 }
 
 type ReviewEntity {

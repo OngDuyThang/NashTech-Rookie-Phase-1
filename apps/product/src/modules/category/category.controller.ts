@@ -16,10 +16,10 @@ export class CategoryController {
         PermissionRequestGuard,
         RolesGuard
     )
-    create(
+    async create(
         @Body() createCategoryDto: CreateCategoryDto
     ): Promise<CategoryEntity> {
-        return this.categoryService.create(createCategoryDto);
+        return await this.categoryService.create(createCategoryDto);
     }
 
     @Get()

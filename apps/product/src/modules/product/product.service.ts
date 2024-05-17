@@ -1,14 +1,14 @@
 import { Injectable } from '@nestjs/common';
-import { ProductRepository } from './common/repositories';
-import { ProductEntity } from './common/entities';
-import { CreateProductDto, UpdateProductDto } from './common/dtos';
-import { PromotionService } from './modules/promotion';
+import { ProductRepository } from './repositories/product.repository';
+import { CreateProductDto } from './dtos/create-product.dto';
+import { ProductEntity } from './entities/product.entity';
+import { UpdateProductDto } from './dtos/update-product.dto';
+import { PromotionService } from '../promotion';
 
 @Injectable()
 export class ProductService {
     constructor(
         private readonly productRepository: ProductRepository,
-        private readonly promotionService: PromotionService,
     ) {}
 
     async create(
@@ -21,18 +21,18 @@ export class ProductService {
         return await this.productRepository.find();
     }
 
-    async findAllOnSale(): Promise<ProductEntity[]> {
-        const promotions = await this.promotionService.findAll()
-        const products: ProductEntity[] = []
+    // async findAllOnSale(): Promise<ProductEntity[]> {
+    //     const promotions = await this.promotionService.findAll()
+    //     const products: ProductEntity[] = []
 
-        // Nestjs Bull
-        for (let i = 0; i < promotions.length; i++) {
-            const promotion = promotions[i]
-            products.push(...promotion.products)
-        }
+    //     // Nestjs Bull
+    //     for (let i = 0; i < promotions.length; i++) {
+    //         const promotion = promotions[i]
+    //         products.push(...promotion.products)
+    //     }
 
-        return products
-    }
+    //     return products
+    // }
 
     async findOneById(
         id: string

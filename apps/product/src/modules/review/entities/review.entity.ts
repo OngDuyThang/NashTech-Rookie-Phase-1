@@ -2,8 +2,8 @@ import { AbstractEntity } from "@app/database";
 import { IsNotEmpty, IsNumber, IsOptional, IsString, IsUUID, MaxLength } from "class-validator";
 import { Column, Entity, JoinColumn, ManyToOne, UpdateDateColumn } from "typeorm";
 import { Type } from "class-transformer";
-import { ProductEntity } from "../../../common/entities/product.entity";
 import { Field, ObjectType } from "@nestjs/graphql";
+import { ProductEntity } from "../../product";
 
 @Entity({ name: 'review' })
 @ObjectType()
@@ -34,7 +34,7 @@ export class ReviewEntity extends AbstractEntity {
     @Field()
     user_id: string
 
-    @ManyToOne(() => ProductEntity, product => product.reviews)
+    @ManyToOne(() => ProductEntity, product => product.reviews, { onDelete: 'CASCADE' })
     @JoinColumn({ name: 'product_id' })
     @IsOptional()
     @Type(() => ProductEntity)

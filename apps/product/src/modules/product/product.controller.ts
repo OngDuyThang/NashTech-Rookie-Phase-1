@@ -1,8 +1,9 @@
 import { Body, Controller, Delete, Get, Param, Patch, Post, UseGuards } from '@nestjs/common';
 import { ProductService } from './product.service';
-import { ProductEntity } from './common/entities';
-import { CreateProductDto, UpdateProductDto } from './common/dtos';
 import { PermissionRequestGuard, ROLE, Roles, RolesGuard, UUIDPipe } from '@app/common';
+import { CreateProductDto } from './dtos/create-product.dto';
+import { ProductEntity } from './entities/product.entity';
+import { UpdateProductDto } from './dtos/update-product.dto';
 
 @Controller('products')
 export class ProductController {
@@ -16,10 +17,10 @@ export class ProductController {
     PermissionRequestGuard,
     RolesGuard
   )
-  createProduct(
+  async create(
     @Body() createProductDto: CreateProductDto
   ): Promise<ProductEntity> {
-    return this.productService.create(createProductDto);
+    return await this.productService.create(createProductDto);
   }
 
   @Get()
