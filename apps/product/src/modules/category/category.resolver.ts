@@ -5,7 +5,8 @@ import { CategoryEntity } from './entities/category.entity';
 @Resolver(() => CategoryEntity)
 export class CategoryResolver {
   constructor(
-    private readonly categoryService: CategoryService
+    private readonly categoryService: CategoryService,
+    // private readonly productRepository: ProductRepository
   ) {}
 
   @Query(() => [CategoryEntity])

@@ -3,7 +3,7 @@ import { IsArray, IsNotEmpty, IsNumber, IsOptional, IsString, MaxLength, Validat
 import { Column, Entity, OneToMany } from "typeorm";
 import { Type } from "class-transformer";
 import { Field, ObjectType } from "@nestjs/graphql";
-import { ProductEntity } from "../../product";
+import { ProductEntity } from "../../product/entities/product.entity";
 
 @Entity({ name: 'promotion' })
 @ObjectType()

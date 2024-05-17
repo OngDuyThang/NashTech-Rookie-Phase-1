@@ -5,19 +5,20 @@ import { CategoryController } from "./category.controller";
 import { DatabaseModule } from "@app/database";
 import { CategoryEntity } from "./entities/category.entity";
 import { CategoryResolver } from "./category.resolver";
+import { ProductModule } from "../product/product.module";
 
 @Module({
     imports: [
         DatabaseModule.forFeature([
             CategoryEntity
-        ])
+        ]),
+        ProductModule
     ],
     controllers: [CategoryController],
     providers: [
         CategoryService,
         CategoryRepository,
         CategoryResolver
-    ],
-    exports: [CategoryService]
+    ]
 })
 export class CategoryModule {}

@@ -3,7 +3,6 @@ import { ProductRepository } from './repositories/product.repository';
 import { CreateProductDto } from './dtos/create-product.dto';
 import { ProductEntity } from './entities/product.entity';
 import { UpdateProductDto } from './dtos/update-product.dto';
-import { PromotionService } from '../promotion';
 
 @Injectable()
 export class ProductService {

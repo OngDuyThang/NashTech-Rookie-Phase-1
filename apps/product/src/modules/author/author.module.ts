@@ -1,7 +1,4 @@
 import { Module } from "@nestjs/common";
 
-@Module({
-    imports: [],
-    exports: []
-})
+@Module({})
 export class AuthorModule {}

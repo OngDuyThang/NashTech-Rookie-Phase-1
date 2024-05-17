@@ -2,12 +2,11 @@ import { AbstractEntity } from "@app/database";
 import { IsArray, IsBoolean, IsNotEmpty, IsNumber, IsOptional, IsString, IsUUID, MaxLength, ValidateNested } from "class-validator";
 import { Column, Entity, JoinColumn, ManyToOne, OneToMany } from "typeorm";
 import { Type } from "class-transformer";
-
 import { Field, ObjectType } from "@nestjs/graphql";
-import { AuthorEntity } from "../../author";
-import { CategoryEntity } from "../../category";
-import { PromotionEntity } from "../../promotion";
-import { ReviewEntity } from "../../review";
+import { CategoryEntity } from "../../category/entities/category.entity";
+import { AuthorEntity } from "../../author/entities/author.entity";
+import { PromotionEntity } from "../../promotion/entities/promotion.entity";
+import { ReviewEntity } from "../../review/entities/review.entity";
 
 @Entity({ name: 'product' })
 @ObjectType()

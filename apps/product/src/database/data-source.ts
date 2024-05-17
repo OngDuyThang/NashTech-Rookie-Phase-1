@@ -1,11 +1,11 @@
 import { DataSource, DataSourceOptions } from "typeorm";
 import * as dotenv from "dotenv";
 import { getEnvFilePath } from "@app/common";
-import { AuthorEntity } from "../modules/author";
-import { PromotionEntity } from "../modules/promotion";
-import { ReviewEntity } from "../modules/review";
-import { CategoryEntity } from "../modules/category";
-import { ProductEntity } from "../modules/product";
+import { ProductEntity } from "../modules/product/entities/product.entity";
+import { CategoryEntity } from "../modules/category/entities/category.entity";
+import { AuthorEntity } from "../modules/author/entities/author.entity";
+import { PromotionEntity } from "../modules/promotion/entities/promotion.entity";
+import { ReviewEntity } from "../modules/review/entities/review.entity";
 
 dotenv.config({
     path: getEnvFilePath('product')

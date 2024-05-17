@@ -8,11 +8,11 @@ import { RmqModule } from '@app/rmq';
 import { QUEUE_NAME, RmqClientOption, SERVICE_NAME } from '@app/common';
 import { EnvValidation } from './env.validation';
 import { APP_FILTER } from '@nestjs/core';
-import { PromotionModule } from './modules/promotion';
-import { CategoryModule } from './modules/category';
-import { AuthorModule } from './modules/author';
-import { ReviewModule } from './modules/review';
-import { ProductModule } from './modules/product';
+// import { PromotionModule } from './modules/promotion';
+import { CategoryModule } from './modules/category/category.module';
+// import { AuthorModule } from './modules/author';
+// import { ReviewModule } from './modules/review';
+import { ProductModule } from './modules/product/product.module';
 
 const rmqClients: RmqClientOption[] = [
   {
@@ -48,12 +48,11 @@ const providers: Provider[] = [
       getGqlSchemaPath('product')
     ),
     ProductModule,
-    AuthorModule,
     CategoryModule,
-    PromotionModule,
-    ReviewModule
+    // AuthorModule,
+    // PromotionModule,
+    // ReviewModule
   ],
-  controllers: [],
   providers: [
     Logger,
     ...providers

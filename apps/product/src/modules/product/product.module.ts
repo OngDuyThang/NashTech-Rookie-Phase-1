@@ -8,7 +8,7 @@ import { ProductResolver } from './product.resolver';
 
 @Module({
   imports: [
-    DatabaseModule.forFeature([ProductEntity])
+    DatabaseModule.forFeature([ProductEntity]),
   ],
   controllers: [
     ProductController
@@ -17,6 +17,10 @@ import { ProductResolver } from './product.resolver';
     ProductService,
     ProductRepository,
     ProductResolver
+  ],
+  exports: [
+    ProductService,
+    ProductRepository,
   ],
 })
 export class ProductModule {}
