@@ -3,14 +3,7 @@
   "collection": "@nestjs/schematics",
   "compilerOptions": {
     "deleteOutDir": true,
-    "webpack": false,
-    "assets": [
-      {
-        "include": "**/*.hbs",
-        "watchAssets": true,
-        "outDir": "dist/apps/auth"
-      }
-    ]
+    "webpack": false
   },
   "monorepo": true,
   "projects": {
@@ -20,7 +13,23 @@
       "entryFile": "main",
       "sourceRoot": "apps/auth/src",
       "compilerOptions": {
-        "tsConfigPath": "apps/auth/tsconfig.app.json"
+        "tsConfigPath": "apps/auth/tsconfig.app.json",
+        "assets": [
+          {
+            "include": "**/*.hbs",
+            "watchAssets": true,
+            "outDir": "dist/apps/auth/apps/auth"
+          }
+        ]
+      }
+    },
+    "product": {
+      "type": "application",
+      "root": "apps/product",
+      "entryFile": "main",
+      "sourceRoot": "apps/product/src",
+      "compilerOptions": {
+        "tsConfigPath": "apps/product/tsconfig.app.json"
       }
     },
     "database": {
@@ -66,15 +75,6 @@
       "sourceRoot": "libs/cache/src",
       "compilerOptions": {
         "tsConfigPath": "libs/cache/tsconfig.lib.json"
-      }
-    },
-    "product": {
-      "type": "application",
-      "root": "apps/product",
-      "entryFile": "main",
-      "sourceRoot": "apps/product/src",
-      "compilerOptions": {
-        "tsConfigPath": "apps/product/tsconfig.app.json"
       }
     },
     "rmq": {

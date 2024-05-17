@@ -1,30 +1,39 @@
 import { AbstractEntity } from "@app/database";
-import { IsArray, IsNotEmpty, IsOptional, IsString, MaxLength, ValidateNested } from "class-validator";
-import { Column, Entity, OneToMany, UpdateDateColumn } from "typeorm";
-import { SubCategoryEntity } from "./sub-category.entity";
+import { IsArray, IsNotEmpty, IsOptional, IsString, IsUUID, MaxLength, ValidateNested } from "class-validator";
+import { Column, Entity, JoinColumn, OneToMany, OneToOne, UpdateDateColumn } from "typeorm";
 import { Type } from "class-transformer";
-import { ProductEntity } from "../../../entities/product.entity";
+import { ProductEntity } from "../../../common/entities/product.entity";
+import { Field, ObjectType } from "@nestjs/graphql";
 
 @Entity({ name: 'product_category' })
+@ObjectType()
 export class CategoryEntity extends AbstractEntity {
     @Column({ type: 'varchar', length: 255, nullable: false, unique: true })
     @IsString()
     @IsNotEmpty()
     @MaxLength(255)
+    @Field()
     name: string;
 
-    @OneToMany(() => SubCategoryEntity, subCat => subCat.category)
-    @IsArray()
+    @OneToOne(() => CategoryEntity, category => category.id)
+    @JoinColumn({ name: 'parent_id' })
     @IsOptional()
-    @ValidateNested({ each: true })
-    @Type(() => SubCategoryEntity)
-    sub_cats?: SubCategoryEntity[];
+    @Type(() => CategoryEntity)
+    @Field(() => CategoryEntity)
+    parent?: CategoryEntity;
+
+    @Column({ type: 'uuid', nullable: true })
+    @IsUUID(4)
+    @IsOptional()
+    @Field()
+    parent_id?: string;
 
     @OneToMany(() => ProductEntity, product => product.category)
     @IsArray()
     @IsOptional()
     @ValidateNested({ each: true })
     @Type(() => ProductEntity)
+    @Field(() => [ProductEntity])
     products?: ProductEntity[];
 
     @UpdateDateColumn({ type: 'timestamp', default: null })

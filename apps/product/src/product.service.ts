@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
-import { ProductRepository } from './repositories';
-import { ProductEntity } from './entities';
-import { CreateProductDto, UpdateProductDto } from './dtos';
+import { ProductRepository } from './common/repositories';
+import { ProductEntity } from './common/entities';
+import { CreateProductDto, UpdateProductDto } from './common/dtos';
 import { PromotionService } from './modules/promotion';
 
 @Injectable()
@@ -15,12 +15,6 @@ export class ProductService {
         createProductDto: CreateProductDto
     ): Promise<ProductEntity> {
         return await this.productRepository.create(createProductDto);
-    }
-
-    async findOneById(
-        id: string
-    ): Promise<ProductEntity> {
-        return await this.productRepository.findOne({ where: { id } });
     }
 
     async findAll(): Promise<ProductEntity[]> {
@@ -38,6 +32,12 @@ export class ProductService {
         }
 
         return products
+    }
+
+    async findOneById(
+        id: string
+    ): Promise<ProductEntity> {
+        return await this.productRepository.findOne({ where: { id } });
     }
 
     async update(

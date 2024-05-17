@@ -1,12 +1,12 @@
 import { Logger, Module, Provider } from '@nestjs/common';
 import { ProductController } from './product.controller';
 import { ProductService } from './product.service';
-import { ProductEntity } from './entities';
-import { ProductRepository } from './repositories';
+import { ProductEntity } from './common/entities';
+import { ProductRepository } from './common/repositories';
 import { DatabaseModule } from '@app/database';
 import { dataSourceOptions } from './database/data-source';
 import { EnvModule } from '@app/env';
-import { HttpExceptionFilter, QUEUE_NAME, RmqClientOption, RpcExceptionFilter, SERVICE_NAME, TypeORMExceptionFilter, getEnvFilePath } from '@app/common';
+import { HttpExceptionFilter, QUEUE_NAME, RmqClientOption, RpcExceptionFilter, SERVICE_NAME, TypeORMExceptionFilter, getEnvFilePath, getGqlSchemaPath } from '@app/common';
 import { EnvValidation } from './env.validation';
 import { RmqModule } from '@app/rmq';
 import { APP_FILTER } from '@nestjs/core';
@@ -14,6 +14,7 @@ import { PromotionModule } from './modules/promotion';
 import { CategoryModule } from './modules/category';
 import { AuthorModule } from './modules/author';
 import { ReviewModule } from './modules/review';
+import { GraphQLModule } from '@app/graphql';
 
 const rmqClients: RmqClientOption[] = [
   {
@@ -46,16 +47,21 @@ const providers: Provider[] = [
       EnvValidation
     ),
     RmqModule.register(rmqClients),
+    GraphQLModule.forRoot(
+      getGqlSchemaPath('product')
+    ),
     AuthorModule,
     CategoryModule,
     PromotionModule,
-    ReviewModule
+    ReviewModule,
+    ProductModule
   ],
   controllers: [ProductController],
   providers: [
     ProductService,
     ProductRepository,
     Logger,
+
     ...providers
   ],
 })

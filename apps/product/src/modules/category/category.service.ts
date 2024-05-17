@@ -14,4 +14,29 @@ export class CategoryService {
     ): Promise<CategoryEntity> {
         return await this.categoryRepository.create(createCategoryDto);
     }
+
+    async findAll(): Promise<CategoryEntity[]> {
+        return await this.categoryRepository.find()
+    }
+
+    async findOneById(
+        id: string
+    ): Promise<CategoryEntity> {
+        return await this.categoryRepository.findOne({ where: { id } })
+    }
+
+    async update(
+        id: string,
+        updateCategoryDto: CreateCategoryDto
+    ): Promise<void> {
+        return await this.categoryRepository.update({ id }, {
+            ...updateCategoryDto
+        });
+    }
+
+    async delete(
+        id: string
+    ): Promise<void> {
+        return await this.categoryRepository.delete({ id })
+    }
 }
