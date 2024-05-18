@@ -1,6 +1,6 @@
 import { AbstractEntity } from "@app/database";
 import { IsArray, IsBoolean, IsEmail, IsEnum, IsNotEmpty, IsOptional, IsString, IsUUID, MaxLength, ValidateNested } from "class-validator";
-import { Column, Entity, OneToMany, UpdateDateColumn } from "typeorm";
+import { Column, Entity, OneToMany } from "typeorm";
 import { UserAddressEntity } from "./user-address.entity";
 import { Type } from "class-transformer";
 import { UserPaymentEntity } from "./user-payment.entity";
@@ -93,7 +93,8 @@ export class UserEntity extends AbstractEntity {
     @IsNotEmpty()
     role: ROLE
 
-    @UpdateDateColumn({ type: 'timestamp', default: null })
-    @IsNotEmpty()
-    deleted_at: Date
+    @Column({ type: 'boolean', default: true })
+    @IsOptional()
+    @IsBoolean()
+    active?: boolean
 }

@@ -1,0 +1,44 @@
+# ------------------------------------------------------
+# THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
+# ------------------------------------------------------
+
+type CategoryEntity {
+  name: String!
+  parent: CategoryEntity
+  parent_id: String
+  products: [ProductEntity!]
+}
+
+type ProductEntity {
+  author_id: String
+  category_id: String
+  description: String
+  price: Float!
+  promotion_id: String
+  reviews: [ReviewEntity!]!
+  title: String!
+}
+
+type PromotionEntity {
+  description: String
+  discount_percent: Float!
+  name: String!
+  products: [ProductEntity!]!
+}
+
+type Query {
+  categories: [CategoryEntity!]!
+  category(id: String!): CategoryEntity!
+  product(id: String!): ProductEntity!
+  promotion(id: String!): PromotionEntity!
+  promotions: [PromotionEntity!]!
+  searchProducts: [ProductEntity!]!
+}
+
+type ReviewEntity {
+  description: String!
+  product_id: String!
+  rating: Float!
+  title: String!
+  user_id: String!
+}

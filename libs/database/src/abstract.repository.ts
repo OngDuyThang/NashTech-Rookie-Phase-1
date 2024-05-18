@@ -2,6 +2,7 @@ import { DeepPartial, FindManyOptions, FindOneOptions, FindOptionsWhere, QueryRu
 import { AbstractEntity } from "./abstract.entity";
 import { NotFoundException } from "@nestjs/common";
 import { QueryDeepPartialEntity } from "typeorm/query-builder/QueryPartialEntity";
+import { Require } from "@app/common";
 
 export abstract class AbstractRepository<Entity extends AbstractEntity> {
     private rawQueryRunner: QueryRunner;
@@ -52,6 +53,39 @@ export abstract class AbstractRepository<Entity extends AbstractEntity> {
         })
     }
 
+    async find(
+        options?: FindManyOptions<Entity>
+    ): Promise<Entity[]> {
+        try {
+            return await this.repository.find(options)
+        } catch (e) {
+            throw e
+        }
+    }
+
+    async rawFind() {
+        return await this.queryTransaction<Entity[]>(async () => {
+            const entities: Entity[] = await this.rawQueryRunner.query(`
+                SELECT * FROM public.user
+            `)
+            return entities
+        })
+    }
+
+    async findList(
+        options?: Require<FindManyOptions<Entity>, 'skip' | 'take'>
+    ): Promise<[Entity[], number]> {
+        try {
+            if (options.skip < 0) {
+                options.skip = 0
+            }
+
+            return await this.repository.findAndCount(options)
+        } catch (e) {
+            throw e
+        }
+    }
+
     async findOne(
         options: FindOneOptions<Entity>
     ): Promise<Entity> {
@@ -75,25 +109,6 @@ export abstract class AbstractRepository<Entity extends AbstractEntity> {
                 throw new NotFoundException('message here')
             }
             return entity
-        })
-    }
-
-    async find(
-        options?: FindManyOptions<Entity>
-    ): Promise<Entity[]> {
-        try {
-            return await this.repository.find(options)
-        } catch (e) {
-            throw e
-        }
-    }
-
-    async rawFind() {
-        return await this.queryTransaction<Entity[]>(async () => {
-            const entities: Entity[] = await this.rawQueryRunner.query(`
-                SELECT * FROM public.user
-            `)
-            return entities
         })
     }
 

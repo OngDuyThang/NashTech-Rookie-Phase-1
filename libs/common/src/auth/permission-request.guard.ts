@@ -25,7 +25,7 @@ export class PermissionRequestGuard implements CanActivate {
 
         // Http request: get bearer token from headers and fingerprint from cookie
         const req = context.switchToHttp().getRequest<Request>()
-        const accessToken = req?.headers?.authorization.split(' ')[1]
+        const accessToken = req?.headers?.authorization?.split(' ')[1]
         const fingerprint = req?.cookies?.[COOKIE_KEY_NAME.FINGERPRINT]
         if (!accessToken || !fingerprint) {
             throw new UnauthorizedException(ERROR_MESSAGE.USER_UNAUTHORIZED)

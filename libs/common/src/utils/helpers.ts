@@ -8,6 +8,7 @@ import { SUCCESS_CODE } from "../enums/codes"
 import { ERROR_MESSAGE } from "../enums/messages"
 
 export const getEnvFilePath = (serviceName: string) => `./apps/${serviceName}/.env.${process.env.NODE_ENV}`
+export const getGqlSchemaPath = (serviceName: string) => `apps/${serviceName}/src/schema.gql`
 
 export const classValidate = <T = unknown>(
     validationClass: ClassConstructor<T>,
