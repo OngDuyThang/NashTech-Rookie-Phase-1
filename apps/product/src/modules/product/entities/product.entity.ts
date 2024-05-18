@@ -7,7 +7,6 @@ import { CategoryEntity } from "../../category/entities/category.entity";
 import { AuthorEntity } from "../../author/entities/author.entity";
 import { PromotionEntity } from "../../promotion/entities/promotion.entity";
 import { ReviewEntity } from "../../review/entities/review.entity";
-
 @Entity({ name: 'product' })
 @ObjectType()
 export class ProductEntity extends AbstractEntity {

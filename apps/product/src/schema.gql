@@ -19,11 +19,19 @@ type ProductEntity {
   title: String!
 }
 
+type PromotionEntity {
+  description: String
+  discount_percent: Float!
+  name: String!
+  products: [ProductEntity!]!
+}
+
 type Query {
   categories: [CategoryEntity!]!
   category(id: String!): CategoryEntity!
   product(id: String!): ProductEntity!
-  products: [ProductEntity!]!
+  promotion(id: String!): PromotionEntity!
+  promotions: [PromotionEntity!]!
   searchProducts: [ProductEntity!]!
 }
 

@@ -1,18 +1,19 @@
-import { Logger, Module, Provider } from '@nestjs/common';
+import { Logger, MiddlewareConsumer, Module, NestModule, Provider } from '@nestjs/common';
 import { DatabaseModule } from '@app/database';
 import { dataSourceOptions } from './database/data-source';
 import { EnvModule } from '@app/env';
-import { HttpExceptionFilter, RpcExceptionFilter, TypeORMExceptionFilter, getEnvFilePath, getGqlSchemaPath } from '@app/common';
+import { HttpExceptionFilter, LoggerMiddleware, RpcExceptionFilter, TypeORMExceptionFilter, getEnvFilePath, getGqlSchemaPath } from '@app/common';
 import { GraphQLModule } from '@app/graphql';
 import { RmqModule } from '@app/rmq';
 import { QUEUE_NAME, RmqClientOption, SERVICE_NAME } from '@app/common';
 import { EnvValidation } from './env.validation';
 import { APP_FILTER } from '@nestjs/core';
-// import { PromotionModule } from './modules/promotion';
 import { CategoryModule } from './modules/category/category.module';
-// import { AuthorModule } from './modules/author';
-// import { ReviewModule } from './modules/review';
 import { ProductModule } from './modules/product/product.module';
+import { AuthorModule } from './modules/author/author.module';
+import { PromotionModule } from './modules/promotion/promotion.module';
+import { ReviewModule } from './modules/review/review.module';
+import { PaginationMiddleware } from '@app/common/middlewares/pagination.middleware';
 
 const rmqClients: RmqClientOption[] = [
   {
@@ -49,13 +50,24 @@ const providers: Provider[] = [
     ),
     ProductModule,
     CategoryModule,
-    // AuthorModule,
-    // PromotionModule,
-    // ReviewModule
+    AuthorModule,
+    PromotionModule,
+    ReviewModule
   ],
   providers: [
     Logger,
     ...providers
   ],
 })
-export class AppModule {}
+export class AppModule implements NestModule {
+  configure(consumer: MiddlewareConsumer) {
+    consumer
+      .apply(LoggerMiddleware)
+      .forRoutes('*');
+
+    consumer
+      .apply(PaginationMiddleware)
+      .exclude('products/all')
+      .forRoutes('*');
+  }
+}

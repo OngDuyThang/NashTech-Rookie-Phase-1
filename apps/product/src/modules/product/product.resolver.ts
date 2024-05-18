@@ -1,7 +1,7 @@
 import { ProductService } from './product.service';
 import { Args, Query, Resolver } from '@nestjs/graphql';
-import { ParseUUIDPipe } from '@nestjs/common';
 import { ProductEntity } from './entities/product.entity';
+import { UUIDPipe } from '@app/common';
 
 @Resolver(() => ProductEntity)
 export class ProductResolver {
@@ -9,20 +9,14 @@ export class ProductResolver {
         private readonly productService: ProductService
     ) {}
 
-    @Query(() => [ProductEntity])
-    async products(): Promise<ProductEntity[]> {
-        return await this.productService.findAll();
-    }
-
     // @Query(() => [ProductEntity])
-    // async productsOnSale(): Promise<ProductEntity[]> {
-    //     return await this.productService.findAllOnSale()
+    // async products(): Promise<ProductEntity[]> {
+    //     return await this.productService.findAll();
     // }
 
     @Query(() => ProductEntity)
     async product(
-        @Args('id', new ParseUUIDPipe({ version: '4' }))
-        id: string
+        @Args('id', UUIDPipe) id: string
     ): Promise<ProductEntity> {
         return await this.productService.findOneById(id);
     }

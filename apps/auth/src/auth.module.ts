@@ -1,10 +1,10 @@
-import { Inject, Logger, Module, Provider } from '@nestjs/common';
+import { Inject, Logger, MiddlewareConsumer, Module, NestModule, Provider } from '@nestjs/common';
 import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
 import { DatabaseModule } from '@app/database';
 import { dataSourceOptions } from './database/data-source';
 import { EnvModule } from '@app/env';
-import { HttpExceptionFilter, RpcExceptionFilter, TypeORMExceptionFilter, getEnvFilePath } from '@app/common';
+import { HttpExceptionFilter, LoggerMiddleware, RpcExceptionFilter, TypeORMExceptionFilter, getEnvFilePath } from '@app/common';
 import { UserModule } from './modules/user/user.module';
 import { APP_FILTER } from '@nestjs/core';
 import { TokenModule } from './modules/token';
@@ -52,7 +52,7 @@ const providers: Provider[] = [
     ...providers
   ],
 })
-export class AuthModule {
+export class AuthModule implements NestModule {
   constructor(
     @Inject(CACHE_SERVICE)
     private readonly cacheManager: RedisCache,
@@ -63,5 +63,9 @@ export class AuthModule {
     client.on('error', (e) => {
       this.logger.error(e);
     });
+  }
+
+  configure(consumer: MiddlewareConsumer) {
+    consumer.apply(LoggerMiddleware).forRoutes(AuthController);
   }
 }

@@ -1,6 +1,6 @@
-import { Body, Controller, Delete, Get, Param, Patch, Post, UseGuards } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Patch, Post, Query, UseGuards } from '@nestjs/common';
 import { ProductService } from './product.service';
-import { PermissionRequestGuard, ROLE, Roles, RolesGuard, UUIDPipe } from '@app/common';
+import { PaginationDto, PaginationPipe, PermissionRequestGuard, ROLE, Roles, RolesGuard, UUIDPipe } from '@app/common';
 import { CreateProductDto } from './dtos/create-product.dto';
 import { ProductEntity } from './entities/product.entity';
 import { UpdateProductDto } from './dtos/update-product.dto';
@@ -23,9 +23,18 @@ export class ProductController {
     return await this.productService.create(createProductDto);
   }
 
-  @Get()
-  async findAll(): Promise<ProductEntity[]> {
+  // Testing purpose without pagination
+  @Get('/all')
+  async findAll() {
     return await this.productService.findAll();
+  }
+
+  // With pagination
+  @Get()
+  async findList(
+    @Query(PaginationPipe) paginationDto: PaginationDto
+  ): Promise<[ProductEntity[], number]> {
+    return await this.productService.findList(paginationDto);
   }
 
   @Get('/:id')

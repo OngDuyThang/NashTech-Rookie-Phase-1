@@ -16,14 +16,21 @@ export class CategoryService {
     }
 
     async findAll(): Promise<CategoryEntity[]> {
-        return await this.categoryRepository.find()
+        return await this.categoryRepository.find({
+            relations: {
+                parent: true
+            }
+        })
     }
 
     async findOneById(
         id: string
     ): Promise<CategoryEntity> {
         return await this.categoryRepository.findOne({
-            where: { id }
+            where: { id },
+            relations: {
+                products: true
+            }
         })
     }
 

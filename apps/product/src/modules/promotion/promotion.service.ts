@@ -22,4 +22,25 @@ export class PromotionService {
             }
         });
     }
+
+    async findOneById(
+        id: string
+    ): Promise<PromotionEntity> {
+        return await this.promotionRepository.findOne({ where: { id } });
+    }
+
+    async update(
+        id: string,
+        updatePromotionDto: CreatePromotionDto
+    ): Promise<void> {
+        await this.promotionRepository.update({ id }, {
+            ...updatePromotionDto
+        });
+    }
+
+    async delete(
+        id: string
+    ): Promise<void> {
+        await this.promotionRepository.delete({ id });
+    }
 }

@@ -18,7 +18,7 @@ export class PromotionEntity extends AbstractEntity {
     @Column({ type: 'text', nullable: true })
     @IsOptional()
     @IsString()
-    @Field()
+    @Field({ nullable: true })
     description?: string;
 
     @Column({ type: 'decimal', nullable: false })

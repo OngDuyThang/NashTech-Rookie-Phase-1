@@ -3,6 +3,7 @@ import { ProductRepository } from './repositories/product.repository';
 import { CreateProductDto } from './dtos/create-product.dto';
 import { ProductEntity } from './entities/product.entity';
 import { UpdateProductDto } from './dtos/update-product.dto';
+import { PaginationDto } from '@app/common';
 
 @Injectable()
 export class ProductService {
@@ -20,18 +21,16 @@ export class ProductService {
         return await this.productRepository.find();
     }
 
-    // async findAllOnSale(): Promise<ProductEntity[]> {
-    //     const promotions = await this.promotionService.findAll()
-    //     const products: ProductEntity[] = []
+    async findList(
+        paginationDto: PaginationDto
+    ): Promise<[ProductEntity[], number]> {
+        const { page, limit } = paginationDto
 
-    //     // Nestjs Bull
-    //     for (let i = 0; i < promotions.length; i++) {
-    //         const promotion = promotions[i]
-    //         products.push(...promotion.products)
-    //     }
-
-    //     return products
-    // }
+        return await this.productRepository.findList({
+            skip: page * limit,
+            take: limit
+        });
+    }
 
     async findOneById(
         id: string
