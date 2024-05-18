@@ -5,7 +5,10 @@ import { PaginationDto } from "../dtos/pagination.dto";
 @Injectable()
 export class PaginationPipe implements PipeTransform {
     transform(value: PaginationDto, metadata: ArgumentMetadata): PaginationDto {
-        if (metadata.type != 'query') {
+        if (
+            metadata.type != 'query' &&
+            metadata.type != 'body'
+        ) {
             throw new MethodNotAllowedException(ERROR_MESSAGE.METHOD_NOT_ALLOWED)
         }
 

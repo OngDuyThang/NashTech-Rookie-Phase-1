@@ -19,6 +19,13 @@ type ProductEntity {
   title: String!
 }
 
+type ProductList {
+  data: [ProductEntity!]!
+  limit: Float
+  page: Float
+  total: Float
+}
+
 type PromotionEntity {
   description: String
   discount_percent: Float!
@@ -30,6 +37,7 @@ type Query {
   categories: [CategoryEntity!]!
   category(id: String!): CategoryEntity!
   product(id: String!): ProductEntity!
+  products(limit: String = "10", page: String = "0"): ProductList!
   promotion(id: String!): PromotionEntity!
   promotions: [PromotionEntity!]!
   searchProducts: [ProductEntity!]!
