@@ -2,41 +2,16 @@ import { CallHandler, ExecutionContext, Injectable, NestInterceptor } from "@nes
 import { map } from "rxjs";
 import { Request, Response } from "express";
 import { getSuccessMessage } from "../utils/helpers";
-import { TGqlDataShape, TResponseDataShape } from "../types/data-shape";
+import { TGqlListDataShape, TResponseDataShape } from "../types/data-shape";
 import { GqlExecutionContext } from "@nestjs/graphql";
 import { cloneDeep } from "lodash";
 
 @Injectable()
 export class ReshapeDataInteceptor implements NestInterceptor {
-
-    // Only allow findList with pagination for client side
-    private graphqlReshape(context: GqlExecutionContext, next: CallHandler) {
-        const args = context.getArgs()
-
-        const page = args?.page
-        const limit = args?.limit
-
-        return next.handle().pipe(
-            map((data: any) => {
-                const total = data?.total
-
-                const gqlDataShape: TGqlDataShape = {
-                    data: cloneDeep(data?.data),
-                    ...(page >= 0 && limit >= 0 && total >= 0 ? {
-                        page,
-                        limit,
-                        total
-                    } : null)
-                }
-                return gqlDataShape
-            })
-        )
-    }
-
     intercept(context: ExecutionContext, next: CallHandler) {
         const gqlContext = GqlExecutionContext.create(context)
         if (gqlContext.getType() == 'graphql') {
-            return this.graphqlReshape(gqlContext, next)
+            return next.handle()
         }
 
         const req = context.switchToHttp().getRequest<Request>();

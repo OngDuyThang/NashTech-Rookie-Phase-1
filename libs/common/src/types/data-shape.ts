@@ -11,15 +11,15 @@ export interface TResponseDataShape<T = unknown> {
 
 // Type for pagination only
 @ObjectType()
-export abstract class TGqlDataShape {
+export abstract class TGqlListDataShape {
     abstract data: unknown
 
     @Field({ nullable: true })
-    page?: number
+    page: number
 
     @Field({ nullable: true })
-    limit?: number
+    limit: number
 
     @Field({ nullable: true })
-    total?: number
+    total: number
 }

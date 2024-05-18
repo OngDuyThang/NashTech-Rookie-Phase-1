@@ -1,7 +1,8 @@
 import { ProductService } from './product.service';
-import { Args, Field, ObjectType, Query, Resolver } from '@nestjs/graphql';
+import { Args, Query, Resolver } from '@nestjs/graphql';
 import { ProductEntity } from './entities/product.entity';
-import { PaginationDto, PaginationPipe, TGqlDataShape, UUIDPipe } from '@app/common';
+import { PaginationDto, PaginationPipe, UUIDPipe } from '@app/common';
+import { ProductList } from './entities/product-list.schema';
 
 @Resolver(() => ProductEntity)
 export class ProductResolver {
@@ -16,6 +17,7 @@ export class ProductResolver {
         const [products, total] = await this.productService.findList(paginationDto);
         return {
             data: products,
+            ...paginationDto,
             total
         }
     }
@@ -31,10 +33,4 @@ export class ProductResolver {
     async searchProducts() {
 
     }
-}
-
-@ObjectType()
-class ProductList extends TGqlDataShape {
-    @Field(() => [ProductEntity])
-    data: ProductEntity[];
 }
