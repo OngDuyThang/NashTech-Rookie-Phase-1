@@ -1,5 +1,5 @@
 import { ArgsType, Field } from "@nestjs/graphql";
-import { IsNotEmpty, IsNumberString } from "class-validator";
+import { IsNotEmpty, IsNumberString, IsOptional } from "class-validator";
 
 // Pagination DTO for both query and arguments
 @ArgsType()
@@ -13,4 +13,9 @@ export class PaginationDto {
     @IsNotEmpty()
     @Field(() => String, { nullable: true, defaultValue: '10' })
     limit: number
+
+    @IsNumberString()
+    @IsOptional()
+    @Field(() => String, { nullable: true })
+    rating?: number
 }

@@ -19,11 +19,7 @@ export class CreateReviewDto {
     @Field()
     description: string;
 
-    // UserEntity
-    @IsUUID(4)
-    @IsNotEmpty()
-    @Field()
-    user_id: string
+    // UserEntity from token
 
     @IsUUID(4)
     @IsNotEmpty()

@@ -1,4 +1,4 @@
-import { CanActivate, ExecutionContext, HttpException, Inject, Injectable, MethodNotAllowedException, UnauthorizedException } from "@nestjs/common";
+import { CanActivate, ExecutionContext, Inject, Injectable, MethodNotAllowedException, UnauthorizedException } from "@nestjs/common";
 import { Request } from "express";
 import { ERROR_MESSAGE } from "../enums/messages";
 import { SERVICE_MESSAGE, SERVICE_NAME } from "../enums/rmq";
@@ -27,7 +27,7 @@ export class PermissionRequestGuard implements CanActivate {
         // Check if Graphql request to get correct request object
         const gqlContext = GqlExecutionContext.create(context)
         const req = gqlContext.getType() == 'graphql' ?
-            gqlContext.getContext().req :
+            gqlContext.getContext()?.req :
             context.switchToHttp().getRequest<Request>()
 
         // Http request: get bearer token from headers and fingerprint from cookie

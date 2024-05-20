@@ -12,9 +12,13 @@ export class ReviewService {
     ) {}
 
     async create(
+        userId: string,
         createReviewDto: CreateReviewDto
     ): Promise<ReviewEntity> {
-        return await this.reviewRepository.create(createReviewDto);
+        return await this.reviewRepository.create({
+            ...createReviewDto,
+            user_id: userId
+        });
     }
 
     async findAll(): Promise<ReviewEntity[]> {
@@ -51,11 +55,5 @@ export class ReviewService {
         id: string
     ): Promise<void> {
         await this.reviewRepository.delete({ id });
-    }
-
-    async test(
-        rating: number
-    ) {
-        return await this.reviewRepository.find({ where: { rating }, relations: { product: true } })
     }
 }

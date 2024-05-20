@@ -4,14 +4,14 @@
 
 type AuthorEntity {
   pen_name: String!
-  products(limit: String = "10", page: String = "0"): ProductList
+  products(limit: String = "10", page: String = "0", rating: String): ProductList
 }
 
 type CategoryEntity {
   name: String!
   parent: CategoryEntity
   parent_id: String
-  products(limit: String = "10", page: String = "0"): ProductList
+  products(limit: String = "10", page: String = "0", rating: String): ProductList
 }
 
 input CreateReviewDto {
@@ -19,7 +19,6 @@ input CreateReviewDto {
   product_id: String!
   rating: String!
   title: String!
-  user_id: String!
 }
 
 type Mutation {
@@ -56,7 +55,7 @@ type Query {
   categories: [CategoryEntity!]!
   category(id: String!): CategoryEntity!
   product(id: String!): ProductEntity!
-  products(limit: String = "10", page: String = "0"): ProductList!
+  products(limit: String = "10", page: String = "0", rating: String): ProductList!
   promotion(id: String!): PromotionEntity!
   promotions: [PromotionEntity!]!
   review(id: String!): ReviewEntity!

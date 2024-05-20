@@ -3,6 +3,7 @@ import { TypeORMError } from "typeorm";
 import { Request, Response } from "express";
 import { Env } from "@app/env";
 import { NODE_ENV } from "../enums/node-env";
+import { GqlArgumentsHost } from "@nestjs/graphql";
 
 @Catch(TypeORMError)
 export class TypeORMExceptionFilter implements ExceptionFilter {
@@ -12,6 +13,11 @@ export class TypeORMExceptionFilter implements ExceptionFilter {
     ) {}
 
     catch(exception: TypeORMError, host: ArgumentsHost) {
+        const gqlHost = GqlArgumentsHost.create(host)
+        if (gqlHost.getType() as string == 'graphql') {
+            return
+        }
+
         const ctx = host.switchToHttp()
         const req = ctx.getRequest<Request>()
         const res = ctx.getResponse<Response>()

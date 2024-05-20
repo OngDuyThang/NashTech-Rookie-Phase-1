@@ -1,7 +1,6 @@
-import { Resolver, Query, Args, Parent, ResolveField, Mutation } from '@nestjs/graphql';
+import { Resolver, Query, Args, Mutation } from '@nestjs/graphql';
 import { ProductRepository } from '../product/repositories/product.repository';
-import { PaginationDto, PaginationPipe, PermissionRequestGuard, ROLE, Roles, RolesGuard, UUIDPipe } from '@app/common';
-import { ProductList } from '../product/entities/product-list.schema';
+import { GetUser, PermissionRequestGuard, ROLE, Roles, RolesGuard, UUIDPipe, UserEntity } from '@app/common';
 import { ReviewEntity } from './entities/review.entity';
 import { ReviewService } from './review.service';
 import { CreateReviewDto } from './dtos/create-review.dto';
@@ -21,9 +20,11 @@ export class ReviewResolver {
         RolesGuard
     )
     async createReview(
-        @Args('review') review: CreateReviewDto
+        @Args('review') review: CreateReviewDto,
+        @GetUser() user: UserEntity
     ): Promise<ReviewEntity> {
-        return await this.reviewService.create(review);
+        console.log(user)
+        return await this.reviewService.create(user.id, review);
     }
 
     @Query(() => [ReviewEntity])
@@ -37,27 +38,4 @@ export class ReviewResolver {
     ): Promise<ReviewEntity> {
         return await this.reviewService.findOneById(id);
     }
-
-    // Find products by rating
-    //   @ResolveField(() => ProductList)
-    //   async products(
-    //     @Parent() review: ReviewEntity,
-    //     @Args(PaginationPipe) paginationDto: PaginationDto
-    //   ): Promise<ProductList> {
-    //     const {  } = review;
-    //     const { page, limit } = paginationDto
-
-    //     const [products, total] = await this.productRepository.findList({
-    //       where: { : category.id },
-    //       skip: page * limit,
-    //       take: limit
-    //     });
-
-    //     return {
-    //       data: products,
-    //       page,
-    //       limit,
-    //       total
-    //     }
-    //   }
 }

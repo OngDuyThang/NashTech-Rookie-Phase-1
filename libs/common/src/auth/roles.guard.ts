@@ -20,7 +20,7 @@ export class RolesGuard implements CanActivate {
 
         const gqlContext = GqlExecutionContext.create(context)
         const req = gqlContext.getType() == 'graphql' ?
-            gqlContext.getContext().req :
+            gqlContext.getContext()?.req :
             context.switchToHttp().getRequest<Request>()
 
         const roles = this.reflector.getAllAndOverride<string[]>(DECORATOR_KEY.ROLES, [

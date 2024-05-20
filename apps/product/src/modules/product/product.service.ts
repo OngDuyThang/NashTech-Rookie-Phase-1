@@ -3,11 +3,16 @@ import { ProductRepository } from './repositories/product.repository';
 import { CreateProductDto } from './dtos/create-product.dto';
 import { ProductEntity } from './entities/product.entity';
 import { PaginationDto } from '@app/common';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
+import { ReviewEntity } from '../review/entities/review.entity';
 
 @Injectable()
 export class ProductService {
     constructor(
         private readonly productRepository: ProductRepository,
+        @InjectRepository(ProductEntity)
+        private readonly productOrgRepo: Repository<ProductEntity>
     ) {}
 
     async create(
@@ -65,5 +70,26 @@ export class ProductService {
         id: string
     ): Promise<void> {
         await this.productRepository.delete({ id });
+    }
+
+    async findAllByRating(
+        rating: number
+    ): Promise<ProductEntity[]> {
+        try {
+            return await this.productOrgRepo.createQueryBuilder('product')
+                .innerJoin(
+                    queryBuilder => queryBuilder
+                        .from(ReviewEntity, 'review')
+                        .select('review.product_id', 'product_id')
+                        .addSelect('AVG(review.rating)', 'avg_rating')
+                        .groupBy('review.product_id')
+                        .having('AVG(review.rating) = :averageRating', { averageRating: rating }),
+                    'avg_reviews',
+                    'product.id = avg_reviews.product_id'
+                )
+                .getMany();
+        } catch (e) {
+            throw e
+        }
     }
 }

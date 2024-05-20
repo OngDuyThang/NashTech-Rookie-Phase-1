@@ -12,9 +12,12 @@ export class PaginationPipe implements PipeTransform {
             throw new MethodNotAllowedException(ERROR_MESSAGE.METHOD_NOT_ALLOWED)
         }
 
-        return {
-            page: Number(value.page),
-            limit: Number(value.limit)
+        for (let key in value) {
+            if (Number.isInteger(Number(value[key]))) {
+                value[key] = Number(value[key])
+            }
         }
+
+        return value
     }
 }
