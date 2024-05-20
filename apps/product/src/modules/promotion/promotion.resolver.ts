@@ -1,8 +1,9 @@
 import { Resolver, Query, Args, ResolveField, Parent } from '@nestjs/graphql';
 import { PromotionEntity } from './entities/promotion.entity';
 import { PromotionService } from './promotion.service';
-import { ProductEntity } from '../product/entities/product.entity';
 import { ProductRepository } from '../product/repositories/product.repository';
+import { PaginationDto, PaginationPipe, UUIDPipe } from '@app/common';
+import { ProductList } from '../product/entities/product-list.schema';
 
 @Resolver(() => PromotionEntity)
 export class PromotionResolver {
@@ -18,16 +19,29 @@ export class PromotionResolver {
 
     @Query(() => PromotionEntity)
     async promotion(
-        @Args('id') id: string
+        @Args('id', UUIDPipe) id: string
     ): Promise<PromotionEntity> {
         return await this.promotionService.findOneById(id);
     }
 
     // Promotion products
-    @ResolveField(() => [ProductEntity])
+    @ResolveField(() => ProductList)
     async products(
-        @Parent() promotion: PromotionEntity
-    ): Promise<ProductEntity[]> {
-        return await this.productRepository.find({ where: { promotion_id: promotion.id } });
+        @Parent() promotion: PromotionEntity,
+        @Args(PaginationPipe) paginationDto: PaginationDto
+    ): Promise<ProductList> {
+        const { page, limit } = paginationDto
+
+        const [products, total] = await this.productRepository.findList({
+            where: { promotion_id: promotion.id },
+            skip: page * limit,
+            take: limit
+        });
+
+        return {
+            data: products,
+            ...paginationDto,
+            total
+        }
     }
 }

@@ -1,9 +1,8 @@
 import { Body, Controller, Delete, Get, Param, Patch, Post, Query, UseGuards } from '@nestjs/common';
 import { ProductService } from './product.service';
-import { PaginationDto, PaginationPipe, PermissionRequestGuard, ROLE, Roles, RolesGuard, UUIDPipe } from '@app/common';
+import { PaginationPipe, PermissionRequestGuard, ROLE, RatingQueryDto, Roles, RolesGuard, UUIDPipe } from '@app/common';
 import { CreateProductDto } from './dtos/create-product.dto';
 import { ProductEntity } from './entities/product.entity';
-import { UpdateProductDto } from './dtos/update-product.dto';
 
 @Controller('products')
 export class ProductController {
@@ -32,9 +31,12 @@ export class ProductController {
   // With pagination
   @Get()
   async findList(
-    @Query(PaginationPipe) paginationDto: PaginationDto
+    @Query(PaginationPipe) queryDto: RatingQueryDto,
   ): Promise<[ProductEntity[], number]> {
-    return await this.productService.findList(paginationDto);
+    if (queryDto?.rating) {
+      return await this.productService.findListByRating(queryDto);
+    }
+    return await this.productService.findList(queryDto);
   }
 
   @Get('/:id')
@@ -52,12 +54,24 @@ export class ProductController {
   )
   async update(
     @Param('id', UUIDPipe) id: string,
-    @Body() updateProductDto: UpdateProductDto
+    @Body() updateProductDto: CreateProductDto
   ): Promise<void> {
     await this.productService.update(id, updateProductDto);
   }
 
   @Delete('/:id')
+  @Roles([ROLE.ADMIN])
+  @UseGuards(
+    PermissionRequestGuard,
+    RolesGuard
+  )
+  async remove(
+    @Param('id', UUIDPipe) id: string
+  ): Promise<void> {
+    await this.productService.remove(id)
+  }
+
+  @Delete('/delete/:id')
   @Roles([ROLE.ADMIN])
   @UseGuards(
     PermissionRequestGuard,

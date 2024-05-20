@@ -1,6 +1,7 @@
 import { Injectable, NestMiddleware } from "@nestjs/common";
 import { Request, Response } from "express";
 
+// Middleware for pagination when using REST api
 @Injectable()
 export class PaginationMiddleware implements NestMiddleware {
     use(req: Request, _res: Response, next: (error?: any) => void) {

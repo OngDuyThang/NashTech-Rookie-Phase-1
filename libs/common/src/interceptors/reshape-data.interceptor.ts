@@ -25,6 +25,8 @@ export class ReshapeDataInteceptor implements NestInterceptor {
                 const limit = Number(req.query?.limit)
                 let total: number
 
+                // If the data came from findList method with pagination
+                // then we need total of records
                 if (
                     Array.isArray(data) &&
                     data.length == 2 &&
@@ -35,6 +37,8 @@ export class ReshapeDataInteceptor implements NestInterceptor {
                     data = cloneDeep(data[0])
                 }
 
+                // If the data came from findAll method
+                // then total is length
                 if (total == undefined && Array.isArray(data)) {
                     total = data.length
                 }

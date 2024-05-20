@@ -19,13 +19,30 @@ export class GraphQLModule {
           useFactory: (env: Env) => ({
             autoSchemaFile: join(process.cwd(), schemaPath),
             sortSchema: true,
+            cors: {
+              origin: true,
+              credentials: true
+            },
+            playground: {
+              settings: {
+                "request.credentials": "include"
+              }
+            },
+            // { req, res } are request and response object from express,
+            // return graphql context object
+            context: ({ req, res }) => {
+              req.user = {}
+              return { req, res }
+            },
             formatError: (formattedError) => {
               const originalError = formattedError.extensions?.originalError as any;
 
               if (!originalError) {
+                const stack = formattedError.extensions?.stacktrace
                 return {
                   message: formattedError.message,
                   statusCode: formattedError.extensions?.code,
+                  ...(env.NODE_ENV == NODE_ENV.DEVELOPMENT ? { stack } : null)
                 };
               }
 
@@ -40,7 +57,7 @@ export class GraphQLModule {
                 detail,
                 ...(env.NODE_ENV == NODE_ENV.DEVELOPMENT ? { stack } : null)
               };
-            },
+            }
           })
         }),
       ],

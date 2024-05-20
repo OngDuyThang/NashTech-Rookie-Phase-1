@@ -17,9 +17,8 @@ export class CategoryService {
 
     async findAll(): Promise<CategoryEntity[]> {
         return await this.categoryRepository.find({
-            relations: {
-                parent: true
-            }
+            where: { active: true },
+            relations: { parent: true }
         })
     }
 
@@ -27,10 +26,8 @@ export class CategoryService {
         id: string
     ): Promise<CategoryEntity> {
         return await this.categoryRepository.findOne({
-            where: { id },
-            relations: {
-                products: true
-            }
+            where: { id, active: true },
+            relations: { products: true }
         })
     }
 
@@ -41,6 +38,12 @@ export class CategoryService {
         return await this.categoryRepository.update({ id }, {
             ...updateCategoryDto
         });
+    }
+
+    async remove(
+        id: string
+    ): Promise<void> {
+        return await this.categoryRepository.update({ id }, { active: false })
     }
 
     async delete(

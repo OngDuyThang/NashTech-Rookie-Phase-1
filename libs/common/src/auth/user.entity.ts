@@ -13,5 +13,6 @@ export class UserEntity {
     two_factor_secret?: string;
     one_time_token?: string;
     api_key?: string;
-    role: ROLE
+    role: ROLE;
+    active?: boolean
 }

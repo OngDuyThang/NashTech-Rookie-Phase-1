@@ -1,3 +1,5 @@
+import { Field, ObjectType } from "@nestjs/graphql"
+
 export interface TResponseDataShape<T = unknown> {
     data: T | null,
     message: string,
@@ -5,4 +7,19 @@ export interface TResponseDataShape<T = unknown> {
     page?: number,
     limit?: number,
     total?: number
+}
+
+// Type for pagination only
+@ObjectType()
+export abstract class TGqlListDataShape {
+    abstract data: unknown
+
+    @Field({ nullable: true })
+    page: number
+
+    @Field({ nullable: true })
+    limit: number
+
+    @Field({ nullable: true })
+    total: number
 }
