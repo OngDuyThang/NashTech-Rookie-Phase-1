@@ -72,9 +72,10 @@ export class ProductService {
         await this.productRepository.delete({ id });
     }
 
-    async findAllByRating(
-        rating: number
-    ): Promise<ProductEntity[]> {
+    async findListByRating(
+        paginationDto: PaginationDto
+    ): Promise<[ProductEntity[], number]> {
+        const { page, limit, rating } = paginationDto
         try {
             return await this.productOrgRepo.createQueryBuilder('product')
                 .innerJoin(
@@ -87,7 +88,9 @@ export class ProductService {
                     'avg_reviews',
                     'product.id = avg_reviews.product_id'
                 )
-                .getMany();
+                .skip(page)
+                .take(limit)
+                .getManyAndCount();
         } catch (e) {
             throw e
         }

@@ -14,6 +14,17 @@ export class ProductResolver {
     async products(
         @Args(PaginationPipe) paginationDto: PaginationDto
     ): Promise<ProductList> {
+        if (paginationDto?.rating) {
+            const [products, total] = await this.productService.findListByRating(paginationDto);
+            delete paginationDto.rating
+
+            return {
+                data: products,
+                ...paginationDto,
+                total
+            }
+        }
+
         const [products, total] = await this.productService.findList(paginationDto);
         return {
             data: products,

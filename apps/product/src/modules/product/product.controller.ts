@@ -34,7 +34,7 @@ export class ProductController {
     @Query(PaginationPipe) paginationDto: PaginationDto,
   ): Promise<[ProductEntity[], number] | ProductEntity[]> {
     if (paginationDto?.rating) {
-      return await this.productService.findAllByRating(paginationDto.rating);
+      return await this.productService.findListByRating(paginationDto);
     }
     return await this.productService.findList(paginationDto);
   }
