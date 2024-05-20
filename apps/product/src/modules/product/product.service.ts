@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { ProductRepository } from './repositories/product.repository';
 import { CreateProductDto } from './dtos/create-product.dto';
 import { ProductEntity } from './entities/product.entity';
-import { PaginationDto } from '@app/common';
+import { PaginationDto, RatingQueryDto } from '@app/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { ReviewEntity } from '../review/entities/review.entity';
@@ -73,9 +73,9 @@ export class ProductService {
     }
 
     async findListByRating(
-        paginationDto: PaginationDto
+        queryDto: RatingQueryDto
     ): Promise<[ProductEntity[], number]> {
-        const { page, limit, rating } = paginationDto
+        const { page, limit, rating } = queryDto
         try {
             return await this.productOrgRepo.createQueryBuilder('product')
                 .innerJoin(

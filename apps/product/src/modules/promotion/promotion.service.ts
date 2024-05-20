@@ -16,17 +16,16 @@ export class PromotionService {
     }
 
     async findAll(): Promise<PromotionEntity[]> {
-        return await this.promotionRepository.find({
-            relations: {
-                products: true
-            }
-        });
+        return await this.promotionRepository.find();
     }
 
     async findOneById(
         id: string
     ): Promise<PromotionEntity> {
-        return await this.promotionRepository.findOne({ where: { id } });
+        return await this.promotionRepository.findOne({
+            where: { id },
+            relations: { products: true }
+        });
     }
 
     async update(

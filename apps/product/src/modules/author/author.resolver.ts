@@ -39,8 +39,7 @@ export class AuthorResolver {
 
         return {
             data: products,
-            page,
-            limit,
+            ...paginationDto,
             total
         }
     }

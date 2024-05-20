@@ -39,8 +39,7 @@ export class CategoryResolver {
 
     return {
       data: products,
-      page,
-      limit,
+      ...paginationDto,
       total
     }
   }

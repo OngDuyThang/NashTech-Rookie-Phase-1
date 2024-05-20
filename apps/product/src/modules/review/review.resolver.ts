@@ -1,5 +1,4 @@
 import { Resolver, Query, Args, Mutation } from '@nestjs/graphql';
-import { ProductRepository } from '../product/repositories/product.repository';
 import { GetUser, PermissionRequestGuard, ROLE, Roles, RolesGuard, UUIDPipe, UserEntity } from '@app/common';
 import { ReviewEntity } from './entities/review.entity';
 import { ReviewService } from './review.service';
@@ -9,8 +8,7 @@ import { UseGuards } from '@nestjs/common';
 @Resolver(() => ReviewEntity)
 export class ReviewResolver {
     constructor(
-        private readonly reviewService: ReviewService,
-        private readonly productRepository: ProductRepository
+        private readonly reviewService: ReviewService
     ) {}
 
     @Mutation(() => ReviewEntity)
@@ -23,7 +21,6 @@ export class ReviewResolver {
         @Args('review') review: CreateReviewDto,
         @GetUser() user: UserEntity
     ): Promise<ReviewEntity> {
-        console.log(user)
         return await this.reviewService.create(user.id, review);
     }
 

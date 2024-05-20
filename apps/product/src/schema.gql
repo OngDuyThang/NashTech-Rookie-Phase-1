@@ -4,14 +4,14 @@
 
 type AuthorEntity {
   pen_name: String!
-  products(limit: String = "10", page: String = "0", rating: String): ProductList
+  products(limit: String = "10", page: String = "0"): ProductList
 }
 
 type CategoryEntity {
   name: String!
   parent: CategoryEntity
   parent_id: String
-  products(limit: String = "10", page: String = "0", rating: String): ProductList
+  products(limit: String = "10", page: String = "0"): ProductList
 }
 
 input CreateReviewDto {
@@ -46,7 +46,7 @@ type PromotionEntity {
   description: String
   discount_percent: Float!
   name: String!
-  products: [ProductEntity!]!
+  products(limit: String = "10", page: String = "0"): ProductList
 }
 
 type Query {
