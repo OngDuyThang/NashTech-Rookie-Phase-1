@@ -2,7 +2,7 @@ import { CallHandler, ExecutionContext, Injectable, NestInterceptor } from "@nes
 import { map } from "rxjs";
 import { Request, Response } from "express";
 import { getSuccessMessage } from "../utils/helpers";
-import { TGqlListDataShape, TResponseDataShape } from "../types/data-shape";
+import { TResponseDataShape } from "../types/data-shape";
 import { GqlExecutionContext } from "@nestjs/graphql";
 import { cloneDeep } from "lodash";
 

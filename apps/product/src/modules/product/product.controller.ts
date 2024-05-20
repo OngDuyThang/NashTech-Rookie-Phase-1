@@ -3,7 +3,6 @@ import { ProductService } from './product.service';
 import { PaginationDto, PaginationPipe, PermissionRequestGuard, ROLE, Roles, RolesGuard, UUIDPipe } from '@app/common';
 import { CreateProductDto } from './dtos/create-product.dto';
 import { ProductEntity } from './entities/product.entity';
-import { UpdateProductDto } from './dtos/update-product.dto';
 
 @Controller('products')
 export class ProductController {
@@ -52,12 +51,24 @@ export class ProductController {
   )
   async update(
     @Param('id', UUIDPipe) id: string,
-    @Body() updateProductDto: UpdateProductDto
+    @Body() updateProductDto: CreateProductDto
   ): Promise<void> {
     await this.productService.update(id, updateProductDto);
   }
 
   @Delete('/:id')
+  @Roles([ROLE.ADMIN])
+  @UseGuards(
+    PermissionRequestGuard,
+    RolesGuard
+  )
+  async remove(
+    @Param('id', UUIDPipe) id: string
+  ): Promise<void> {
+    await this.productService.remove(id)
+  }
+
+  @Delete('/delete/:id')
   @Roles([ROLE.ADMIN])
   @UseGuards(
     PermissionRequestGuard,

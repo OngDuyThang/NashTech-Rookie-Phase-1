@@ -2,7 +2,7 @@ import { Resolver, Query, Args, Parent, ResolveField } from '@nestjs/graphql';
 import { CategoryService } from './category.service';
 import { CategoryEntity } from './entities/category.entity';
 import { ProductRepository } from '../product/repositories/product.repository';
-import { PaginationDto, PaginationPipe } from '@app/common';
+import { PaginationDto, PaginationPipe, UUIDPipe } from '@app/common';
 import { ProductList } from '../product/entities/product-list.schema';
 
 @Resolver(() => CategoryEntity)
@@ -19,7 +19,7 @@ export class CategoryResolver {
 
   @Query(() => CategoryEntity)
   async category(
-    @Args('id') id: string
+    @Args('id', UUIDPipe) id: string
   ): Promise<CategoryEntity> {
     return await this.categoryService.findOneById(id);
   }

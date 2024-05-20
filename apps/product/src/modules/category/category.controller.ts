@@ -53,6 +53,18 @@ export class CategoryController {
         PermissionRequestGuard,
         RolesGuard
     )
+    async remove(
+        @Param('id', UUIDPipe) id: string
+    ): Promise<void> {
+        await this.categoryService.remove(id)
+    }
+
+    @Delete('/delete/:id')
+    @Roles([ROLE.ADMIN])
+    @UseGuards(
+        PermissionRequestGuard,
+        RolesGuard
+    )
     async delete(
         @Param('id', UUIDPipe) id: string
     ): Promise<void> {

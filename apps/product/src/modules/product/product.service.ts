@@ -2,7 +2,6 @@ import { Injectable } from '@nestjs/common';
 import { ProductRepository } from './repositories/product.repository';
 import { CreateProductDto } from './dtos/create-product.dto';
 import { ProductEntity } from './entities/product.entity';
-import { UpdateProductDto } from './dtos/update-product.dto';
 import { PaginationDto } from '@app/common';
 
 @Injectable()
@@ -18,7 +17,7 @@ export class ProductService {
     }
 
     async findAll(): Promise<ProductEntity[]> {
-        return await this.productRepository.find();
+        return await this.productRepository.find({ where: { active: true } });
     }
 
     async findList(
@@ -27,6 +26,7 @@ export class ProductService {
         const { page, limit } = paginationDto
 
         return await this.productRepository.findList({
+            where: { active: true },
             skip: page * limit,
             take: limit
         });
@@ -35,16 +35,30 @@ export class ProductService {
     async findOneById(
         id: string
     ): Promise<ProductEntity> {
-        return await this.productRepository.findOne({ where: { id } });
+        return await this.productRepository.findOne({
+            where: {
+                id,
+                active: true
+            },
+            relations: {
+                reviews: true
+            }
+        });
     }
 
     async update(
         id: string,
-        updateProductDto: UpdateProductDto
+        updateProductDto: CreateProductDto
     ): Promise<void> {
         await this.productRepository.update({ id }, {
             ...updateProductDto
         });
+    }
+
+    async remove(
+        id: string
+    ): Promise<void> {
+        await this.productRepository.update({ id }, { active: false });
     }
 
     async delete(

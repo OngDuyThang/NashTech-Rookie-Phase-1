@@ -68,7 +68,7 @@ export class AppModule implements NestModule {
 
     consumer
       .apply(PaginationMiddleware)
-      .exclude('products/all', 'graphql')
+      .exclude('products/all', 'reviews/all', 'graphql')
       .forRoutes('*');
   }
 }

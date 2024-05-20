@@ -3,6 +3,7 @@ import { PromotionEntity } from './entities/promotion.entity';
 import { PromotionService } from './promotion.service';
 import { ProductEntity } from '../product/entities/product.entity';
 import { ProductRepository } from '../product/repositories/product.repository';
+import { UUIDPipe } from '@app/common';
 
 @Resolver(() => PromotionEntity)
 export class PromotionResolver {
@@ -18,7 +19,7 @@ export class PromotionResolver {
 
     @Query(() => PromotionEntity)
     async promotion(
-        @Args('id') id: string
+        @Args('id', UUIDPipe) id: string
     ): Promise<PromotionEntity> {
         return await this.promotionService.findOneById(id);
     }

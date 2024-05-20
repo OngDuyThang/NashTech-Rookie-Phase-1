@@ -8,6 +8,7 @@ import { TPermissionRequest } from "../types/permission-request";
 import { COOKIE_KEY_NAME } from "../enums/cookie";
 import { convertRpcException } from "../utils/helpers";
 import { UserEntity } from "./user.entity";
+import { GqlExecutionContext } from "@nestjs/graphql";
 
 @Injectable()
 export class PermissionRequestGuard implements CanActivate {
@@ -19,17 +20,23 @@ export class PermissionRequestGuard implements CanActivate {
     private getTokenAndFingerprint(
         context: ExecutionContext
     ): TPermissionRequest {
-        if (context.getType() != 'http') {
+        if (context.getType() == 'rpc') {
             throw new MethodNotAllowedException(ERROR_MESSAGE.METHOD_NOT_ALLOWED)
         }
 
+        // Check if Graphql request to get correct request object
+        const gqlContext = GqlExecutionContext.create(context)
+        const req = gqlContext.getType() == 'graphql' ?
+            gqlContext.getContext().req :
+            context.switchToHttp().getRequest<Request>()
+
         // Http request: get bearer token from headers and fingerprint from cookie
-        const req = context.switchToHttp().getRequest<Request>()
         const accessToken = req?.headers?.authorization?.split(' ')[1]
         const fingerprint = req?.cookies?.[COOKIE_KEY_NAME.FINGERPRINT]
         if (!accessToken || !fingerprint) {
             throw new UnauthorizedException(ERROR_MESSAGE.USER_UNAUTHORIZED)
         }
+
         return {
             accessToken,
             fingerprint
@@ -40,7 +47,11 @@ export class PermissionRequestGuard implements CanActivate {
         context: ExecutionContext,
         user: UserEntity
     ): void {
-        const req = context.switchToHttp().getRequest<Request>()
+        const gqlContext = GqlExecutionContext.create(context)
+        const req = gqlContext.getType() == 'graphql' ?
+            gqlContext.getContext().req :
+            context.switchToHttp().getRequest<Request>()
+
         req.user = user
     }
 

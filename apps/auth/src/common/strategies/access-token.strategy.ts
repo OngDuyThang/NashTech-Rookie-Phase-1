@@ -15,7 +15,7 @@ export class AccessTokenStrategy extends PassportStrategy(Strategy) {
         private readonly userService: UserService
     ) {
         super({
-            // two scenario: request object from http and request payload from rpc
+            // Two scenario: request object from http and request payload from rpc
             jwtFromRequest: ExtractJwt.fromExtractors([
                 (req: any) => {
                     const accessToken = (req?.headers?.authorization || req?.accessToken) as string
@@ -31,9 +31,9 @@ export class AccessTokenStrategy extends PassportStrategy(Strategy) {
         });
     }
 
-    // single responsibility: validate access token and fingerprint, then give back user entity
+    // Single responsibility: validate access token and fingerprint, then give back user entity
     async validate(
-        req: any, // two scenario: request object from http and request payload from rpc
+        req: any, // Two scenario: request object from http and request payload from rpc
         payload: TJwtPayload
     ): Promise<UserEntity> {
         const error = new UnauthorizedException(ERROR_MESSAGE.USER_UNAUTHORIZED)

@@ -1,6 +1,4 @@
 import {
-  BadRequestException,
-  ConflictException,
   ForbiddenException,
   Inject,
   Injectable,
@@ -12,7 +10,7 @@ import * as bcrypt from 'bcrypt';
 import * as crypto from 'crypto';
 import { TEnableTwoFactorResponse, TForgotPasswordResponse, TGoogleLoginResponse, TJwtPayload, TLoginResponse, TTokenResponse } from './common/types';
 import { Response } from 'express';
-import { ERROR_MESSAGE, SUCCESS_CODE, SUCCESS_MESSAGE, getUrlEndpoint } from '@app/common';
+import { ERROR_MESSAGE, SUCCESS_MESSAGE, getUrlEndpoint } from '@app/common';
 import { RegisterDto, UserEntity, UserService } from './modules/user';
 import { authenticator } from 'otplib';
 import { TokenService } from './modules/token';
@@ -21,7 +19,7 @@ import { Transporter } from 'nodemailer';
 import { MAILER_SERVICE } from '@app/mailer';
 import { resetPwMailTemplate } from './views';
 import { OAuth2Client } from 'google-auth-library'
-import { OPENID_PROVIDER, TOKEN_EXPIRY_TIME, TOKEN_KEY_NAME } from './common/enums';
+import { OPENID_PROVIDER, TOKEN_EXPIRY_TIME } from './common/enums';
 import { CACHE_SERVICE } from '@app/cache';
 import { Cache } from 'cache-manager';
 

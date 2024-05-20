@@ -1,7 +1,7 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { RmqService } from '@app/rmq';
-import { QUEUE_NAME, ReshapeDataInteceptor, RpcExceptionFilter } from '@app/common';
+import { QUEUE_NAME, ReshapeDataInteceptor } from '@app/common';
 import { Logger, ValidationPipe } from '@nestjs/common';
 import { Env } from '@app/env';
 import * as cookieParser from 'cookie-parser';
@@ -11,7 +11,6 @@ async function bootstrap() {
   const logger = app.get(Logger);
   const env = app.get(Env)
   const rmqService = app.get(RmqService);
-  app.useGlobalFilters(new RpcExceptionFilter())
 
   app.connectMicroservice(
     rmqService.getMicroserviceOptions(
