@@ -14,6 +14,10 @@ export class CreateProductDto {
     @IsNotEmpty()
     price: number;
 
+    @IsString()
+    @IsOptional()
+    image?: string;
+
     @IsUUID(4)
     @IsOptional()
     author_id?: string;

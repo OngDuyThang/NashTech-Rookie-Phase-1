@@ -39,6 +39,22 @@ export class Env {
         return this.configService.get<string>('DB_NAME');
     }
 
+    get AWS_S3_REGION() {
+        return this.configService.get<string>('AWS_S3_REGION');
+    }
+
+    get AWS_S3_BUCKET() {
+        return this.configService.get<string>('AWS_S3_BUCKET');
+    }
+
+    get AWS_ACCESS_KEY() {
+        return this.configService.get<string>('AWS_ACCESS_KEY');
+    }
+
+    get AWS_SECRET_KEY() {
+        return this.configService.get<string>('AWS_SECRET_KEY');
+    }
+
     get RABBIT_MQ_URI() {
         return this.configService.get<string>('RABBIT_MQ_URI');
     }

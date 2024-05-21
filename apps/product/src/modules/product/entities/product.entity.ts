@@ -29,6 +29,12 @@ export class ProductEntity extends AbstractEntity {
     @Field()
     price: number;
 
+    @Column({ type: 'text', nullable: true })
+    @IsString()
+    @IsOptional()
+    @Field({ nullable: true })
+    image?: string;
+
     @ManyToOne(() => AuthorEntity, (author) => author.products, { onDelete: 'SET NULL' })
     @JoinColumn({ name: 'author_id' })
     @IsOptional()

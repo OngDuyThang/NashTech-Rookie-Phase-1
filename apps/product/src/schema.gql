@@ -29,6 +29,7 @@ type ProductEntity {
   author_id: String
   category_id: String
   description: String
+  image: String
   price: Float!
   promotion_id: String
   reviews: [ReviewEntity!]!
