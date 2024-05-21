@@ -1,16 +1,23 @@
 import { ArgsType, Field } from "@nestjs/graphql";
-import { IsNotEmpty, IsNumberString, IsOptional } from "class-validator";
+import { Type } from "class-transformer";
+import { IsNotEmpty, IsNumber, Max, Min } from "class-validator";
+import { PAGINATION } from "../enums/pagination";
 
 // Pagination DTO for both query and arguments
 @ArgsType()
 export abstract class PaginationDto {
-    @IsNumberString()
+    @Type(() => Number)
+    @IsNumber()
     @IsNotEmpty()
-    @Field(() => String, { nullable: true, defaultValue: '0' })
+    @Min(0)
+    @Field(() => String, { nullable: true, defaultValue: PAGINATION.DEFAULT_PAGE })
     page: number;
 
-    @IsNumberString()
+    @Type(() => Number)
+    @IsNumber()
     @IsNotEmpty()
-    @Field(() => String, { nullable: true, defaultValue: '10' })
+    @Min(Number(PAGINATION.MIN_LIMIT))
+    @Max(Number(PAGINATION.MAX_LIMIT))
+    @Field(() => String, { nullable: true, defaultValue: PAGINATION.DEFAULT_LIMIT })
     limit: number
 }

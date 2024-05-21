@@ -5,10 +5,13 @@ import { ProductController } from './product.controller';
 import { ProductService } from './product.service';
 import { ProductRepository } from './repositories/product.repository';
 import { ProductResolver } from './product.resolver';
+import { ReviewEntity } from '../review/entities/review.entity';
 
 @Module({
   imports: [
-    DatabaseModule.forFeature([ProductEntity]),
+    DatabaseModule.forFeature([
+      ProductEntity
+    ]),
   ],
   controllers: [
     ProductController

@@ -24,13 +24,12 @@ export class PromotionResolver {
         return await this.promotionService.findOneById(id);
     }
 
-    // Promotion products
     @ResolveField(() => ProductList)
     async products(
         @Parent() promotion: PromotionEntity,
-        @Args(PaginationPipe) paginationDto: PaginationDto
+        @Args(PaginationPipe) queryDto: PaginationDto
     ): Promise<ProductList> {
-        const { page, limit } = paginationDto
+        const { page, limit } = queryDto
 
         const [products, total] = await this.productRepository.findList({
             where: { promotion_id: promotion.id },
@@ -40,7 +39,7 @@ export class PromotionResolver {
 
         return {
             data: products,
-            ...paginationDto,
+            ...queryDto,
             total
         }
     }

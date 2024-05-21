@@ -1,15 +1,15 @@
 import { Resolver, Query, Args, Parent, ResolveField } from '@nestjs/graphql';
 import { CategoryService } from './category.service';
 import { CategoryEntity } from './entities/category.entity';
-import { ProductRepository } from '../product/repositories/product.repository';
-import { PaginationDto, PaginationPipe, UUIDPipe } from '@app/common';
+import { PaginationPipe, UUIDPipe } from '@app/common';
 import { ProductList } from '../product/entities/product-list.schema';
+import { SortQueryDto } from '../product/dtos/query.dto';
 
 @Resolver(() => CategoryEntity)
 export class CategoryResolver {
   constructor(
     private readonly categoryService: CategoryService,
-    private readonly productRepository: ProductRepository
+
   ) {}
 
   @Query(() => [CategoryEntity])
@@ -27,19 +27,18 @@ export class CategoryResolver {
   @ResolveField(() => ProductList)
   async products(
     @Parent() category: CategoryEntity,
-    @Args(PaginationPipe) paginationDto: PaginationDto
+    @Args(PaginationPipe) queryDto: SortQueryDto
   ): Promise<ProductList> {
-    const { page, limit } = paginationDto
+    const [products, total] = await this.categoryService.findProductsByCategory(
+      category,
+      queryDto
+    );
 
-    const [products, total] = await this.productRepository.findList({
-      where: { category_id: category.id },
-      skip: page * limit,
-      take: limit
-    });
-
+    const { page, limit } = queryDto
     return {
       data: products,
-      ...paginationDto,
+      page,
+      limit,
       total
     }
   }

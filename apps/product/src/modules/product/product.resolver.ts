@@ -1,8 +1,9 @@
 import { ProductService } from './product.service';
 import { Args, Query, Resolver } from '@nestjs/graphql';
 import { ProductEntity } from './entities/product.entity';
-import { PaginationPipe, RatingQueryDto, UUIDPipe } from '@app/common';
+import { PaginationDto, PaginationPipe, UUIDPipe } from '@app/common';
 import { ProductList } from './entities/product-list.schema';
+import { RatingQueryDto } from './dtos/query.dto';
 
 @Resolver(() => ProductEntity)
 export class ProductResolver {
@@ -12,23 +13,38 @@ export class ProductResolver {
 
     @Query(() => ProductList)
     async products(
-        @Args(PaginationPipe) queryDto: RatingQueryDto
+        @Args(PaginationPipe) queryDto: PaginationDto
     ): Promise<ProductList> {
-        if (queryDto?.rating) {
-            const [products, total] = await this.productService.findListByRating(queryDto);
-            delete queryDto.rating
-
-            return {
-                data: products,
-                ...queryDto,
-                total
-            }
-        }
-
         const [products, total] = await this.productService.findList(queryDto);
         return {
             data: products,
             ...queryDto,
+            total
+        }
+    }
+
+    // Promotion products for carousel
+    @Query(() => [ProductEntity])
+    async promotionProducts(): Promise<ProductEntity[]> {
+        return await this.productService.findPromotionProducts();
+    }
+
+    @Query(() => [ProductEntity])
+    async recommendProducts(): Promise<ProductEntity[]> {
+        return await this.productService.findRecommendProducts();
+    }
+
+    @Query(() => ProductList)
+    async productsByRating(
+        @Args(PaginationPipe) queryDto: RatingQueryDto
+    ): Promise<ProductList> {
+        const [products, total] = await this.productService.findProductsByRating(queryDto);
+        const { page, limit } = queryDto
+
+        return {
+            data: products,
+            page,
+            limit,
             total
         }
     }

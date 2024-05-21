@@ -1,0 +1,5 @@
+export enum PRODUCT {
+    PROMOTION_CAROUSEL = 12,
+    RECOMMEND_HOW_MANY = 8,
+    RECOMMEND_POINT = 4
+}

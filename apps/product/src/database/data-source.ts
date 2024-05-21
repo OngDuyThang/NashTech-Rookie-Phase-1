@@ -20,11 +20,12 @@ export const dataSourceOptions: DataSourceOptions = {
     database: process.env.DB_NAME,
     synchronize: true,
     entities: [
-        ProductEntity,
-        CategoryEntity,
-        AuthorEntity,
-        PromotionEntity,
-        ReviewEntity
+        // ProductEntity,
+        // CategoryEntity,
+        // AuthorEntity,
+        // PromotionEntity,
+        // ReviewEntity
+        'dist/apps/product/**/*.entity.js'
     ],
     // migrations: ["dist/apps/auth/database/migrations/*.js"],
 }
