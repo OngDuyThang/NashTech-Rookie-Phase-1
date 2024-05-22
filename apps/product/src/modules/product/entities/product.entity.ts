@@ -7,6 +7,7 @@ import { CategoryEntity } from "../../category/entities/category.entity";
 import { AuthorEntity } from "../../author/entities/author.entity";
 import { PromotionEntity } from "../../promotion/entities/promotion.entity";
 import { ReviewEntity } from "../../review/entities/review.entity";
+import { ReviewList } from "../../review/entities/review-list.schema";
 @Entity({ name: 'product' })
 @ObjectType()
 export class ProductEntity extends AbstractEntity {
@@ -77,7 +78,7 @@ export class ProductEntity extends AbstractEntity {
     @IsOptional()
     @ValidateNested({ each: true })
     @Type(() => ReviewEntity)
-    @Field(() => [ReviewEntity])
+    @Field(() => ReviewList, { nullable: true })
     reviews: ReviewEntity[]
 
     @Column({ type: 'decimal', nullable: true, default: 0 })

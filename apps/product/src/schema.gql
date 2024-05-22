@@ -34,7 +34,7 @@ type ProductEntity {
   promotion_id: String
   rating: String
   ratings: [String!]
-  reviews: [ReviewEntity!]!
+  reviews(limit: String = "10", page: String = "0", sort: String = "DATE_DESC"): ReviewList
   title: String!
 }
 
@@ -75,4 +75,11 @@ type ReviewEntity {
   rating: Float!
   title: String!
   user_id: String!
+}
+
+type ReviewList {
+  data: [ReviewEntity!]!
+  limit: Float
+  page: Float
+  total: Float
 }

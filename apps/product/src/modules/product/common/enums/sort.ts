@@ -1,4 +1,4 @@
-export enum SORT {
+export enum SORT_PRODUCT {
     ON_SALE = 'ON_SALE',
     POPULAR = 'POPULAR',
     PRICE_ASC = 'PRICE_ASC',

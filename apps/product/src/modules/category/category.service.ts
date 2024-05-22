@@ -5,7 +5,7 @@ import { CategoryEntity } from "./entities/category.entity";
 import { ProductRepository } from "../product/repositories/product.repository";
 import { SortQueryDto } from "../product/dtos/query.dto";
 import { ProductEntity } from "../product/entities/product.entity";
-import { SORT } from "../product/common";
+import { SORT_PRODUCT } from "../product/common";
 import { IsNull, Not } from "typeorm";
 import { QUERY_ORDER } from "@app/common";
 
@@ -66,11 +66,11 @@ export class CategoryService {
         const { page, limit, sort } = queryDto;
 
         switch (sort) {
-            case SORT.ON_SALE:
+            case SORT_PRODUCT.ON_SALE:
                 return await this.productsOnSale(category, page, limit);
-            case SORT.PRICE_ASC:
+            case SORT_PRODUCT.PRICE_ASC:
                 return await this.productsByPrice(category, page, limit, QUERY_ORDER.ASC);
-            case SORT.PRICE_DESC:
+            case SORT_PRODUCT.PRICE_DESC:
                 return await this.productsByPrice(category, page, limit, QUERY_ORDER.DESC);
         }
     }
