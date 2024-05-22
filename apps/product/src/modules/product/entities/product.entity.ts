@@ -7,6 +7,7 @@ import { CategoryEntity } from "../../category/entities/category.entity";
 import { AuthorEntity } from "../../author/entities/author.entity";
 import { PromotionEntity } from "../../promotion/entities/promotion.entity";
 import { ReviewEntity } from "../../review/entities/review.entity";
+import { ReviewList } from "../../review/entities/review-list.schema";
 @Entity({ name: 'product' })
 @ObjectType()
 export class ProductEntity extends AbstractEntity {
@@ -23,11 +24,17 @@ export class ProductEntity extends AbstractEntity {
     @Field({ nullable: true })
     description?: string;
 
-    @Column({ type: 'int', nullable: false })
+    @Column({ type: 'decimal', nullable: false })
     @IsNumber()
     @IsNotEmpty()
     @Field()
     price: number;
+
+    @Column({ type: 'text', nullable: true })
+    @IsString()
+    @IsOptional()
+    @Field({ nullable: true })
+    image?: string;
 
     @ManyToOne(() => AuthorEntity, (author) => author.products, { onDelete: 'SET NULL' })
     @JoinColumn({ name: 'author_id' })
@@ -71,8 +78,21 @@ export class ProductEntity extends AbstractEntity {
     @IsOptional()
     @ValidateNested({ each: true })
     @Type(() => ReviewEntity)
-    @Field(() => [ReviewEntity])
+    @Field(() => ReviewList, { nullable: true })
     reviews: ReviewEntity[]
+
+    @Column({ type: 'decimal', nullable: true, default: 0 })
+    @IsNumber()
+    @IsOptional()
+    @Field(() => String, { nullable: true })
+    rating?: number;
+
+    @Column({ type: 'decimal', array: true, default: [0, 0, 0, 0, 0] })
+    @IsArray({ each: true })
+    @IsNumber()
+    @IsOptional()
+    @Field(() => [String], { nullable: true })
+    ratings?: number[];
 
     @Column({ type: 'boolean', default: true })
     @IsOptional()

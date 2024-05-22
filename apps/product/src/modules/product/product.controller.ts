@@ -1,8 +1,9 @@
 import { Body, Controller, Delete, Get, Param, Patch, Post, Query, UseGuards } from '@nestjs/common';
 import { ProductService } from './product.service';
-import { PaginationPipe, PermissionRequestGuard, ROLE, RatingQueryDto, Roles, RolesGuard, UUIDPipe } from '@app/common';
+import { PaginationPipe, PermissionRequestGuard, ROLE, Roles, RolesGuard, UUIDPipe } from '@app/common';
 import { CreateProductDto } from './dtos/create-product.dto';
 import { ProductEntity } from './entities/product.entity';
+import { RatingQueryDto } from './dtos/query.dto';
 
 @Controller('products')
 export class ProductController {
@@ -33,8 +34,8 @@ export class ProductController {
   async findList(
     @Query(PaginationPipe) queryDto: RatingQueryDto,
   ): Promise<[ProductEntity[], number]> {
-    if (queryDto?.rating) {
-      return await this.productService.findListByRating(queryDto);
+    if (queryDto.rating) {
+      return await this.productService.findProductsByRating(queryDto);
     }
     return await this.productService.findList(queryDto);
   }

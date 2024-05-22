@@ -3,12 +3,19 @@ import { ReviewRepository } from "./repositories/review.repository";
 import { ReviewEntity } from "./entities/review.entity";
 import { CreateReviewDto } from "./dtos/create-review.dto";
 import { UpdateReviewDto } from "./dtos/update-review.dto";
-import { PaginationDto } from "@app/common";
+import { PaginationDto, QUERY_ORDER } from "@app/common";
+import { InjectRepository } from "@nestjs/typeorm";
+import { Repository } from "typeorm";
+import { ProductEntity } from "../product/entities/product.entity";
+import { SortQueryDto } from "./dtos/query.dto";
+import { SORT_REVIEW } from "./common";
 
 @Injectable()
 export class ReviewService {
     constructor(
-        private readonly reviewRepository: ReviewRepository
+        private readonly reviewRepository: ReviewRepository,
+        @InjectRepository(ReviewEntity)
+        private readonly reviewOrgRepo: Repository<ReviewEntity>
     ) {}
 
     async create(
@@ -26,13 +33,15 @@ export class ReviewService {
     }
 
     async findList(
-        paginationDto: PaginationDto
+        queryDto: SortQueryDto
     ): Promise<[ReviewEntity[], number]> {
-        const { page, limit } = paginationDto
+        const { page, limit, sort } = queryDto
+        const order = sort == SORT_REVIEW.DATE_ASC ? QUERY_ORDER.ASC : QUERY_ORDER.DESC
 
         return await this.reviewRepository.findList({
             skip: page * limit,
-            take: limit
+            take: limit,
+            order: { created_at: order }
         });
     }
 
@@ -55,5 +64,80 @@ export class ReviewService {
         id: string
     ): Promise<void> {
         await this.reviewRepository.delete({ id });
+    }
+
+    // async getProductRating(
+    //     productId: string
+    // ): Promise<number> {
+    //     try {
+    //         const raw = await this.reviewOrgRepo.createQueryBuilder('review')
+    //             .select('AVG(review.rating)', 'avg_rating')
+    //             .where('review.product_id = :productId', { productId })
+    //             .getRawOne()
+
+    //         const decimal = Number(raw.avg_rating).toFixed(1)
+    //         return Number(decimal)
+    //     } catch (e) {
+    //         throw e
+    //     }
+    // }
+
+    async getProductRatings(
+        productId: string
+    ): Promise<number[]> {
+        try {
+            const ratings = await this.reviewOrgRepo.createQueryBuilder('review')
+                .select('review.rating', 'star')
+                .addSelect('COUNT(review.rating)', 'count')
+                .where('review.product_id = :productId', { productId })
+                .groupBy('star')
+                .getRawMany()
+
+            if (!ratings.length) {
+                return new Array(5).fill(0)
+            }
+
+            return ratings.reduce((result, rating) => {
+                result[rating.star - 1] = Number(rating.count)
+                return result
+            }, new Array(5))
+        } catch (e) {
+            throw e
+        }
+    }
+
+    getAverageRating(
+        ratings: number[]
+    ): number {
+        const totalReview = ratings.reduce((result, item) => {
+            result += item
+            return result
+        }, 0)
+
+        if (!totalReview) {
+            return 0
+        }
+
+        const totalStar = ratings.reduce((result, item, index) => {
+            result += item * (index + 1)
+            return result
+        }, 0)
+
+        const decimal = Number(totalStar / totalReview).toFixed(1)
+        return Number(decimal)
+    }
+
+    async getReviewsByDate(
+        product: ProductEntity,
+        page: number,
+        limit: number,
+        order: QUERY_ORDER
+    ): Promise<[ReviewEntity[], number]> {
+        return await this.reviewRepository.findList({
+            where: { product_id: product.id },
+            skip: page * limit,
+            take: limit,
+            order: { created_at: order }
+        })
     }
 }

@@ -4,14 +4,14 @@
 
 type AuthorEntity {
   pen_name: String!
-  products(limit: String = "10", page: String = "0"): ProductList
+  products(limit: String = "10", page: String = "0", sort: String = "ON_SALE"): ProductList
 }
 
 type CategoryEntity {
   name: String!
   parent: CategoryEntity
   parent_id: String
-  products(limit: String = "10", page: String = "0"): ProductList
+  products(limit: String = "10", page: String = "0", sort: String = "ON_SALE"): ProductList
 }
 
 input CreateReviewDto {
@@ -29,9 +29,12 @@ type ProductEntity {
   author_id: String
   category_id: String
   description: String
+  image: String
   price: Float!
   promotion_id: String
-  reviews: [ReviewEntity!]!
+  rating: String
+  ratings: [String!]
+  reviews(limit: String = "10", page: String = "0", sort: String = "DATE_DESC"): ReviewList
   title: String!
 }
 
@@ -55,9 +58,12 @@ type Query {
   categories: [CategoryEntity!]!
   category(id: String!): CategoryEntity!
   product(id: String!): ProductEntity!
-  products(limit: String = "10", page: String = "0", rating: String): ProductList!
+  products(limit: String = "10", page: String = "0"): ProductList!
+  productsByRating(limit: String = "10", page: String = "0", rating: String = "5", sort: String = "ON_SALE"): ProductList!
   promotion(id: String!): PromotionEntity!
+  promotionProducts: [ProductEntity!]!
   promotions: [PromotionEntity!]!
+  recommendProducts: [ProductEntity!]!
   review(id: String!): ReviewEntity!
   reviews: [ReviewEntity!]!
   searchProducts: [ProductEntity!]!
@@ -69,4 +75,11 @@ type ReviewEntity {
   rating: Float!
   title: String!
   user_id: String!
+}
+
+type ReviewList {
+  data: [ReviewEntity!]!
+  limit: Float
+  page: Float
+  total: Float
 }

@@ -1,10 +1,18 @@
-import { Injectable } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
 import { ProductRepository } from './repositories/product.repository';
 import { CreateProductDto } from './dtos/create-product.dto';
 import { ProductEntity } from './entities/product.entity';
-import { PaginationDto, RatingQueryDto } from '@app/common';
+import { PaginationDto, QUERY_ORDER } from '@app/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { IsNull, Not, Repository } from 'typeorm';
+import { RatingQueryDto } from './dtos/query.dto';
+import { LAST_PRODUCT_CACHE_KEY, PRODUCT, SORT_PRODUCT, TCacheLastProduct } from './common';
+import { ReviewService } from '../review/review.service';
+import { Interval } from '@nestjs/schedule';
+import { CACHE_MANAGER } from '@nestjs/cache-manager';
+import { Cache } from 'cache-manager';
+import { SortQueryDto as ReviewSortQueryDto } from '../review/dtos/query.dto';
+import { SORT_REVIEW } from '../review/common';
 import { ReviewEntity } from '../review/entities/review.entity';
 
 @Injectable()
@@ -12,7 +20,11 @@ export class ProductService {
     constructor(
         private readonly productRepository: ProductRepository,
         @InjectRepository(ProductEntity)
-        private readonly productOrgRepo: Repository<ProductEntity>
+        private readonly productOrgRepo: Repository<ProductEntity>,
+
+        private readonly reviewService: ReviewService,
+        @Inject(CACHE_MANAGER)
+        private readonly cacheManager: Cache
     ) {}
 
     async create(
@@ -26,9 +38,9 @@ export class ProductService {
     }
 
     async findList(
-        paginationDto: PaginationDto
+        queryDto: PaginationDto
     ): Promise<[ProductEntity[], number]> {
-        const { page, limit } = paginationDto
+        const { page, limit } = queryDto
 
         return await this.productRepository.findList({
             where: { active: true },
@@ -72,27 +84,202 @@ export class ProductService {
         await this.productRepository.delete({ id });
     }
 
-    async findListByRating(
-        queryDto: RatingQueryDto
-    ): Promise<[ProductEntity[], number]> {
-        const { page, limit, rating } = queryDto
+    async findPromotionProducts(): Promise<ProductEntity[]> {
+        return await this.productRepository.find({
+            where: {
+                active: true,
+                promotion_id: Not(IsNull())
+            },
+            order: { updated_at: QUERY_ORDER.DESC },
+            take: PRODUCT.PROMOTION_CAROUSEL
+        });
+    }
+
+    private async initProductCache(): Promise<TCacheLastProduct> {
+        const firstProductRecord = await this.productOrgRepo.createQueryBuilder('product')
+            .addSelect('product.created_at')
+            .orderBy('product.created_at', QUERY_ORDER.ASC)
+            .getOne()
+
+        const { id, created_at } = firstProductRecord
+        return {
+            id,
+            created_at
+        }
+    }
+
+    private async setLastProductCache(
+        cache: TCacheLastProduct
+    ): Promise<void> {
+        await this.cacheManager.set(
+            LAST_PRODUCT_CACHE_KEY,
+            cache,
+            PRODUCT.LAST_PRODUCT_CACHE_TIME
+        );
+    }
+
+    private async getLastProductCache(): Promise<TCacheLastProduct> {
+        try {
+            const lastProduct = await this.cacheManager.get<TCacheLastProduct>(LAST_PRODUCT_CACHE_KEY)
+            if (!lastProduct) {
+                const cache = await this.initProductCache()
+                await this.setLastProductCache(cache)
+
+                return cache
+            }
+
+            return lastProduct
+        } catch (e) {
+            throw e
+        }
+    }
+
+    private async getProductsForCron(
+        id: string,
+        created_at: Date,
+    ): Promise<ProductEntity[]> {
+        return await this.productOrgRepo.createQueryBuilder('product')
+            .where(
+                'product.created_at > :createdAt OR (product.created_at = :createdAt AND product.id > :id)',
+                { createdAt: created_at, id }
+            )
+            .orderBy('product.created_at', QUERY_ORDER.ASC)
+            .addSelect('product.created_at')
+            .take(PRODUCT.CRON_TAKE)
+            .getMany()
+    }
+
+    @Interval(PRODUCT.CRON_INTERVAL)
+    async cronProductRating() {
+        try {
+            const lastProduct = await this.getLastProductCache()
+            const { id, created_at } = lastProduct
+            const products = await this.getProductsForCron(id, created_at)
+
+            if (products.length > 1) {
+                await this.setLastProductCache({
+                    id: products[products.length - 1].id,
+                    created_at: products[products.length - 1].created_at
+                })
+            } else {
+                const cache = await this.initProductCache()
+                await this.setLastProductCache(cache)
+                return
+            }
+
+            for (let i = 0; i < products.length; i++) {
+                const product = products[i]
+                const ratings = await this.reviewService.getProductRatings(product.id)
+                const rating = this.reviewService.getAverageRating(ratings)
+
+                await this.productRepository.update(
+                    { id: product.id },
+                    { rating, ratings }
+                )
+            }
+        } catch (e) {
+            throw e
+        }
+    }
+
+    async findRecommendProducts(): Promise<ProductEntity[]> {
         try {
             return await this.productOrgRepo.createQueryBuilder('product')
-                .innerJoin(
-                    queryBuilder => queryBuilder
-                        .from(ReviewEntity, 'review')
-                        .select('review.product_id', 'product_id')
-                        .addSelect('AVG(review.rating)', 'avg_rating')
-                        .groupBy('review.product_id')
-                        .having('AVG(review.rating) = :averageRating', { averageRating: rating }),
-                    'avg_reviews',
-                    'product.id = avg_reviews.product_id'
-                )
-                .skip(page)
+                .where('product.active = :active', { active: true })
+                .orderBy('product.rating', QUERY_ORDER.DESC)
+                .take(PRODUCT.RECOMMEND_HOW_MANY)
+                .getMany()
+        } catch (e) {
+            throw e
+        }
+    }
+
+    async findProductsByRating(
+        queryDto: RatingQueryDto
+    ): Promise<[ProductEntity[], number]> {
+        const { page, limit, rating, sort } = queryDto
+
+        try {
+            switch (sort) {
+                case SORT_PRODUCT.ON_SALE:
+                    return await this.productsOnSale(page, limit, rating)
+                case SORT_PRODUCT.PRICE_ASC:
+                    return await this.productsByPrice(page, limit, rating, QUERY_ORDER.ASC)
+                case SORT_PRODUCT.PRICE_DESC:
+                    return await this.productsByPrice(page, limit, rating, QUERY_ORDER.DESC)
+            }
+        } catch (e) {
+            throw e
+        }
+    }
+
+    // private productsByRatingQuery(
+    //     page: number,
+    //     limit: number,
+    //     rating: number
+    // ): SelectQueryBuilder<ProductEntity> {
+    //     return this.productOrgRepo.createQueryBuilder('product')
+    //         .innerJoin(
+    //             queryBuilder => queryBuilder
+    //                 .from(ReviewEntity, 'review')
+    //                 .select('review.product_id', 'product_id')
+    //                 .addSelect('AVG(review.rating)', 'avg_rating')
+    //                 .groupBy('review.product_id')
+    //                 .having('AVG(review.rating) = :averageRating', { averageRating: rating }),
+    //             'avg_reviews',
+    //             'product.id = avg_reviews.product_id'
+    //         )
+    //         .skip(page)
+    //         .take(limit)
+    // }
+
+    private async productsOnSale(
+        page: number,
+        limit: number,
+        rating: number
+    ): Promise<[ProductEntity[], number]> {
+        try {
+            return await this.productOrgRepo.createQueryBuilder('product')
+                .where('product.rating >= :rating', { rating })
+                .andWhere('product.rating < :nextStar', { nextStar: rating + 1 })
+                .andWhere('product.promotion_id IS NOT NULL')
+                .andWhere('product.active = true')
+                .skip(page * limit)
                 .take(limit)
                 .getManyAndCount();
         } catch (e) {
             throw e
+        }
+    }
+
+    private async productsByPrice(
+        page: number,
+        limit: number,
+        rating: number,
+        order: QUERY_ORDER
+    ): Promise<[ProductEntity[], number]> {
+        return await this.productRepository.findList({
+            where: {
+                rating,
+                active: true
+            },
+            skip: page * limit,
+            take: limit,
+            order: { price: order }
+        })
+    }
+
+    async findReviewsByProduct(
+        product: ProductEntity,
+        queryDto: ReviewSortQueryDto
+    ): Promise<[ReviewEntity[], number]> {
+        const { page, limit, sort } = queryDto;
+
+        switch (sort) {
+            case SORT_REVIEW.DATE_ASC:
+                return await this.reviewService.getReviewsByDate(product, page, limit, QUERY_ORDER.ASC);
+            case SORT_REVIEW.DATE_DESC:
+                return await this.reviewService.getReviewsByDate(product, page, limit, QUERY_ORDER.DESC);
         }
     }
 }
