@@ -5,13 +5,18 @@ import { ProductController } from './product.controller';
 import { ProductService } from './product.service';
 import { ProductRepository } from './repositories/product.repository';
 import { ProductResolver } from './product.resolver';
-import { ReviewEntity } from '../review/entities/review.entity';
+import { ReviewModule } from '../review/review.module';
+import { CacheModule } from '@nestjs/cache-manager';
+import { ScheduleModule } from '@nestjs/schedule';
 
 @Module({
   imports: [
     DatabaseModule.forFeature([
       ProductEntity
     ]),
+    ScheduleModule.forRoot(),
+    CacheModule.register(),
+    ReviewModule
   ],
   controllers: [
     ProductController

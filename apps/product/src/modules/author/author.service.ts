@@ -74,7 +74,8 @@ export class AuthorService {
         return await this.productRepository.findList({
             where: {
                 author_id: author.id,
-                promotion_id: Not(IsNull())
+                promotion_id: Not(IsNull()),
+                active: true
             },
             skip: page * limit,
             take: limit
@@ -88,7 +89,10 @@ export class AuthorService {
         order: QUERY_ORDER
     ): Promise<[ProductEntity[], number]> {
         return await this.productRepository.findList({
-            where: { author_id: author.id },
+            where: {
+                author_id: author.id,
+                active: true
+            },
             skip: page * limit,
             take: limit,
             order: { price: order }

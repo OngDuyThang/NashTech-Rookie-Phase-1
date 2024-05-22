@@ -1,16 +1,19 @@
 import { AbstractEntity } from "@app/database";
-import { IsNotEmpty, IsNumber, IsOptional, IsString, IsUUID, MaxLength } from "class-validator";
-import { Column, Entity, JoinColumn, ManyToOne, UpdateDateColumn } from "typeorm";
+import { IsNotEmpty, IsNumber, IsOptional, IsString, IsUUID, Max, MaxLength, Min } from "class-validator";
+import { Check, Column, Entity, JoinColumn, ManyToOne } from "typeorm";
 import { Type } from "class-transformer";
 import { Field, ObjectType } from "@nestjs/graphql";
 import { ProductEntity } from "../../product/entities/product.entity";
 
 @Entity({ name: 'review' })
+@Check(`"rating" >= 1 AND "rating" <= 5`)
 @ObjectType()
 export class ReviewEntity extends AbstractEntity {
     @Column({ type: 'decimal', nullable: false, default: 5 })
     @IsNumber()
     @IsNotEmpty()
+    @Min(1)
+    @Max(5)
     @Field()
     rating: number;
 

@@ -23,7 +23,7 @@ export class ProductEntity extends AbstractEntity {
     @Field({ nullable: true })
     description?: string;
 
-    @Column({ type: 'int', nullable: false })
+    @Column({ type: 'decimal', nullable: false })
     @IsNumber()
     @IsNotEmpty()
     @Field()
@@ -79,6 +79,19 @@ export class ProductEntity extends AbstractEntity {
     @Type(() => ReviewEntity)
     @Field(() => [ReviewEntity])
     reviews: ReviewEntity[]
+
+    @Column({ type: 'decimal', nullable: true, default: 0 })
+    @IsNumber()
+    @IsOptional()
+    @Field(() => String, { nullable: true })
+    rating?: number;
+
+    @Column({ type: 'decimal', array: true, default: [0, 0, 0, 0, 0] })
+    @IsArray({ each: true })
+    @IsNumber()
+    @IsOptional()
+    @Field(() => [String], { nullable: true })
+    ratings?: number[];
 
     @Column({ type: 'boolean', default: true })
     @IsOptional()

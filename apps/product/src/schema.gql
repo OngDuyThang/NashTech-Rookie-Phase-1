@@ -32,6 +32,8 @@ type ProductEntity {
   image: String
   price: Float!
   promotion_id: String
+  rating: String
+  ratings: [String!]
   reviews: [ReviewEntity!]!
   title: String!
 }

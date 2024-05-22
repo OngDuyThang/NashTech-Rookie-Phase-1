@@ -83,7 +83,8 @@ export class CategoryService {
         return await this.productRepository.findList({
             where: {
                 category_id: category.id,
-                promotion_id: Not(IsNull())
+                promotion_id: Not(IsNull()),
+                active: true
             },
             skip: page * limit,
             take: limit
@@ -97,7 +98,10 @@ export class CategoryService {
         order: QUERY_ORDER
     ): Promise<[ProductEntity[], number]> {
         return await this.productRepository.findList({
-            where: { category_id: category.id },
+            where: {
+                category_id: category.id,
+                active: true
+            },
             skip: page * limit,
             take: limit,
             order: { price: order }

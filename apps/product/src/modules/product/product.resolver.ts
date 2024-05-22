@@ -1,5 +1,5 @@
 import { ProductService } from './product.service';
-import { Args, Query, Resolver } from '@nestjs/graphql';
+import { Args, Parent, Query, Resolver } from '@nestjs/graphql';
 import { ProductEntity } from './entities/product.entity';
 import { PaginationDto, PaginationPipe, UUIDPipe } from '@app/common';
 import { ProductList } from './entities/product-list.schema';

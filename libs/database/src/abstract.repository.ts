@@ -87,7 +87,7 @@ export abstract class AbstractRepository<Entity extends AbstractEntity> {
     }
 
     async findOne(
-        options: FindOneOptions<Entity>
+        options?: FindOneOptions<Entity>
     ): Promise<Entity> {
         try {
             const entity = await this.repository.findOne(options)
