@@ -1,15 +1,15 @@
 import { IsEnum, IsNumber, IsOptional, Max, Min } from "class-validator";
 import { PaginationDto } from "@app/common";
 import { ArgsType, Field } from "@nestjs/graphql";
-import { RATING, SORT_PRODUCT } from "../common";
+import { RATING, PRODUCT_SORT } from "../common";
 import { Type } from "class-transformer";
 
 @ArgsType()
 export class SortQueryDto extends PaginationDto {
-    @IsEnum(SORT_PRODUCT)
+    @IsEnum(PRODUCT_SORT)
     @IsOptional()
-    @Field(() => String, { nullable: true, defaultValue: SORT_PRODUCT.ON_SALE })
-    sort?: SORT_PRODUCT
+    @Field(() => String, { nullable: true, defaultValue: PRODUCT_SORT.ON_SALE })
+    sort?: PRODUCT_SORT
 }
 
 @ArgsType()

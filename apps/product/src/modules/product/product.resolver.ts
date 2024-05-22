@@ -5,7 +5,7 @@ import { PaginationDto, PaginationPipe, UUIDPipe } from '@app/common';
 import { ProductList } from './entities/product-list.schema';
 import { RatingQueryDto } from './dtos/query.dto';
 import { ReviewList } from '../review/entities/review-list.schema';
-import { SortQueryDto as ReviewSortQueryDto } from '../review/dtos/query.dto';
+import { ReviewQueryDto } from '../review/dtos/query.dto';
 
 @Resolver(() => ProductEntity)
 export class ProductResolver {
@@ -61,7 +61,7 @@ export class ProductResolver {
     @ResolveField(() => ReviewList)
     async reviews(
         @Parent() product: ProductEntity,
-        @Args(PaginationPipe) queryDto: ReviewSortQueryDto
+        @Args(PaginationPipe) queryDto: ReviewQueryDto
     ): Promise<ReviewList> {
         const [reviews, total] = await this.productService.findReviewsByProduct(product, queryDto);
 

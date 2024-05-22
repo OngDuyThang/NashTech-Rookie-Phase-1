@@ -3,12 +3,12 @@ import { ReviewRepository } from "./repositories/review.repository";
 import { ReviewEntity } from "./entities/review.entity";
 import { CreateReviewDto } from "./dtos/create-review.dto";
 import { UpdateReviewDto } from "./dtos/update-review.dto";
-import { PaginationDto, QUERY_ORDER } from "@app/common";
+import { QUERY_ORDER } from "@app/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Repository } from "typeorm";
 import { ProductEntity } from "../product/entities/product.entity";
-import { SortQueryDto } from "./dtos/query.dto";
-import { SORT_REVIEW } from "./common";
+import { ReviewQueryDto } from "./dtos/query.dto";
+import { REVIEW_SORT } from "./common";
 
 @Injectable()
 export class ReviewService {
@@ -33,10 +33,10 @@ export class ReviewService {
     }
 
     async findList(
-        queryDto: SortQueryDto
+        queryDto: ReviewQueryDto
     ): Promise<[ReviewEntity[], number]> {
         const { page, limit, sort } = queryDto
-        const order = sort == SORT_REVIEW.DATE_ASC ? QUERY_ORDER.ASC : QUERY_ORDER.DESC
+        const order = sort == REVIEW_SORT.DATE_ASC ? QUERY_ORDER.ASC : QUERY_ORDER.DESC
 
         return await this.reviewRepository.findList({
             skip: page * limit,
@@ -127,14 +127,18 @@ export class ReviewService {
         return Number(decimal)
     }
 
-    async getReviewsByDate(
+    async getReviewsOfProduct(
         product: ProductEntity,
         page: number,
         limit: number,
-        order: QUERY_ORDER
+        order: QUERY_ORDER,
+        star: number
     ): Promise<[ReviewEntity[], number]> {
         return await this.reviewRepository.findList({
-            where: { product_id: product.id },
+            where: {
+                product_id: product.id,
+                rating: star
+            },
             skip: page * limit,
             take: limit,
             order: { created_at: order }

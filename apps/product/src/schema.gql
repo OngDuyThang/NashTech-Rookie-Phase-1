@@ -34,7 +34,7 @@ type ProductEntity {
   promotion_id: String
   rating: String
   ratings: [String!]
-  reviews(limit: String = "10", page: String = "0", sort: String = "DATE_DESC"): ReviewList
+  reviews(limit: String = "10", page: String = "0", sort: String = "DATE_DESC", star: String = "5"): ReviewList
   title: String!
 }
 

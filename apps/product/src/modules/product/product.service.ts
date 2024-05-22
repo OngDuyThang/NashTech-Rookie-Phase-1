@@ -6,13 +6,13 @@ import { PaginationDto, QUERY_ORDER } from '@app/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { IsNull, Not, Repository } from 'typeorm';
 import { RatingQueryDto } from './dtos/query.dto';
-import { LAST_PRODUCT_CACHE_KEY, PRODUCT, SORT_PRODUCT, TCacheLastProduct } from './common';
+import { LAST_PRODUCT_CACHE_KEY, PRODUCT, PRODUCT_SORT, TCacheLastProduct } from './common';
 import { ReviewService } from '../review/review.service';
 import { Interval } from '@nestjs/schedule';
 import { CACHE_MANAGER } from '@nestjs/cache-manager';
 import { Cache } from 'cache-manager';
-import { SortQueryDto as ReviewSortQueryDto } from '../review/dtos/query.dto';
-import { SORT_REVIEW } from '../review/common';
+import { ReviewQueryDto } from '../review/dtos/query.dto';
+import { REVIEW_SORT } from '../review/common';
 import { ReviewEntity } from '../review/entities/review.entity';
 
 @Injectable()
@@ -201,11 +201,11 @@ export class ProductService {
 
         try {
             switch (sort) {
-                case SORT_PRODUCT.ON_SALE:
+                case PRODUCT_SORT.ON_SALE:
                     return await this.productsOnSale(page, limit, rating)
-                case SORT_PRODUCT.PRICE_ASC:
+                case PRODUCT_SORT.PRICE_ASC:
                     return await this.productsByPrice(page, limit, rating, QUERY_ORDER.ASC)
-                case SORT_PRODUCT.PRICE_DESC:
+                case PRODUCT_SORT.PRICE_DESC:
                     return await this.productsByPrice(page, limit, rating, QUERY_ORDER.DESC)
             }
         } catch (e) {
@@ -271,15 +271,27 @@ export class ProductService {
 
     async findReviewsByProduct(
         product: ProductEntity,
-        queryDto: ReviewSortQueryDto
+        queryDto: ReviewQueryDto
     ): Promise<[ReviewEntity[], number]> {
-        const { page, limit, sort } = queryDto;
+        const { page, limit, sort, star } = queryDto;
 
         switch (sort) {
-            case SORT_REVIEW.DATE_ASC:
-                return await this.reviewService.getReviewsByDate(product, page, limit, QUERY_ORDER.ASC);
-            case SORT_REVIEW.DATE_DESC:
-                return await this.reviewService.getReviewsByDate(product, page, limit, QUERY_ORDER.DESC);
+            case REVIEW_SORT.DATE_ASC:
+                return await this.reviewService.getReviewsOfProduct(
+                    product,
+                    page,
+                    limit,
+                    QUERY_ORDER.ASC,
+                    star
+                );
+            case REVIEW_SORT.DATE_DESC:
+                return await this.reviewService.getReviewsOfProduct(
+                    product,
+                    page,
+                    limit,
+                    QUERY_ORDER.DESC,
+                    star
+                );
         }
     }
 }
