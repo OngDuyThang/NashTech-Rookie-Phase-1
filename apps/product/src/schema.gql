@@ -3,11 +3,13 @@
 # ------------------------------------------------------
 
 type AuthorEntity {
+  id: String!
   pen_name: String!
   products(limit: String = "10", page: String = "0", sort: String = "ON_SALE"): ProductList
 }
 
 type CategoryEntity {
+  id: String!
   name: String!
   parent: CategoryEntity
   parent_id: String
@@ -29,6 +31,7 @@ type ProductEntity {
   author_id: String
   category_id: String
   description: String
+  id: String!
   image: String
   price: Float!
   promotion_id: String
@@ -48,6 +51,7 @@ type ProductList {
 type PromotionEntity {
   description: String
   discount_percent: Float!
+  id: String!
   name: String!
   products(limit: String = "10", page: String = "0"): ProductList
 }
@@ -71,6 +75,7 @@ type Query {
 
 type ReviewEntity {
   description: String!
+  id: String!
   product_id: String!
   rating: Float!
   title: String!

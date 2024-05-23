@@ -7,7 +7,7 @@ import { TimeoutError, catchError, tap, timeout } from "rxjs";
 import { TPermissionRequest } from "../types/permission-request";
 import { COOKIE_KEY_NAME } from "../enums/cookie";
 import { convertRpcException } from "../utils/helpers";
-import { UserEntity } from "./user.entity";
+import { UserEntity } from "../entities/user.entity";
 import { GqlExecutionContext } from "@nestjs/graphql";
 
 @Injectable()

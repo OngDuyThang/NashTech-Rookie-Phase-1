@@ -1,5 +1,5 @@
 import { AbstractEntity } from "@app/database";
-import { IsArray, IsBoolean, IsNotEmpty, IsNumber, IsOptional, IsString, IsUUID, MaxLength, ValidateNested } from "class-validator";
+import { IsArray, IsBoolean, IsNotEmpty, IsNumber, IsOptional, IsPositive, IsString, IsUUID, MaxLength, ValidateNested } from "class-validator";
 import { Column, Entity, JoinColumn, ManyToOne, OneToMany } from "typeorm";
 import { Type } from "class-transformer";
 import { Field, ObjectType } from "@nestjs/graphql";
@@ -26,6 +26,7 @@ export class ProductEntity extends AbstractEntity {
 
     @Column({ type: 'decimal', nullable: false })
     @IsNumber()
+    @IsPositive()
     @IsNotEmpty()
     @Field()
     price: number;

@@ -1,14 +1,13 @@
 import { DataSource, DataSourceOptions } from "typeorm";
 import * as dotenv from "dotenv";
 import { getEnvFilePath } from "@app/common";
-import { ProductEntity } from "../modules/product/entities/product.entity";
-import { CategoryEntity } from "../modules/category/entities/category.entity";
-import { AuthorEntity } from "../modules/author/entities/author.entity";
-import { PromotionEntity } from "../modules/promotion/entities/promotion.entity";
-import { ReviewEntity } from "../modules/review/entities/review.entity";
+import { CartEntity } from "../modules/cart/entities/cart.entity";
+import { ItemEntity } from "../modules/item/entities/item.entity";
+import { TempCartEntity } from "../modules/cart/entities/temp-cart.entity";
+import { TempItemEntity } from "../modules/item/entities/temp-item.entity";
 
 dotenv.config({
-    path: getEnvFilePath('product')
+    path: getEnvFilePath('cart')
 });
 
 export const dataSourceOptions: DataSourceOptions = {
@@ -20,12 +19,11 @@ export const dataSourceOptions: DataSourceOptions = {
     database: process.env.DB_NAME,
     synchronize: true,
     entities: [
-        ProductEntity,
-        CategoryEntity,
-        AuthorEntity,
-        PromotionEntity,
-        ReviewEntity
-        // 'dist/apps/product/**/*.entity.js'
+        CartEntity,
+        ItemEntity,
+        TempCartEntity,
+        TempItemEntity
+        // 'dist/apps/cart/**/*.entity.js'
     ],
     // migrations: ["dist/apps/auth/database/migrations/*.js"],
 }

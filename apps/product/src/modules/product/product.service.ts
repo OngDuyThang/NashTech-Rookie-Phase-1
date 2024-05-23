@@ -2,7 +2,7 @@ import { Inject, Injectable } from '@nestjs/common';
 import { ProductRepository } from './repositories/product.repository';
 import { CreateProductDto } from './dtos/create-product.dto';
 import { ProductEntity } from './entities/product.entity';
-import { PaginationDto, QUERY_ORDER } from '@app/common';
+import { PaginationDto, QUERY_ORDER, ProductEntity as CommonProductEntity } from '@app/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { IsNull, Not, Repository } from 'typeorm';
 import { RatingQueryDto } from './dtos/query.dto';
@@ -14,6 +14,7 @@ import { Cache } from 'cache-manager';
 import { ReviewQueryDto } from '../review/dtos/query.dto';
 import { REVIEW_SORT } from '../review/common';
 import { ReviewEntity } from '../review/entities/review.entity';
+import { RpcException } from '@nestjs/microservices';
 
 @Injectable()
 export class ProductService {
@@ -292,6 +293,40 @@ export class ProductService {
                     QUERY_ORDER.DESC,
                     star
                 );
+        }
+    }
+
+    async findProductOnCart(
+        id: string
+    ): Promise<CommonProductEntity> {
+        try {
+            const product = await this.productRepository.findOne({
+                where: {
+                    id,
+                    active: true
+                },
+                relations: {
+                    promotion: true,
+                    author: true
+                }
+            })
+
+            const {
+                title, price, image,
+                promotion: { discount_percent },
+                author: { pen_name }
+            } = product
+
+            return {
+                id,
+                title,
+                price,
+                discount: discount_percent,
+                image,
+                author: pen_name
+            }
+        } catch (e) {
+            throw new RpcException(e)
         }
     }
 }

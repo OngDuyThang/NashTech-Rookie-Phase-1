@@ -2,7 +2,7 @@ import { CanActivate, ExecutionContext, Injectable, MethodNotAllowedException, U
 import { Reflector } from "@nestjs/core";
 import { Request } from "express";
 import { DECORATOR_KEY } from "../enums/decorators";
-import { UserEntity } from "./user.entity";
+import { UserEntity } from "../entities/user.entity";
 import { ERROR_MESSAGE } from "../enums/messages";
 import { ROLE } from "../enums/roles";
 import { GqlExecutionContext } from "@nestjs/graphql";
