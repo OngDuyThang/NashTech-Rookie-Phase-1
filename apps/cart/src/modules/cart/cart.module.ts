@@ -7,6 +7,7 @@ import { CartEntity } from "./entities/cart.entity";
 import { TempCartRepository } from "./repositories/temp-cart.repository";
 import { TempCartEntity } from "./entities/temp-cart.entity";
 import { TempCartResolver } from "./temp-cart.resolver";
+import { CartController } from "./cart.controller";
 
 @Module({
     imports: [
@@ -14,6 +15,9 @@ import { TempCartResolver } from "./temp-cart.resolver";
             CartEntity,
             TempCartEntity
         ])
+    ],
+    controllers: [
+        CartController
     ],
     providers: [
         CartService,

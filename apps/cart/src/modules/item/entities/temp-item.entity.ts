@@ -4,7 +4,7 @@ import { Column, Entity, JoinColumn, ManyToOne } from "typeorm";
 import { Type } from "class-transformer";
 import { Field, ObjectType } from "@nestjs/graphql";
 import { TempCartEntity } from "../../cart/entities/temp-cart.entity";
-import { ProductEntity } from "@app/common";
+import { ProductSchema } from "@app/common";
 
 @Entity({ name: 'temp_cart_item' })
 @ObjectType()
@@ -15,10 +15,13 @@ export class TempItemEntity extends AbstractEntity {
     @Field()
     product_id: string
 
-    @Field(() => ProductEntity, { nullable: true })
-    product?: ProductEntity
+    @Type(() => ProductSchema)
+    @IsOptional()
+    @Field(() => ProductSchema, { nullable: true })
+    product?: ProductSchema
 
     @Column({ type: 'int', nullable: false, default: 1 })
+    @Type(() => Number)
     @IsNumber()
     @IsPositive()
     @IsNotEmpty()

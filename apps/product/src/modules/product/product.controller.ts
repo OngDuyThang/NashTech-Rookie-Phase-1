@@ -1,6 +1,6 @@
 import { Body, Controller, Delete, Get, Param, Patch, Post, Query, UseGuards } from '@nestjs/common';
 import { ProductService } from './product.service';
-import { PaginationPipe, PermissionRequestGuard, ROLE, Roles, RolesGuard, SERVICE_MESSAGE, UUIDPipe, ProductEntity as CommonProductEntity } from '@app/common';
+import { PaginationPipe, PermissionRequestGuard, ROLE, Roles, RolesGuard, SERVICE_MESSAGE, UUIDPipe, ProductSchema } from '@app/common';
 import { CreateProductDto } from './dtos/create-product.dto';
 import { ProductEntity } from './entities/product.entity';
 import { RatingQueryDto } from './dtos/query.dto';
@@ -88,7 +88,7 @@ export class ProductController {
   @MessagePattern({ cmd: SERVICE_MESSAGE.GET_PRODUCT_BY_ID })
   async findProductOnCart(
     @Payload() id: string
-  ): Promise<CommonProductEntity> {
+  ): Promise<ProductSchema> {
     return await this.productService.findProductOnCart(id);
   }
 }

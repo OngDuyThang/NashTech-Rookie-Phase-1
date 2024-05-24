@@ -9,6 +9,13 @@ type CartEntity {
   user_id: String!
 }
 
+type CartItemSchema {
+  cart_id: String!
+  id: String!
+  product: ProductSchema
+  quantity: String
+}
+
 input CreateItemDto {
   product_id: String!
   quantity: String! = "1"
@@ -22,7 +29,7 @@ input CreateTempItemDto {
 type ItemEntity {
   cart_id: String!
   id: String!
-  product: ProductEntity
+  product: ProductSchema
   quantity: Float!
 }
 
@@ -35,7 +42,7 @@ type Mutation {
   updateCartItemForGuest(id: String!, quantity: Float!): String!
 }
 
-type ProductEntity {
+type ProductSchema {
   author: String
   discount: Float
   id: String!
@@ -60,7 +67,7 @@ type TempCartEntity {
 
 type TempItemEntity {
   id: String!
-  product: ProductEntity
+  product: ProductSchema
   product_id: String!
   quantity: Float!
   temp_cart_id: String!

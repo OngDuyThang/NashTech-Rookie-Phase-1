@@ -1,5 +1,5 @@
 import { Resolver, Mutation, Args, Parent, ResolveField } from '@nestjs/graphql';
-import { NumberPipe, ProductEntity, UUIDPipe } from '@app/common';
+import { NumberPipe, ProductSchema, UUIDPipe } from '@app/common';
 import { ItemService } from './item.service';
 import { CreateTempItemDto } from './dtos/create-temp-item.dto';
 import { TempItemEntity } from './entities/temp-item.entity';
@@ -36,10 +36,10 @@ export class TempItemResolver {
         return ''
     }
 
-    @ResolveField(() => ProductEntity)
+    @ResolveField(() => ProductSchema)
     product(
         @Parent() item: TempItemEntity
-    ): Observable<ProductEntity> {
-        return this.itemService.findProduct(item)
+    ): Observable<ProductSchema> {
+        return this.itemService.findProductForCart(item.product_id)
     }
 }

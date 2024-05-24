@@ -2,7 +2,7 @@ import { Inject, Injectable } from '@nestjs/common';
 import { ProductRepository } from './repositories/product.repository';
 import { CreateProductDto } from './dtos/create-product.dto';
 import { ProductEntity } from './entities/product.entity';
-import { PaginationDto, QUERY_ORDER, ProductEntity as CommonProductEntity } from '@app/common';
+import { PaginationDto, QUERY_ORDER, ProductSchema } from '@app/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { IsNull, Not, Repository } from 'typeorm';
 import { RatingQueryDto } from './dtos/query.dto';
@@ -298,7 +298,7 @@ export class ProductService {
 
     async findProductOnCart(
         id: string
-    ): Promise<CommonProductEntity> {
+    ): Promise<ProductSchema> {
         try {
             const product = await this.productRepository.findOne({
                 where: {

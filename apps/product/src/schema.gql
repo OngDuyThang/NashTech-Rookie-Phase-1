@@ -8,6 +8,13 @@ type AuthorEntity {
   products(limit: String = "10", page: String = "0", sort: String = "ON_SALE"): ProductList
 }
 
+type CartItemSchema {
+  cart_id: String!
+  id: String!
+  product: ProductSchema
+  quantity: String
+}
+
 type CategoryEntity {
   id: String!
   name: String!
@@ -46,6 +53,15 @@ type ProductList {
   limit: Float
   page: Float
   total: Float
+}
+
+type ProductSchema {
+  author: String
+  discount: Float
+  id: String!
+  image: String
+  price: Float!
+  title: String!
 }
 
 type PromotionEntity {

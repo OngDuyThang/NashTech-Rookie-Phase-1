@@ -5,9 +5,9 @@ import { CreateItemDto } from "./dtos/create-item.dto";
 import { TempItemRepository } from "./repositories/temp-item.repository";
 import { CreateTempItemDto } from "./dtos/create-temp-item.dto";
 import { CartService } from "../cart/cart.service";
-import { ERROR_MESSAGE, ProductEntity, SERVICE_MESSAGE, SERVICE_NAME, convertRpcException } from "@app/common";
+import { ERROR_MESSAGE, ProductSchema, SERVICE_MESSAGE, SERVICE_NAME, convertRpcException } from "@app/common";
 import { ClientProxy } from "@nestjs/microservices";
-import { Observable, TimeoutError, catchError, timeout } from "rxjs";
+import { Observable, TimeoutError, catchError, lastValueFrom, timeout } from "rxjs";
 import { TempItemEntity } from "./entities/temp-item.entity";
 
 @Injectable()
@@ -26,6 +26,8 @@ export class ItemService {
     ): Promise<ItemEntity> {
         const cart = await this.cartService.getUserCart(userId);
 
+        this.findProductForCart(createItemDto.product_id)
+
         return await this.itemRepository.create({
             ...createItemDto,
             cart_id: cart.id
@@ -37,6 +39,8 @@ export class ItemService {
         createTempItemDto: CreateTempItemDto
     ): Promise<TempItemEntity> {
         const temp_card = await this.cartService.getGuestCart(guestId);
+
+        this.findProductForCart(createTempItemDto.product_id)
 
         return await this.tempItemRepository.create({
             ...createTempItemDto,
@@ -70,10 +74,10 @@ export class ItemService {
         await this.tempItemRepository.delete({ id });
     }
 
-    findProduct(
-        item: ItemEntity | TempItemEntity
-    ): Observable<ProductEntity> {
-        return this.productService.send({ cmd: SERVICE_MESSAGE.GET_PRODUCT_BY_ID }, item.product_id)
+    findProductForCart(
+        productId: string
+    ): Observable<ProductSchema> {
+        return this.productService.send({ cmd: SERVICE_MESSAGE.GET_PRODUCT_BY_ID }, productId)
             .pipe(
                 timeout(10000),
                 catchError((e) => {

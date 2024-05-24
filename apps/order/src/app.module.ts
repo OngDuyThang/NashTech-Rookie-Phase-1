@@ -1,13 +1,13 @@
-import { Logger, Module, Provider } from '@nestjs/common';
 import { HttpExceptionFilter, QUEUE_NAME, RmqClientOption, RpcExceptionFilter, SERVICE_NAME, TypeORMExceptionFilter, getEnvFilePath, getGqlSchemaPath } from '@app/common';
-import { APP_FILTER } from '@nestjs/core';
 import { DatabaseModule } from '@app/database';
-import { dataSourceOptions } from './database/data-source';
 import { EnvModule } from '@app/env';
-import { RmqModule } from '@app/rmq';
 import { GraphQLModule } from '@app/graphql';
+import { RmqModule } from '@app/rmq';
+import { Logger, Module, Provider } from '@nestjs/common';
+import { APP_FILTER } from '@nestjs/core';
+import { dataSourceOptions } from './database/data-source';
 import { EnvValidation } from './env.validation';
-import { CartModule } from './modules/cart/cart.module';
+import { OrderModule } from './modules/order/order.module';
 import { ItemModule } from './modules/item/item.module';
 
 const rmqClients: RmqClientOption[] = [
@@ -20,8 +20,8 @@ const rmqClients: RmqClientOption[] = [
     queueName: QUEUE_NAME.PRODUCT
   },
   {
-    provide: SERVICE_NAME.ORDER_SERVICE,
-    queueName: QUEUE_NAME.ORDER
+    provide: SERVICE_NAME.CART_SERVICE,
+    queueName: QUEUE_NAME.CART
   }
 ]
 
@@ -44,14 +44,14 @@ const providers: Provider[] = [
   imports: [
     DatabaseModule.forRoot(dataSourceOptions),
     EnvModule.forRoot(
-      getEnvFilePath('cart'),
+      getEnvFilePath('order'),
       EnvValidation
     ),
     RmqModule.register(rmqClients),
     GraphQLModule.forRoot(
-      getGqlSchemaPath('cart')
+      getGqlSchemaPath('order')
     ),
-    CartModule,
+    OrderModule,
     ItemModule
   ],
   providers: [

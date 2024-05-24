@@ -1,6 +1,6 @@
 import { Resolver, Mutation, Args, Parent, ResolveField } from '@nestjs/graphql';
 import { UseGuards } from '@nestjs/common';
-import { GetUser, NumberPipe, PermissionRequestGuard, ProductEntity, ROLE, Roles, RolesGuard, UUIDPipe, UserEntity } from '@app/common';
+import { GetUser, NumberPipe, PermissionRequestGuard, ProductSchema, ROLE, Roles, RolesGuard, UUIDPipe, UserEntity } from '@app/common';
 import { ItemEntity } from './entities/item.entity';
 import { ItemService } from './item.service';
 import { CreateItemDto } from './dtos/create-item.dto';
@@ -52,10 +52,10 @@ export class ItemResolver {
         return ''
     }
 
-    @ResolveField(() => ProductEntity)
+    @ResolveField(() => ProductSchema)
     product(
         @Parent() item: ItemEntity
-    ): Observable<ProductEntity> {
-        return this.itemService.findProduct(item)
+    ): Observable<ProductSchema> {
+        return this.itemService.findProductForCart(item.product_id)
     }
 }

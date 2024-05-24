@@ -3,7 +3,7 @@ import { IsNotEmpty, IsNumber, IsOptional, IsPositive, IsString, MaxLength } fro
 import { Field, ObjectType } from "@nestjs/graphql";
 
 @ObjectType()
-export class ProductEntity extends AbstractEntity {
+export class ProductSchema extends AbstractEntity {
     @IsString()
     @IsNotEmpty()
     @MaxLength(255)
