@@ -5,7 +5,6 @@
 type CartEntity {
   id: String!
   items: [ItemEntity!]
-  total: Float!
   user_id: String!
 }
 

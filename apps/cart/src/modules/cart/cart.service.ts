@@ -85,17 +85,28 @@ export class CartService {
 
     async update(
         id: string,
-        updateCartDto: any
+        total: number
     ): Promise<void> {
-        await this.cartRepository.update({ id }, {
-            ...updateCartDto
-        });
+        await this.cartRepository.update({ id }, { total });
+    }
+
+    async updateGuestCart(
+        id: string,
+        total: number
+    ): Promise<void> {
+        await this.tempCartRepository.update({ id }, { total });
     }
 
     async delete(
         id: string
     ): Promise<void> {
         await this.cartRepository.delete({ id });
+    }
+
+    async deleteGuestCart(
+        id: string
+    ): Promise<void> {
+        await this.tempCartRepository.delete({ id });
     }
 
     async findCartForOrder(
@@ -146,18 +157,23 @@ export class CartService {
     async placeOrder(
         cartId: string
     ): Promise<boolean> {
-        const queryRunner = this.cartRepository.rawQueryRunner
+        let queryRunner = this.cartRepository.createQueryRunner()
+        if (queryRunner.isReleased) {
+            queryRunner = this.cartRepository.createQueryRunner()
+        }
         try {
             await queryRunner.connect()
             await queryRunner.startTransaction()
 
-            await queryRunner.manager.delete(CartEntity, { cartId })
+            await queryRunner.manager.delete(CartEntity, { id: cartId })
             await queryRunner.commitTransaction()
 
             return true
         } catch (e) {
             await queryRunner.rollbackTransaction()
             throw new RpcException(e)
+        } finally {
+            await queryRunner.release()
         }
     }
 }

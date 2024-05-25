@@ -1,8 +1,8 @@
-import { Inject, Injectable } from '@nestjs/common';
+import { Inject, Injectable, RequestTimeoutException } from '@nestjs/common';
 import { ProductRepository } from './repositories/product.repository';
 import { CreateProductDto } from './dtos/create-product.dto';
 import { ProductEntity } from './entities/product.entity';
-import { PaginationDto, QUERY_ORDER, ProductSchema } from '@app/common';
+import { PaginationDto, QUERY_ORDER, ProductSchema, SERVICE_NAME, SERVICE_MESSAGE, ERROR_MESSAGE, convertRpcException } from '@app/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { IsNull, Not, Repository } from 'typeorm';
 import { RatingQueryDto } from './dtos/query.dto';
@@ -14,7 +14,8 @@ import { Cache } from 'cache-manager';
 import { ReviewQueryDto } from '../review/dtos/query.dto';
 import { REVIEW_SORT } from '../review/common';
 import { ReviewEntity } from '../review/entities/review.entity';
-import { RpcException } from '@nestjs/microservices';
+import { ClientProxy, RpcException } from '@nestjs/microservices';
+import { TimeoutError, catchError, lastValueFrom, timeout } from 'rxjs';
 
 @Injectable()
 export class ProductService {
@@ -25,7 +26,10 @@ export class ProductService {
 
         private readonly reviewService: ReviewService,
         @Inject(CACHE_MANAGER)
-        private readonly cacheManager: Cache
+        private readonly cacheManager: Cache,
+
+        @Inject(SERVICE_NAME.CART_SERVICE)
+        private readonly cartService: ClientProxy
     ) {}
 
     async create(
@@ -76,7 +80,39 @@ export class ProductService {
     async remove(
         id: string
     ): Promise<void> {
-        await this.productRepository.update({ id }, { active: false });
+        // await this.productRepository.update({ id }, { active: false });
+        let queryRunner = this.productRepository.createQueryRunner()
+        if (queryRunner.isReleased) {
+            queryRunner = this.productRepository.createQueryRunner()
+        }
+
+        try {
+            await queryRunner.connect()
+            await queryRunner.startTransaction()
+
+            queryRunner.manager.update(ProductEntity, { id }, { active: false })
+
+            const _ok = this.cartService.send({ cmd: SERVICE_MESSAGE.REMOVE_CART_ITEM }, id)
+                .pipe(
+                    timeout(10000),
+                    catchError(e => {
+                        if (e instanceof TimeoutError) {
+                            throw new RequestTimeoutException(ERROR_MESSAGE.TIME_OUT)
+                        }
+                        throw convertRpcException(e)
+                    })
+                )
+            const ok = await lastValueFrom(_ok) as boolean
+
+            if (ok) {
+                await queryRunner.commitTransaction()
+            }
+        } catch (e) {
+            await queryRunner.rollbackTransaction()
+            throw e
+        } finally {
+            await queryRunner.release()
+        }
     }
 
     async delete(

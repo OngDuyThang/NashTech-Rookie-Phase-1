@@ -19,6 +19,10 @@ const rmqClients: RmqClientOption[] = [
   {
     provide: SERVICE_NAME.AUTH_SERVICE,
     queueName: QUEUE_NAME.AUTH
+  },
+  {
+    provide: SERVICE_NAME.CART_SERVICE,
+    queueName: QUEUE_NAME.CART
   }
 ]
 

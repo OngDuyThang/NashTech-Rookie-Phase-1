@@ -8,6 +8,7 @@ import { TempItemEntity } from "./entities/temp-item.entity";
 import { ItemRepository } from "./repositories/item.repository";
 import { TempItemRepository } from "./repositories/temp-item.repository";
 import { TempItemResolver } from "./temp-item.resolver";
+import { ItemController } from "./item.controller";
 
 @Module({
     imports: [
@@ -16,6 +17,9 @@ import { TempItemResolver } from "./temp-item.resolver";
             TempItemEntity
         ]),
         CartModule
+    ],
+    controllers: [
+        ItemController
     ],
     providers: [
         ItemService,

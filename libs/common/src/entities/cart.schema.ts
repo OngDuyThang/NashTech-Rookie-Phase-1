@@ -11,17 +11,16 @@ export class CartSchema extends AbstractEntity {
     @Field()
     user_id: string
 
-    @Type(() => Number)
-    @IsNumber()
-    @IsPositive()
-    @IsOptional()
-    @Field(() => String, { nullable: true, defaultValue: '0' })
-    total?: number
-
     @IsArray()
     @IsOptional()
     @ValidateNested({ each: true })
     @Type(() => CartItemSchema)
     @Field(() => [CartItemSchema], { nullable: true })
     items?: CartItemSchema[]
+
+    @Type(() => Number)
+    @IsNumber()
+    @IsPositive()
+    @IsOptional()
+    total?: number
 }

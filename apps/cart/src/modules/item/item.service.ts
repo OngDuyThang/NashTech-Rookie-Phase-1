@@ -6,7 +6,7 @@ import { TempItemRepository } from "./repositories/temp-item.repository";
 import { CreateTempItemDto } from "./dtos/create-temp-item.dto";
 import { CartService } from "../cart/cart.service";
 import { ERROR_MESSAGE, ProductSchema, SERVICE_MESSAGE, SERVICE_NAME, convertRpcException } from "@app/common";
-import { ClientProxy } from "@nestjs/microservices";
+import { ClientProxy, RpcException } from "@nestjs/microservices";
 import { Observable, TimeoutError, catchError, lastValueFrom, timeout } from "rxjs";
 import { TempItemEntity } from "./entities/temp-item.entity";
 
@@ -87,5 +87,28 @@ export class ItemService {
                     throw convertRpcException(e)
                 })
             )
+    }
+
+    async removeCartItemForProduct(
+        productId: string
+    ): Promise<boolean> {
+        let queryRunner = this.itemRepository.createQueryRunner()
+        if (queryRunner.isReleased) {
+            queryRunner = this.itemRepository.createQueryRunner()
+        }
+        try {
+            await queryRunner.connect()
+            await queryRunner.startTransaction()
+
+            queryRunner.manager.delete(ItemEntity, { product_id: productId })
+            await queryRunner.commitTransaction()
+
+            return true
+        } catch (e) {
+            await queryRunner.rollbackTransaction()
+            throw new RpcException(e)
+        } finally {
+            await queryRunner.release()
+        }
     }
 }

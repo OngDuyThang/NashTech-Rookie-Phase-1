@@ -15,7 +15,7 @@ export class OrderService {
         private readonly cartService: ClientProxy
     ) {}
 
-    async findCartForOrder(
+    async findCart(
         userId: string
     ): Promise<CartSchema> {
         const _cart = this.cartService.send({ cmd: SERVICE_MESSAGE.GET_CART_BY_USER }, userId)
@@ -35,9 +35,12 @@ export class OrderService {
     async create(
         userId: string
     ): Promise<void> {
-        const cart = await this.findCartForOrder(userId)
+        const cart = await this.findCart(userId)
 
-        const queryRunner = this.orderRepository.rawQueryRunner
+        let queryRunner = this.orderRepository.createQueryRunner()
+        if (queryRunner.isReleased) {
+            queryRunner = this.orderRepository.createQueryRunner()
+        }
         try {
             await queryRunner.connect()
             await queryRunner.startTransaction()
@@ -47,7 +50,6 @@ export class OrderService {
                 total: cart.total
             })
             await queryRunner.manager.save(order)
-            await this.itemService.create(order.id, cart.items)
 
             const _ok = this.cartService.send({ cmd: SERVICE_MESSAGE.DELETE_CART }, cart.id)
                 .pipe(
@@ -63,10 +65,13 @@ export class OrderService {
 
             if (ok) {
                 await queryRunner.commitTransaction()
+                await this.itemService.create(order.id, cart.items)
             }
         } catch (e) {
             await queryRunner.rollbackTransaction()
             throw e
+        } finally {
+            await queryRunner.release()
         }
     }
 }

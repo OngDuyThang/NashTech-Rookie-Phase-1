@@ -12,6 +12,10 @@ export abstract class AbstractRepository<Entity extends AbstractEntity> {
         this.rawQueryRunner = this.repository.manager.connection.createQueryRunner()
     }
 
+    createQueryRunner() {
+        return this.repository.manager.connection.createQueryRunner()
+    }
+
     async queryTransaction<T>(query: () => Promise<T>) {
         if (this.rawQueryRunner.isReleased) {
             this.rawQueryRunner = this.repository.manager.connection.createQueryRunner()
