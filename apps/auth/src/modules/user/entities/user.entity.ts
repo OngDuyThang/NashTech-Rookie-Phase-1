@@ -58,7 +58,7 @@ export class UserEntity extends AbstractEntity {
     @Type(() => UserPaymentEntity)
     payments?: UserPaymentEntity[]
 
-    @Column({ type: 'text', nullable: true })
+    @Column({ type: 'text', nullable: true, default: null })
     @IsString()
     @IsOptional()
     picture?: string
