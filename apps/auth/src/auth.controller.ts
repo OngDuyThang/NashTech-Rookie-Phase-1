@@ -7,7 +7,7 @@ import { AccessTokenGuard, LocalAuthGuard, ValidateOtpGuard, ForgotPasswordGuard
 import { RegisterDto, UserEntity } from './modules/user';
 import { Request, Response } from 'express';
 import { TEnableTwoFactorResponse, TForgotPasswordResponse, TGoogleLoginResponse, TLoginResponse, TTokenResponse } from './common/types';
-import { ResetPasswordDto } from './common/dtos';
+import { RefreshTokenDto, ResetPasswordDto } from './common/dtos';
 import { TOKEN_KEY_NAME } from './common/enums';
 import { MessagePattern } from '@nestjs/microservices';
 import { SERVICE_MESSAGE } from '@app/common';
@@ -162,5 +162,23 @@ export class AuthController {
   @Get('/used-email')
   usedEmailPage() {
     console.log('used email')
+  }
+
+  @Post('/refresh')
+  refresh(
+    @Req() req: Request,
+    @Res({ passthrough: true }) res: Response,
+    @Body() refreshTokenDto: RefreshTokenDto
+  ): Promise<TTokenResponse> {
+    const accessToken = refreshTokenDto.access_token
+    return this.authService.refresh(req, res, accessToken)
+  }
+
+  @Post('/logout')
+  logout(
+    @Res({ passthrough: true }) res: Response
+  ): void {
+    res.clearCookie(TOKEN_KEY_NAME.FINGERPRINT)
+    res.clearCookie(TOKEN_KEY_NAME.REFRESH_TOKEN)
   }
 }

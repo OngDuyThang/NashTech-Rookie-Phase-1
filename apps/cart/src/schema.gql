@@ -1,0 +1,73 @@
+# ------------------------------------------------------
+# THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
+# ------------------------------------------------------
+
+type CartEntity {
+  id: String!
+  items: [ItemEntity!]
+  user_id: String!
+}
+
+type CartItemSchema {
+  cart_id: String!
+  id: String!
+  product: ProductSchema
+  quantity: String
+}
+
+input CreateItemDto {
+  product_id: String!
+  quantity: String! = "1"
+}
+
+input CreateTempItemDto {
+  product_id: String!
+  quantity: String! = "1"
+}
+
+type ItemEntity {
+  cart_id: String!
+  id: String!
+  product: ProductSchema
+  quantity: Float!
+}
+
+type Mutation {
+  createCartItem(item: CreateItemDto!): ItemEntity!
+  createCartItemForGuest(guestId: String!, item: CreateTempItemDto!): TempItemEntity!
+  deleteCartItem(id: String!): String!
+  deleteCartItemForGuest(id: String!): String!
+  updateCartItem(id: String!, quantity: String!): String!
+  updateCartItemForGuest(id: String!, quantity: Float!): String!
+}
+
+type ProductSchema {
+  author: String
+  discount: Float
+  id: String!
+  image: String
+  price: Float!
+  title: String!
+}
+
+type Query {
+  cart: CartEntity!
+  cartForGuest(guestId: String!): TempCartEntity!
+  getGuestCartCount(guestId: String!): Float!
+  getUserCartCount: Float!
+}
+
+type TempCartEntity {
+  guest_id: String!
+  id: String!
+  items: [TempItemEntity!]
+  total: Float!
+}
+
+type TempItemEntity {
+  id: String!
+  product: ProductSchema
+  product_id: String!
+  quantity: Float!
+  temp_cart_id: String!
+}

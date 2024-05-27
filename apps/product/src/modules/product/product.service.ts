@@ -1,19 +1,21 @@
-import { Inject, Injectable } from '@nestjs/common';
+import { Inject, Injectable, RequestTimeoutException } from '@nestjs/common';
 import { ProductRepository } from './repositories/product.repository';
 import { CreateProductDto } from './dtos/create-product.dto';
 import { ProductEntity } from './entities/product.entity';
-import { PaginationDto, QUERY_ORDER } from '@app/common';
+import { PaginationDto, QUERY_ORDER, ProductSchema, SERVICE_NAME, SERVICE_MESSAGE, ERROR_MESSAGE, convertRpcException } from '@app/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { IsNull, Not, Repository } from 'typeorm';
 import { RatingQueryDto } from './dtos/query.dto';
-import { LAST_PRODUCT_CACHE_KEY, PRODUCT, SORT_PRODUCT, TCacheLastProduct } from './common';
+import { LAST_PRODUCT_CACHE_KEY, PRODUCT, PRODUCT_SORT, TCacheLastProduct } from './common';
 import { ReviewService } from '../review/review.service';
 import { Interval } from '@nestjs/schedule';
 import { CACHE_MANAGER } from '@nestjs/cache-manager';
 import { Cache } from 'cache-manager';
-import { SortQueryDto as ReviewSortQueryDto } from '../review/dtos/query.dto';
-import { SORT_REVIEW } from '../review/common';
+import { ReviewQueryDto } from '../review/dtos/query.dto';
+import { REVIEW_SORT } from '../review/common';
 import { ReviewEntity } from '../review/entities/review.entity';
+import { ClientProxy, RpcException } from '@nestjs/microservices';
+import { TimeoutError, catchError, lastValueFrom, timeout } from 'rxjs';
 
 @Injectable()
 export class ProductService {
@@ -24,7 +26,10 @@ export class ProductService {
 
         private readonly reviewService: ReviewService,
         @Inject(CACHE_MANAGER)
-        private readonly cacheManager: Cache
+        private readonly cacheManager: Cache,
+
+        @Inject(SERVICE_NAME.CART_SERVICE)
+        private readonly cartService: ClientProxy
     ) {}
 
     async create(
@@ -75,7 +80,39 @@ export class ProductService {
     async remove(
         id: string
     ): Promise<void> {
-        await this.productRepository.update({ id }, { active: false });
+        // await this.productRepository.update({ id }, { active: false });
+        let queryRunner = this.productRepository.createQueryRunner()
+        if (queryRunner.isReleased) {
+            queryRunner = this.productRepository.createQueryRunner()
+        }
+
+        try {
+            await queryRunner.connect()
+            await queryRunner.startTransaction()
+
+            queryRunner.manager.update(ProductEntity, { id }, { active: false })
+
+            const _ok = this.cartService.send({ cmd: SERVICE_MESSAGE.REMOVE_CART_ITEM }, id)
+                .pipe(
+                    timeout(10000),
+                    catchError(e => {
+                        if (e instanceof TimeoutError) {
+                            throw new RequestTimeoutException(ERROR_MESSAGE.TIME_OUT)
+                        }
+                        throw convertRpcException(e)
+                    })
+                )
+            const ok = await lastValueFrom(_ok) as boolean
+
+            if (ok) {
+                await queryRunner.commitTransaction()
+            }
+        } catch (e) {
+            await queryRunner.rollbackTransaction()
+            throw e
+        } finally {
+            await queryRunner.release()
+        }
     }
 
     async delete(
@@ -201,11 +238,11 @@ export class ProductService {
 
         try {
             switch (sort) {
-                case SORT_PRODUCT.ON_SALE:
+                case PRODUCT_SORT.ON_SALE:
                     return await this.productsOnSale(page, limit, rating)
-                case SORT_PRODUCT.PRICE_ASC:
+                case PRODUCT_SORT.PRICE_ASC:
                     return await this.productsByPrice(page, limit, rating, QUERY_ORDER.ASC)
-                case SORT_PRODUCT.PRICE_DESC:
+                case PRODUCT_SORT.PRICE_DESC:
                     return await this.productsByPrice(page, limit, rating, QUERY_ORDER.DESC)
             }
         } catch (e) {
@@ -271,15 +308,61 @@ export class ProductService {
 
     async findReviewsByProduct(
         product: ProductEntity,
-        queryDto: ReviewSortQueryDto
+        queryDto: ReviewQueryDto
     ): Promise<[ReviewEntity[], number]> {
-        const { page, limit, sort } = queryDto;
+        const { page, limit, sort, star } = queryDto;
 
         switch (sort) {
-            case SORT_REVIEW.DATE_ASC:
-                return await this.reviewService.getReviewsByDate(product, page, limit, QUERY_ORDER.ASC);
-            case SORT_REVIEW.DATE_DESC:
-                return await this.reviewService.getReviewsByDate(product, page, limit, QUERY_ORDER.DESC);
+            case REVIEW_SORT.DATE_ASC:
+                return await this.reviewService.getReviewsOfProduct(
+                    product,
+                    page,
+                    limit,
+                    QUERY_ORDER.ASC,
+                    star
+                );
+            case REVIEW_SORT.DATE_DESC:
+                return await this.reviewService.getReviewsOfProduct(
+                    product,
+                    page,
+                    limit,
+                    QUERY_ORDER.DESC,
+                    star
+                );
+        }
+    }
+
+    async findProductOnCart(
+        id: string
+    ): Promise<ProductSchema> {
+        try {
+            const product = await this.productRepository.findOne({
+                where: {
+                    id,
+                    active: true
+                },
+                relations: {
+                    promotion: true,
+                    author: true
+                }
+            })
+
+            const {
+                title, price, image,
+                promotion: { discount_percent },
+                author: { pen_name }
+            } = product
+
+            return {
+                id,
+                title,
+                price,
+                discount: discount_percent,
+                image,
+                author: pen_name
+            }
+        } catch (e) {
+            throw new RpcException(e)
         }
     }
 }

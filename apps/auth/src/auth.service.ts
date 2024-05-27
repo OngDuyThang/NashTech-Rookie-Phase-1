@@ -9,7 +9,7 @@ import {
 import * as bcrypt from 'bcrypt';
 import * as crypto from 'crypto';
 import { TEnableTwoFactorResponse, TForgotPasswordResponse, TGoogleLoginResponse, TJwtPayload, TLoginResponse, TTokenResponse } from './common/types';
-import { Response } from 'express';
+import { Request, Response } from 'express';
 import { ERROR_MESSAGE, SUCCESS_MESSAGE, getUrlEndpoint } from '@app/common';
 import { RegisterDto, UserEntity, UserService } from './modules/user';
 import { authenticator } from 'otplib';
@@ -19,9 +19,10 @@ import { Transporter } from 'nodemailer';
 import { MAILER_SERVICE } from '@app/mailer';
 import { resetPwMailTemplate } from './views';
 import { OAuth2Client } from 'google-auth-library'
-import { OPENID_PROVIDER, TOKEN_EXPIRY_TIME } from './common/enums';
+import { OPENID_PROVIDER, TOKEN_EXPIRY_TIME, TOKEN_KEY_NAME } from './common/enums';
 import { CACHE_SERVICE } from '@app/cache';
 import { Cache } from 'cache-manager';
+import { isEmpty } from 'lodash';
 
 @Injectable()
 export class AuthService {
@@ -210,7 +211,7 @@ export class AuthService {
     delete jwtPayload.fingerprint
     const refreshToken = this.tokenService.generateToken(jwtPayload, this.env.REFRESH_TOKEN_SECRET, TOKEN_EXPIRY_TIME.REFRESH_TOKEN);
 
-    return this.tokenService.sendTokens(accessToken, refreshToken, fingerprint, res);
+    return this.tokenService.sendTokens(accessToken, refreshToken, fingerprint, user, res);
   }
 
   async forgotPassword(
@@ -316,6 +317,70 @@ export class AuthService {
         '/auth/register',
         { gmail: email }
       ))
+    }
+  }
+
+  async refresh(
+    req: Request,
+    res: Response,
+    accessToken: string
+  ): Promise<TTokenResponse> {
+    const error = new UnauthorizedException(ERROR_MESSAGE.USER_UNAUTHORIZED)
+    const refreshToken = req.cookies?.[TOKEN_KEY_NAME.REFRESH_TOKEN]
+    if (!refreshToken) {
+      throw error
+    }
+
+    try {
+      // Validate refresh token and user exist
+      const refreshPayload = this.tokenService.validateToken(
+        refreshToken,
+        this.env.REFRESH_TOKEN_SECRET
+      )
+      if (isEmpty(refreshPayload)) {
+        throw error
+      }
+      if (Date.now() >= refreshPayload.exp * 1000) {
+        throw error
+      }
+
+      // Validate access token and expired time under 5 minutes
+      const accessPayload = this.tokenService.validateToken(
+        accessToken,
+        this.env.ACCESS_TOKEN_SECRET
+      )
+      if (isEmpty(accessPayload)) {
+        throw error
+      }
+      if (Date.now() < accessPayload.exp * 1000) {
+        throw new MethodNotAllowedException(ERROR_MESSAGE.USER_NOT_EXPIRED_YET)
+      }
+      if (Date.now() - (accessPayload.exp * 1000) > (5 * 60 * 1000)) {
+        throw error
+      }
+
+      // Set new fingerprint to cookie and send new access token
+      const user = await this.userService.findOneById(accessPayload.id)
+      const fingerprint = this.generateFingerprint()
+      const hashedFingerprint = await this.hashFingerprint(fingerprint)
+
+      const newPayload = this.tokenService.generateTokenPayload(
+        user,
+        hashedFingerprint
+      )
+      const newToken = this.tokenService.generateToken(
+        newPayload,
+        this.env.ACCESS_TOKEN_SECRET,
+        TOKEN_EXPIRY_TIME.ACCESS_TOKEN
+      )
+
+      return this.tokenService.refreshToken(
+        newToken,
+        fingerprint,
+        res
+      )
+    } catch (e) {
+      throw e
     }
   }
 }

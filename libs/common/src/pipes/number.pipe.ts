@@ -3,12 +3,12 @@ import { ERROR_MESSAGE } from "../enums/messages";
 
 @Injectable()
 export class NumberPipe implements PipeTransform {
-    transform(value: any, metadata: ArgumentMetadata) {
+    transform(value: any, _metadata: ArgumentMetadata) {
         if (value == undefined) {
             return
         }
 
-        if (isNaN(Number(value)) || metadata.type != 'query') {
+        if (isNaN(Number(value))) {
             throw new BadRequestException(ERROR_MESSAGE.NUMBER_PIPE);
         }
 

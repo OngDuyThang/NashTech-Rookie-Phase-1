@@ -4,7 +4,6 @@ import { validateSync } from "class-validator"
 import * as url from 'node:url'
 import { NODE_ENV } from "../enums/node-env"
 import { ParsedUrlQueryInput } from "node:querystring"
-import { SUCCESS_CODE } from "../enums/codes"
 import { ERROR_MESSAGE } from "../enums/messages"
 
 export const getEnvFilePath = (serviceName: string) => `./apps/${serviceName}/.env.${process.env.NODE_ENV}`

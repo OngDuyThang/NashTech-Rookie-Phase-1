@@ -5,14 +5,18 @@ import { QueryDeepPartialEntity } from "typeorm/query-builder/QueryPartialEntity
 import { Require } from "@app/common";
 
 export abstract class AbstractRepository<Entity extends AbstractEntity> {
-    private rawQueryRunner: QueryRunner;
+    public rawQueryRunner: QueryRunner;
     constructor(
         private readonly repository: Repository<Entity>
     ) {
         this.rawQueryRunner = this.repository.manager.connection.createQueryRunner()
     }
 
-    protected async queryTransaction<T>(query: () => Promise<T>) {
+    createQueryRunner() {
+        return this.repository.manager.connection.createQueryRunner()
+    }
+
+    async queryTransaction<T>(query: () => Promise<T>) {
         if (this.rawQueryRunner.isReleased) {
             this.rawQueryRunner = this.repository.manager.connection.createQueryRunner()
         }

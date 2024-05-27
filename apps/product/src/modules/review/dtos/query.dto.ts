@@ -1,12 +1,21 @@
-import { IsEnum, IsOptional } from "class-validator";
+import { IsEnum, IsNumber, IsOptional, Max, Min } from "class-validator";
 import { PaginationDto } from "@app/common";
 import { ArgsType, Field } from "@nestjs/graphql";
-import { SORT_REVIEW } from "../common";
+import { REVIEW_SORT, STAR } from "../common";
+import { Type } from "class-transformer";
 
 @ArgsType()
-export class SortQueryDto extends PaginationDto {
-    @IsEnum(SORT_REVIEW)
+export class ReviewQueryDto extends PaginationDto {
+    @IsEnum(REVIEW_SORT)
     @IsOptional()
-    @Field(() => String, { nullable: true, defaultValue: SORT_REVIEW.DATE_DESC })
-    sort?: SORT_REVIEW
+    @Field(() => String, { nullable: true, defaultValue: REVIEW_SORT.DATE_DESC })
+    sort?: REVIEW_SORT
+
+    @Type(() => Number)
+    @IsNumber()
+    @IsOptional()
+    @Min(Number(STAR.MIN))
+    @Max(Number(STAR.MAX))
+    @Field(() => String, { nullable: true, defaultValue: STAR.MAX })
+    star?: number
 }

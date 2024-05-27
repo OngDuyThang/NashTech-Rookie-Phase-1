@@ -2,7 +2,7 @@ import { Controller, Delete, Get, Param, Query, UseGuards } from '@nestjs/common
 import { PaginationPipe, PermissionRequestGuard, ROLE, Roles, RolesGuard, UUIDPipe } from '@app/common';
 import { ReviewService } from "./review.service";
 import { ReviewEntity } from './entities/review.entity';
-import { SortQueryDto } from './dtos/query.dto';
+import { ReviewQueryDto } from './dtos/query.dto';
 
 @Controller('reviews')
 export class ReviewsController {
@@ -17,7 +17,7 @@ export class ReviewsController {
 
     @Get()
     async findList(
-        @Query(PaginationPipe) queryDto: SortQueryDto
+        @Query(PaginationPipe) queryDto: ReviewQueryDto
     ): Promise<[ReviewEntity[], number]> {
         return await this.reviewService.findList(queryDto);
     }

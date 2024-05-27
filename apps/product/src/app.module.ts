@@ -14,12 +14,15 @@ import { AuthorModule } from './modules/author/author.module';
 import { PromotionModule } from './modules/promotion/promotion.module';
 import { ReviewModule } from './modules/review/review.module';
 import { PaginationMiddleware } from '@app/common/middlewares/pagination.middleware';
-import { ProductController } from './modules/product/product.controller';
 
 const rmqClients: RmqClientOption[] = [
   {
     provide: SERVICE_NAME.AUTH_SERVICE,
     queueName: QUEUE_NAME.AUTH
+  },
+  {
+    provide: SERVICE_NAME.CART_SERVICE,
+    queueName: QUEUE_NAME.CART
   }
 ]
 

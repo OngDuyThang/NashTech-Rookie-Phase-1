@@ -5,7 +5,7 @@ import { AuthorEntity } from "./entities/author.entity";
 import { SortQueryDto } from "../product/dtos/query.dto";
 import { ProductEntity } from "../product/entities/product.entity";
 import { ProductRepository } from "../product/repositories/product.repository";
-import { SORT_PRODUCT } from "../product/common";
+import { PRODUCT_SORT } from "../product/common";
 import { QUERY_ORDER } from "@app/common";
 import { IsNull, Not } from "typeorm";
 
@@ -57,11 +57,11 @@ export class AuthorService {
         const { page, limit, sort } = queryDto;
 
         switch (sort) {
-            case SORT_PRODUCT.ON_SALE:
+            case PRODUCT_SORT.ON_SALE:
                 return await this.productsOnSale(author, page, limit);
-            case SORT_PRODUCT.PRICE_ASC:
+            case PRODUCT_SORT.PRICE_ASC:
                 return await this.productsByPrice(author, page, limit, QUERY_ORDER.ASC);
-            case SORT_PRODUCT.PRICE_DESC:
+            case PRODUCT_SORT.PRICE_DESC:
                 return await this.productsByPrice(author, page, limit, QUERY_ORDER.DESC);
         }
     }

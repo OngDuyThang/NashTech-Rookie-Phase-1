@@ -18,6 +18,7 @@ export enum ERROR_MESSAGE {
     INVALID_CREDENTIAL = 'Invalid Credential',
     INVALID_OTP = 'Invalid OTP',
     USER_UNAUTHORIZED = 'User Unauthorized',
+    USER_NOT_EXPIRED_YET = 'User Not Expired Yet',
     USER_NOT_EXIST = 'User Not Exist',
     INVALID_EMAIL = 'Invalid Email',
     PASSWORD_NOT_MATCH = 'Passwords Not Matching',
