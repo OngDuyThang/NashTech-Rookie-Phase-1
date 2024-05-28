@@ -6,7 +6,7 @@ import { ProductRepository } from "../product/repositories/product.repository";
 import { SortQueryDto } from "../product/dtos/query.dto";
 import { ProductEntity } from "../product/entities/product.entity";
 import { PRODUCT_SORT } from "../product/common";
-import { IsNull, Not } from "typeorm";
+import { In, IsNull, Not } from "typeorm";
 import { QUERY_ORDER } from "@app/common";
 
 @Injectable()
@@ -65,26 +65,33 @@ export class CategoryService {
     ): Promise<[ProductEntity[], number]> {
         const { page, limit, sort } = queryDto;
 
+        const subcategoryIds = await this.categoryRepository.getAllSubcategoryIds(category.id)
+
         switch (sort) {
             case PRODUCT_SORT.ON_SALE:
-                return await this.productsOnSale(category, page, limit);
+                return await this.productsOnSale(category, subcategoryIds, page, limit);
             case PRODUCT_SORT.PRICE_ASC:
-                return await this.productsByPrice(category, page, limit, QUERY_ORDER.ASC);
+                return await this.productsByPrice(category, subcategoryIds, page, limit, QUERY_ORDER.ASC);
             case PRODUCT_SORT.PRICE_DESC:
-                return await this.productsByPrice(category, page, limit, QUERY_ORDER.DESC);
+                return await this.productsByPrice(category, subcategoryIds, page, limit, QUERY_ORDER.DESC);
         }
     }
 
     private async productsOnSale(
         category: CategoryEntity,
+        subcategoryIds: string[],
         page: number,
         limit: number
     ): Promise<[ProductEntity[], number]> {
         return await this.productRepository.findList({
             where: {
-                category_id: category.id,
+                category_id: In([...subcategoryIds, category.id]),
                 promotion_id: Not(IsNull()),
                 active: true
+            },
+            relations: {
+                author: true,
+                promotion: true
             },
             skip: page * limit,
             take: limit
@@ -93,13 +100,14 @@ export class CategoryService {
 
     private async productsByPrice(
         category: CategoryEntity,
+        subcategoryIds: string[],
         page: number,
         limit: number,
         order: QUERY_ORDER
     ): Promise<[ProductEntity[], number]> {
         return await this.productRepository.findList({
             where: {
-                category_id: category.id,
+                category_id: In([...subcategoryIds, category.id]),
                 active: true
             },
             skip: page * limit,
