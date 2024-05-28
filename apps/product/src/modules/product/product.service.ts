@@ -122,14 +122,19 @@ export class ProductService {
     }
 
     async findPromotionProducts(): Promise<ProductEntity[]> {
-        return await this.productRepository.find({
-            where: {
-                active: true,
-                promotion_id: Not(IsNull())
-            },
-            order: { updated_at: QUERY_ORDER.DESC },
-            take: PRODUCT.PROMOTION_CAROUSEL
-        });
+        try {
+            return await this.productOrgRepo.createQueryBuilder('product')
+                .leftJoinAndSelect('product.author', 'author')
+                .leftJoinAndSelect('product.promotion', 'promotion')
+                .addSelect('product.updated_at')
+                .where('product.active = :active', { active: true })
+                .andWhere('product.promotion_id IS NOT NULL')
+                .orderBy('product.updated_at', QUERY_ORDER.DESC)
+                .take(PRODUCT.PROMOTION_CAROUSEL)
+                .getMany()
+        } catch (e) {
+            throw e
+        }
     }
 
     private async initProductCache(): Promise<TCacheLastProduct> {
@@ -222,6 +227,8 @@ export class ProductService {
     async findRecommendProducts(): Promise<ProductEntity[]> {
         try {
             return await this.productOrgRepo.createQueryBuilder('product')
+                .leftJoinAndSelect('product.author', 'author')
+                .leftJoinAndSelect('product.promotion', 'promotion')
                 .where('product.active = :active', { active: true })
                 .orderBy('product.rating', QUERY_ORDER.DESC)
                 .take(PRODUCT.RECOMMEND_HOW_MANY)

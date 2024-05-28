@@ -211,7 +211,7 @@ export class AuthService {
     delete jwtPayload.fingerprint
     const refreshToken = this.tokenService.generateToken(jwtPayload, this.env.REFRESH_TOKEN_SECRET, TOKEN_EXPIRY_TIME.REFRESH_TOKEN);
 
-    return this.tokenService.sendTokens(accessToken, refreshToken, fingerprint, user, res);
+    return this.tokenService.sendTokens(accessToken, refreshToken, fingerprint, res);
   }
 
   async forgotPassword(

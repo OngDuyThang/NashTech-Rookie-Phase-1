@@ -24,11 +24,12 @@ export class TokenService {
     user: UserEntity,
     hashedFingerprint: string
   ): TJwtPayload {
-    const { id, username, email } = user;
+    const { id, username, email, picture } = user;
     return {
       id,
       username,
       email,
+      picture,
       fingerprint: hashedFingerprint
     };
   }
@@ -48,7 +49,6 @@ export class TokenService {
     accessToken: string,
     refreshToken: string,
     originalFingerprint: string | undefined,
-    user: UserEntity,
     res: Response
   ): TTokenResponse {
     res.cookie(TOKEN_KEY_NAME.REFRESH_TOKEN, refreshToken, {
@@ -60,12 +60,8 @@ export class TokenService {
       maxAge: TOKEN_EXPIRY_TIME.ACCESS_TOKEN // fingerprint inside cookie combine with access token, so equal expiry time
     })
 
-    const { username, email, picture } = user
     return {
-      [TOKEN_KEY_NAME.ACCESS_TOKEN]: accessToken,
-      username,
-      email,
-      picture
+      [TOKEN_KEY_NAME.ACCESS_TOKEN]: accessToken
     }
   }
 
