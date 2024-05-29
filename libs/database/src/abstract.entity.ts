@@ -13,9 +13,11 @@ export class AbstractEntity {
 
     @CreateDateColumn({ type: 'timestamp', select: false })
     @IsOptional()
+    @Field(() => Date, { nullable: true })
     public created_at?: Date;
 
     @UpdateDateColumn({ type: 'timestamp', select: false })
     @IsOptional()
+    @Field(() => Date, { nullable: true })
     public updated_at?: Date;
 }

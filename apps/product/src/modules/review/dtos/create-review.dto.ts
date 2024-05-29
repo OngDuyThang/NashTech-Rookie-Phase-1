@@ -1,4 +1,4 @@
-import { Field, InputType } from "@nestjs/graphql";
+import { Field, InputType, Int } from "@nestjs/graphql";
 import { Type } from "class-transformer";
 import { IsNotEmpty, IsNumber, IsString, IsUUID, Max, MaxLength, Min } from "class-validator";
 
@@ -9,7 +9,7 @@ export class CreateReviewDto {
     @IsNotEmpty()
     @Min(1)
     @Max(5)
-    @Field(() => String)
+    @Field(() => Int)
     rating: number;
 
     @IsString()

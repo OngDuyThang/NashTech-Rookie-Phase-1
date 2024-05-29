@@ -57,15 +57,17 @@ export class ProductService {
     async findOneById(
         id: string
     ): Promise<ProductEntity> {
-        return await this.productRepository.findOne({
-            where: {
-                id,
-                active: true
-            },
-            relations: {
-                reviews: true
-            }
-        });
+        try {
+            return await this.productOrgRepo.createQueryBuilder('product')
+                .leftJoinAndSelect('product.author', 'author')
+                .leftJoinAndSelect('product.promotion', 'promotion')
+                .leftJoinAndSelect('product.reviews', 'reviews')
+                .where('product.id = :id', { id })
+                .andWhere('product.active = true')
+                .getOne()
+        } catch (e) {
+            throw e
+        }
     }
 
     async update(

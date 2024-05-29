@@ -134,14 +134,17 @@ export class ReviewService {
         order: QUERY_ORDER,
         star: number
     ): Promise<[ReviewEntity[], number]> {
-        return await this.reviewRepository.findList({
-            where: {
-                product_id: product.id,
-                rating: star
-            },
-            skip: page * limit,
-            take: limit,
-            order: { created_at: order }
-        })
+        try {
+            return await this.reviewOrgRepo.createQueryBuilder('review')
+                .addSelect('review.created_at')
+                .where('review.product_id = :productId', { productId: product.id })
+                .andWhere('review.rating = :star', { star })
+                .orderBy('review.created_at', order)
+                .skip(page * limit)
+                .take(limit)
+                .getManyAndCount()
+        } catch (e) {
+            throw e
+        }
     }
 }
