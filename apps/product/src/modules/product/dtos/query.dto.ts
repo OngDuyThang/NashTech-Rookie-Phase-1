@@ -1,6 +1,6 @@
 import { IsEnum, IsNumber, IsOptional, Max, Min } from "class-validator";
 import { PaginationDto } from "@app/common";
-import { ArgsType, Field } from "@nestjs/graphql";
+import { ArgsType, Field, Float } from "@nestjs/graphql";
 import { RATING, PRODUCT_SORT } from "../common";
 import { Type } from "class-transformer";
 
@@ -19,6 +19,6 @@ export class RatingQueryDto extends SortQueryDto {
     @IsOptional()
     @Min(Number(RATING.MIN))
     @Max(Number(RATING.MAX))
-    @Field(() => String, { nullable: true, defaultValue: RATING.MAX })
+    @Field(() => Float, { nullable: true, defaultValue: RATING.MAX })
     rating?: number;
 }

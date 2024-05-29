@@ -5,7 +5,7 @@
 type AuthorEntity {
   id: String!
   pen_name: String!
-  products(limit: String = "10", page: String = "0", sort: String = "ON_SALE"): ProductList
+  products(limit: Int = 10, page: Int = 0, sort: String = "ON_SALE"): ProductList
 }
 
 type CartItemSchema {
@@ -20,7 +20,7 @@ type CategoryEntity {
   name: String!
   parent: CategoryEntity
   parent_id: String
-  products(limit: String = "10", page: String = "0", sort: String = "ON_SALE"): ProductList
+  products(limit: Int = 10, page: Int = 0, sort: String = "ON_SALE"): ProductList
 }
 
 input CreateReviewDto {
@@ -46,7 +46,7 @@ type ProductEntity {
   promotion_id: String
   rating: Float
   ratings: [Float!]
-  reviews(limit: String = "10", page: String = "0", sort: String = "DATE_DESC", star: String = "5"): ReviewList
+  reviews(limit: Int = 10, page: Int = 0, sort: String = "DATE_DESC", star: String = "5"): ReviewList
   title: String!
 }
 
@@ -71,7 +71,7 @@ type PromotionEntity {
   discount_percent: Float!
   id: String!
   name: String!
-  products(limit: String = "10", page: String = "0"): ProductList
+  products(limit: Int = 10, page: Int = 0): ProductList
 }
 
 type Query {
@@ -80,8 +80,8 @@ type Query {
   categories: [CategoryEntity!]!
   category(id: String!): CategoryEntity!
   product(id: String!): ProductEntity!
-  products(limit: String = "10", page: String = "0"): ProductList!
-  productsByRating(limit: String = "10", page: String = "0", rating: String = "5", sort: String = "ON_SALE"): ProductList!
+  products(limit: Int = 10, page: Int = 0): ProductList!
+  productsByRating(limit: Int = 10, page: Int = 0, rating: Float = 5, sort: String = "ON_SALE"): ProductList!
   promotion(id: String!): PromotionEntity!
   promotionProducts: [ProductEntity!]!
   promotions: [PromotionEntity!]!

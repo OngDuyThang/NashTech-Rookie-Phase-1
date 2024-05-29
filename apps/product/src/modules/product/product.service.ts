@@ -284,7 +284,9 @@ export class ProductService {
     ): Promise<[ProductEntity[], number]> {
         try {
             return await this.productOrgRepo.createQueryBuilder('product')
-                .where('product.rating >= :rating', { rating })
+                .leftJoinAndSelect('product.author', 'author')
+                .leftJoinAndSelect('product.promotion', 'promotion')
+                .where('product.rating >= :rating', { rating: rating <= 1 ? 0 : rating })
                 .andWhere('product.rating < :nextStar', { nextStar: rating + 1 })
                 .andWhere('product.promotion_id IS NOT NULL')
                 .andWhere('product.active = true')
@@ -302,15 +304,21 @@ export class ProductService {
         rating: number,
         order: QUERY_ORDER
     ): Promise<[ProductEntity[], number]> {
-        return await this.productRepository.findList({
-            where: {
-                rating,
-                active: true
-            },
-            skip: page * limit,
-            take: limit,
-            order: { price: order }
-        })
+        try {
+            return await this.productOrgRepo.createQueryBuilder('product')
+                .leftJoinAndSelect('product.author', 'author')
+                .leftJoinAndSelect('product.promotion', 'promotion')
+                .where('product.rating >= :rating', { rating: rating <= 1 ? 0 : rating })
+                .andWhere('product.rating < :nextStar', { nextStar: rating + 1 })
+                .andWhere('product.promotion_id IS NOT NULL')
+                .andWhere('product.active = true')
+                .orderBy('product.price', order)
+                .skip(page * limit)
+                .take(limit)
+                .getManyAndCount();
+        } catch (e) {
+            throw e
+        }
     }
 
     async findReviewsByProduct(

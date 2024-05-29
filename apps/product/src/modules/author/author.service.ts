@@ -77,6 +77,10 @@ export class AuthorService {
                 promotion_id: Not(IsNull()),
                 active: true
             },
+            relations: {
+                author: true,
+                promotion: true
+            },
             skip: page * limit,
             take: limit
         });
@@ -92,6 +96,10 @@ export class AuthorService {
             where: {
                 author_id: author.id,
                 active: true
+            },
+            relations: {
+                author: true,
+                promotion: true
             },
             skip: page * limit,
             take: limit,

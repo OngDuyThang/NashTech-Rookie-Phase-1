@@ -10,14 +10,14 @@ export class PaginationMiddleware implements NestMiddleware {
             !req.query.hasOwnProperty('page') ||
             isNaN(Number(req.query.page))
         ) {
-            req.query.page = PAGINATION.DEFAULT_PAGE
+            req.query.page = PAGINATION.DEFAULT_PAGE.toString()
         }
 
         if (
             !req.query.hasOwnProperty('limit') ||
             isNaN(Number(req.query.limit))
         ) {
-            req.query.limit = PAGINATION.DEFAULT_LIMIT
+            req.query.limit = PAGINATION.DEFAULT_LIMIT.toString()
         }
 
         next()

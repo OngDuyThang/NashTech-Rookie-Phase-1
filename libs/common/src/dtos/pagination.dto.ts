@@ -1,4 +1,4 @@
-import { ArgsType, Field } from "@nestjs/graphql";
+import { ArgsType, Field, Int } from "@nestjs/graphql";
 import { Type } from "class-transformer";
 import { IsNotEmpty, IsNumber, Max, Min } from "class-validator";
 import { PAGINATION } from "../enums/pagination";
@@ -10,7 +10,7 @@ export abstract class PaginationDto {
     @IsNumber()
     @IsNotEmpty()
     @Min(0)
-    @Field(() => String, { nullable: true, defaultValue: PAGINATION.DEFAULT_PAGE })
+    @Field(() => Int, { nullable: true, defaultValue: PAGINATION.DEFAULT_PAGE })
     page: number;
 
     @Type(() => Number)
@@ -18,6 +18,6 @@ export abstract class PaginationDto {
     @IsNotEmpty()
     @Min(Number(PAGINATION.MIN_LIMIT))
     @Max(Number(PAGINATION.MAX_LIMIT))
-    @Field(() => String, { nullable: true, defaultValue: PAGINATION.DEFAULT_LIMIT })
+    @Field(() => Int, { nullable: true, defaultValue: PAGINATION.DEFAULT_LIMIT })
     limit: number
 }
