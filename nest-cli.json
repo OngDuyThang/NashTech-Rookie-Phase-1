@@ -18,7 +18,7 @@
           {
             "include": "**/*.hbs",
             "watchAssets": true,
-            "outDir": "dist/apps/auth/apps/auth"
+            "outDir": "dist/apps/auth"
           }
         ]
       }

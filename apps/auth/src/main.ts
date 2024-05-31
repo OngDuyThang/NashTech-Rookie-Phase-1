@@ -34,7 +34,7 @@ async function bootstrap() {
   app.use(cookieParser());
 
   app.useStaticAssets(join(__dirname, '..', 'public'));
-  app.setBaseViewsDir(join(__dirname, '..', 'views'));
+  app.setBaseViewsDir(join(__dirname, '..', '/auth/views'));
   app.setViewEngine('hbs');
 
   await app.startAllMicroservices()

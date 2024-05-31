@@ -100,7 +100,7 @@ export class ReviewService {
             return ratings.reduce((result, rating) => {
                 result[rating.star - 1] = Number(rating.count)
                 return result
-            }, new Array(5))
+            }, new Array(5).fill(0))
         } catch (e) {
             throw e
         }

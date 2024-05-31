@@ -1,9 +1,9 @@
-import { Field, InputType } from "@nestjs/graphql"
+import { Field, InputType, Int } from "@nestjs/graphql"
 import { Type } from "class-transformer"
 import { IsNotEmpty, IsNumber, IsOptional, IsPositive, IsUUID } from "class-validator"
 
 @InputType()
-export class CreateItemDto {
+export class CreateCartItemDto {
     @IsUUID(4)
     @IsNotEmpty()
     @Field()
@@ -13,6 +13,6 @@ export class CreateItemDto {
     @IsNumber()
     @IsPositive()
     @IsOptional()
-    @Field(() => String, { defaultValue: '1' })
+    @Field(() => Int, { defaultValue: 1 })
     quantity?: number
 }

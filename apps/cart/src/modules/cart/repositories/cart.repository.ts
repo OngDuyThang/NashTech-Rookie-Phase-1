@@ -12,4 +12,8 @@ export class CartRepository extends AbstractRepository<CartEntity> {
     ) {
         super(cartRepository);
     }
+
+    createQueryBuilder() {
+        return this.cartRepository.createQueryBuilder('cart')
+    }
 }

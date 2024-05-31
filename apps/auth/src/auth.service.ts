@@ -110,9 +110,9 @@ export class AuthService {
 
     // Url to trigger client to send token request
     return getUrlEndpoint(
-      this.env.SERVICE_HOST_NAME,
-      this.env.SERVICE_PORT,
-      '/auth/something',
+      'localhost',
+      '8080',
+      '/callback',
       { code: authCode }
     )
   }

@@ -50,6 +50,7 @@ type Mutation {
 type ProductEntity {
   author: AuthorEntity
   author_id: String
+  category: CategoryEntity
   category_id: String
   created_at: DateTime
   description: String

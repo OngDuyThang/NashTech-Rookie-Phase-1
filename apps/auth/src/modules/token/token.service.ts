@@ -11,8 +11,8 @@ import { TOKEN_EXPIRY_TIME, TOKEN_KEY_NAME } from '../../common/enums';
 export class TokenService {
   private readonly cookieOptions: CookieOptions = {
     httpOnly: true,
-    sameSite: this.env.NODE_ENV == NODE_ENV.DEVELOPMENT ? true : 'none',
-    secure: this.env.NODE_ENV == NODE_ENV.DEVELOPMENT ? false : true,
+    sameSite: 'none',
+    secure: true,
   };
 
   constructor(

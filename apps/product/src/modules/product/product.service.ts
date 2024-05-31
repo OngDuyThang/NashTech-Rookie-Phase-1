@@ -62,6 +62,7 @@ export class ProductService {
                 .leftJoinAndSelect('product.author', 'author')
                 .leftJoinAndSelect('product.promotion', 'promotion')
                 .leftJoinAndSelect('product.reviews', 'reviews')
+                .leftJoinAndSelect('product.category', 'category')
                 .where('product.id = :id', { id })
                 .andWhere('product.active = true')
                 .getOne()

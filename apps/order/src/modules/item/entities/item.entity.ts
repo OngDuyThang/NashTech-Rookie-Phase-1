@@ -8,7 +8,7 @@ import { OrderEntity } from "../../order/entities/order.entity";
 
 @Entity({ name: 'order_item' })
 @ObjectType()
-export class ItemEntity extends AbstractEntity {
+export class OrderItemEntity extends AbstractEntity {
     @Column({ type: 'uuid', nullable: false })
     @IsUUID(4)
     @IsNotEmpty()

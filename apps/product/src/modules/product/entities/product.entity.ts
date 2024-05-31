@@ -55,6 +55,7 @@ export class ProductEntity extends AbstractEntity {
     @JoinColumn({ name: 'category_id' })
     @IsOptional()
     @Type(() => CategoryEntity)
+    @Field(() => CategoryEntity, { nullable: true })
     category?: CategoryEntity
 
     @Column({ type: 'uuid', nullable: true })

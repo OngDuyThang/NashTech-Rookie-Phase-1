@@ -2,7 +2,7 @@ import { DataSource, DataSourceOptions } from "typeorm";
 import * as dotenv from "dotenv";
 import { getEnvFilePath } from "@app/common";
 import { CartEntity } from "../modules/cart/entities/cart.entity";
-import { ItemEntity } from "../modules/item/entities/item.entity";
+import { CartItemEntity } from "../modules/item/entities/item.entity";
 import { TempCartEntity } from "../modules/cart/entities/temp-cart.entity";
 import { TempItemEntity } from "../modules/item/entities/temp-item.entity";
 
@@ -20,7 +20,7 @@ export const dataSourceOptions: DataSourceOptions = {
     synchronize: true,
     entities: [
         CartEntity,
-        ItemEntity,
+        CartItemEntity,
         TempCartEntity,
         TempItemEntity
         // 'dist/apps/cart/**/*.entity.js'

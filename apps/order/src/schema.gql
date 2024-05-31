@@ -4,29 +4,42 @@
 
 type CartItemSchema {
   cart_id: String!
+  created_at: DateTime
   id: String!
   product: ProductSchema
   quantity: String
+  updated_at: DateTime
 }
 
-type ItemEntity {
-  id: String!
-  order_id: String!
-  product: ProductSchema
-  quantity: Float!
-}
+scalar Date
+
+"""
+A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date-time format.
+"""
+scalar DateTime
 
 type Mutation {
   createOrder: String!
 }
 
+type OrderItemEntity {
+  created_at: DateTime
+  id: String!
+  order_id: String!
+  product: ProductSchema
+  quantity: Float!
+  updated_at: DateTime
+}
+
 type ProductSchema {
   author: String
+  created_at: DateTime
   discount: Float
   id: String!
   image: String
   price: Float!
   title: String!
+  updated_at: DateTime
 }
 
 type Query {

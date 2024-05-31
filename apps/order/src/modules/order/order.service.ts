@@ -1,10 +1,11 @@
-import { Inject, Injectable, RequestTimeoutException } from "@nestjs/common";
+import { BadRequestException, Inject, Injectable, RequestTimeoutException } from "@nestjs/common";
 import { OrderRepository } from "./repositories/order.repository";
 import { CartSchema, ERROR_MESSAGE, SERVICE_MESSAGE, SERVICE_NAME, convertRpcException } from "@app/common";
 import { ClientProxy } from "@nestjs/microservices";
 import { TimeoutError, catchError, lastValueFrom, timeout } from "rxjs";
 import { ItemService } from "../item/item.service";
 import { OrderEntity } from "./entities/order.entity";
+import { isEmpty } from "lodash";
 
 @Injectable()
 export class OrderService {
@@ -36,6 +37,9 @@ export class OrderService {
         userId: string
     ): Promise<void> {
         const cart = await this.findCart(userId)
+        if (isEmpty(cart.items)) {
+            throw new BadRequestException(ERROR_MESSAGE.EMPTY_CART)
+        }
 
         let queryRunner = this.orderRepository.createQueryRunner()
         if (queryRunner.isReleased) {
