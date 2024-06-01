@@ -41,7 +41,7 @@ export class TokenService {
   ): string {
     return this.jwtService.sign(payload, {
       secret,
-      expiresIn,
+      expiresIn: Math.floor(Number(expiresIn) / 1000),
     });
   }
 

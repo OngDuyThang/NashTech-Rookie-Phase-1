@@ -23,6 +23,7 @@ import { OPENID_PROVIDER, TOKEN_EXPIRY_TIME, TOKEN_KEY_NAME } from './common/enu
 import { CACHE_SERVICE } from '@app/cache';
 import { Cache } from 'cache-manager';
 import { isEmpty } from 'lodash';
+import { TokenExpiredError } from '@nestjs/jwt';
 
 @Injectable()
 export class AuthService {
@@ -345,10 +346,7 @@ export class AuthService {
       }
 
       // Validate access token and expired time under 5 minutes
-      const accessPayload = this.tokenService.validateToken(
-        accessToken,
-        this.env.ACCESS_TOKEN_SECRET
-      )
+      const accessPayload = this.tokenService.decodeToken(accessToken)
       if (isEmpty(accessPayload)) {
         throw error
       }
@@ -380,6 +378,9 @@ export class AuthService {
         res
       )
     } catch (e) {
+      if (e instanceof TokenExpiredError) {
+        throw error
+      }
       throw e
     }
   }

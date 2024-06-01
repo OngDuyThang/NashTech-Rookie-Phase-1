@@ -168,10 +168,10 @@ export class AuthController {
   refresh(
     @Req() req: Request,
     @Res({ passthrough: true }) res: Response,
-    // @Body() refreshTokenDto: RefreshTokenDto
+    @Body() refreshTokenDto: RefreshTokenDto
   ): Promise<TTokenResponse> {
-    // const accessToken = refreshTokenDto.access_token
-    return this.authService.refresh(req, res, req.body?.[TOKEN_KEY_NAME.ACCESS_TOKEN])
+    const accessToken = refreshTokenDto.access_token
+    return this.authService.refresh(req, res, accessToken)
   }
 
   @Post('/logout')

@@ -10,7 +10,7 @@ const minute = 1000 * 60
 const hour = minute * 60
 
 export enum TOKEN_EXPIRY_TIME {
-    ACCESS_TOKEN = hour * 24,
+    ACCESS_TOKEN = minute * 30,
     REFRESH_TOKEN = hour * 24,
     ONE_TIME_TOKEN = hour * 24,
     GOOGLE_ID_TOKEN = hour
