@@ -1,8 +1,9 @@
-import { Delete, Get, Param, Query, UseGuards } from '@nestjs/common';
+import { Body, Delete, Get, Param, Patch, Query, UseGuards } from '@nestjs/common';
 import { ApiController, PaginationPipe, PermissionRequestGuard, ROLE, Roles, RolesGuard, UUIDPipe } from '@app/common';
 import { ReviewService } from "./review.service";
 import { ReviewEntity } from './entities/review.entity';
 import { ReviewQueryDto } from './dtos/query.dto';
+import { ChangeStatusDto } from './dtos/change-status.dto';
 
 @ApiController('reviews')
 export class ReviewsController {
@@ -27,6 +28,19 @@ export class ReviewsController {
         @Param('id', UUIDPipe) id: string
     ): Promise<ReviewEntity> {
         return await this.reviewService.findOneById(id);
+    }
+
+    @Patch('/:id')
+    @Roles([ROLE.ADMIN])
+    @UseGuards(
+        PermissionRequestGuard,
+        RolesGuard
+    )
+    async changeStatus(
+        @Param('id', UUIDPipe) id: string,
+        @Body() changeStatusDto: ChangeStatusDto
+    ): Promise<void> {
+        await this.reviewService.changeStatus(id, changeStatusDto)
     }
 
     @Delete('/:id')

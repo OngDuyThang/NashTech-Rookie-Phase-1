@@ -8,6 +8,7 @@ import { DashboardMiddleware } from './middlewares/dashboard.middleware';
 import { MvcController } from './mvc.controller';
 import { ProductController } from './controllers/product.controller';
 import { PromotionController } from './controllers/promotion.controller';
+import { ReviewController } from './controllers/review.controller';
 
 const providers: Provider[] = [
   {
@@ -27,7 +28,8 @@ const providers: Provider[] = [
     MvcController,
     ProductController,
     CategoryController,
-    PromotionController
+    PromotionController,
+    ReviewController
   ],
   providers: [Logger, ...providers],
 })

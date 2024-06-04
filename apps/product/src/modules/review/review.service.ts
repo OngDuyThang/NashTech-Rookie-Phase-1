@@ -3,12 +3,13 @@ import { ReviewRepository } from "./repositories/review.repository";
 import { ReviewEntity } from "./entities/review.entity";
 import { CreateReviewDto } from "./dtos/create-review.dto";
 import { UpdateReviewDto } from "./dtos/update-review.dto";
-import { QUERY_ORDER } from "@app/common";
+import { QUERY_ORDER, STATUS } from "@app/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Repository } from "typeorm";
 import { ProductEntity } from "../product/entities/product.entity";
 import { ReviewQueryDto } from "./dtos/query.dto";
 import { REVIEW_SORT } from "./common";
+import { ChangeStatusDto } from "./dtos/change-status.dto";
 
 @Injectable()
 export class ReviewService {
@@ -29,7 +30,11 @@ export class ReviewService {
     }
 
     async findAll(): Promise<ReviewEntity[]> {
-        return await this.reviewRepository.find();
+        return await this.reviewRepository.find({
+            relations: {
+                product: true
+            }
+        });
     }
 
     async findList(
@@ -38,17 +43,26 @@ export class ReviewService {
         const { page, limit, sort } = queryDto
         const order = sort == REVIEW_SORT.DATE_ASC ? QUERY_ORDER.ASC : QUERY_ORDER.DESC
 
-        return await this.reviewRepository.findList({
-            skip: page * limit,
-            take: limit,
-            order: { created_at: order }
-        });
+        try {
+            return await this.reviewRepository.createQueryBuilder()
+                .leftJoinAndSelect('review.product', 'product')
+                .addSelect('review.created_at')
+                .skip(page * limit)
+                .take(limit)
+                .orderBy('review.created_at', order)
+                .getManyAndCount()
+        } catch (e) {
+            throw e
+        }
     }
 
     async findOneById(
         id: string
     ): Promise<ReviewEntity> {
-        return await this.reviewRepository.findOne({ where: { id } });
+        return await this.reviewRepository.findOne({
+            where: { id },
+            relations: { product: true }
+        });
     }
 
     async update(
@@ -58,6 +72,16 @@ export class ReviewService {
         await this.reviewRepository.update({ id }, {
             ...updateReviewDto
         });
+    }
+
+    async changeStatus(
+        id: string,
+        changeStatusDto: ChangeStatusDto
+    ): Promise<void> {
+        const { status } = changeStatusDto
+        await this.reviewRepository.update({ id }, {
+            status
+        })
     }
 
     async delete(
@@ -139,6 +163,7 @@ export class ReviewService {
                 .addSelect('review.created_at')
                 .where('review.product_id = :productId', { productId: product.id })
                 .andWhere('review.rating = :star', { star })
+                .andWhere('review.status = :status', { status: STATUS.CONFIRMED })
                 .orderBy('review.created_at', order)
                 .skip(page * limit)
                 .take(limit)

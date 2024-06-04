@@ -117,6 +117,7 @@ type ReviewEntity {
   id: String!
   product_id: String!
   rating: Float!
+  status: String
   title: String!
   updated_at: DateTime
   user_id: String!

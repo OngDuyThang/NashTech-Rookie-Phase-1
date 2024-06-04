@@ -98,6 +98,4 @@ export class CategoryController {
 
         res.render(this.viewPath('update'), { category, categories, updateUrl })
     }
-
-
 }

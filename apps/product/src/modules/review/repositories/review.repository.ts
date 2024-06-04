@@ -12,4 +12,8 @@ export class ReviewRepository extends AbstractRepository<ReviewEntity> {
     ) {
         super(reviewRepository);
     }
+
+    createQueryBuilder() {
+        return this.reviewRepository.createQueryBuilder('review')
+    }
 }
