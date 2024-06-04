@@ -115,8 +115,59 @@ export class Env {
         return this.configService.get<string>('GOOGLE_CALLBACK_URL');
     }
 
-    get GOOGLE_ISSUER() {
-        return this.configService.get<string>('GOOGLE_ISSUER');
+    get AUTH_SERVICE_HOST_NAME() {
+        return this.configService.get<string>('AUTH_SERVICE_HOST_NAME');
     }
 
+    get AUTH_SERVICE_PORT() {
+        return this.configService.get<string>('AUTH_SERVICE_PORT');
+    }
+
+    get PRODUCT_SERVICE_HOST_NAME() {
+        return this.configService.get<string>('PRODUCT_SERVICE_HOST_NAME');
+    }
+
+    get PRODUCT_SERVICE_PORT() {
+        return this.configService.get<string>('PRODUCT_SERVICE_PORT');
+    }
+
+    get CART_SERVICE_HOST_NAME() {
+        return this.configService.get<string>('CART_SERVICE_HOST_NAME');
+    }
+
+    get CART_SERVICE_PORT() {
+        return this.configService.get<string>('CART_SERVICE_PORT');
+    }
+
+    get ORDER_SERVICE_HOST_NAME() {
+        return this.configService.get<string>('ORDER_SERVICE_HOST_NAME');
+    }
+
+    get ORDER_SERVICE_PORT() {
+        return this.configService.get<string>('ORDER_SERVICE_PORT');
+    }
+
+    get FRONTEND_HOST_NAME() {
+        return this.configService.get<string>('FRONTEND_HOST_NAME');
+    }
+
+    get FRONTEND_PORT() {
+        return this.configService.get<string>('FRONTEND_PORT');
+    }
+
+    get MVC_HOST_NAME() {
+        return this.configService.get<string>('MVC_HOST_NAME');
+    }
+
+    get MVC_PORT() {
+        return this.configService.get<string>('MVC_PORT');
+    }
+
+    get UPLOAD_SERVICE_HOST_NAME() {
+        return this.configService.get<string>('UPLOAD_SERVICE_HOST_NAME');
+    }
+
+    get UPLOAD_SERVICE_PORT() {
+        return this.configService.get<string>('UPLOAD_SERVICE_PORT');
+    }
 }

@@ -4,7 +4,7 @@ import { Logger, ValidationPipe } from '@nestjs/common';
 import * as cookieParser from 'cookie-parser';
 import { NestExpressApplication } from '@nestjs/platform-express';
 import { join } from 'path';
-import { QUEUE_NAME, ReshapeDataInteceptor } from '@app/common';
+import { QUEUE_NAME, ReshapeDataInteceptor, hbsJsonHelper } from '@app/common';
 import { RmqService } from '@app/rmq';
 import { Env } from '@app/env';
 
@@ -33,9 +33,9 @@ async function bootstrap() {
 
   app.use(cookieParser());
 
-  app.useStaticAssets(join(__dirname, '..', 'public'));
-  app.setBaseViewsDir(join(__dirname, '..', '/auth/views'));
+  app.setBaseViewsDir(join(__dirname, 'views'));
   app.setViewEngine('hbs');
+  hbsJsonHelper()
 
   await app.startAllMicroservices()
   await app.listen(env.SERVICE_PORT);

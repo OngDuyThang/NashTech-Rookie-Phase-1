@@ -19,7 +19,8 @@ export class CategoryService {
     async create(
         createCategoryDto: CreateCategoryDto
     ): Promise<CategoryEntity> {
-        return await this.categoryRepository.create(createCategoryDto);
+        console.log(createCategoryDto)
+        return await this.categoryRepository.create({ ...createCategoryDto });
     }
 
     async findAll(): Promise<CategoryEntity[]> {
@@ -34,7 +35,10 @@ export class CategoryService {
     ): Promise<CategoryEntity> {
         return await this.categoryRepository.findOne({
             where: { id, active: true },
-            relations: { products: true }
+            relations: {
+                products: true,
+                parent: true
+            }
         })
     }
 

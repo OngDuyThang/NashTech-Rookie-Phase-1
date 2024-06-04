@@ -1,10 +1,10 @@
-import { Body, Controller, Delete, Get, Param, Patch, Post, UseGuards } from '@nestjs/common';
-import { PermissionRequestGuard, ROLE, Roles, RolesGuard, UUIDPipe } from '@app/common';
+import { Body, Delete, Get, Param, Patch, Post, UseGuards } from '@nestjs/common';
+import { ApiController, PermissionRequestGuard, ROLE, Roles, RolesGuard, UUIDPipe } from '@app/common';
 import { AuthorService } from "./author.service";
 import { AuthorEntity } from './entities/author.entity';
 import { CreateAuthorDto } from './dtos/create-author.dto';
 
-@Controller('authors')
+@ApiController('authors')
 export class AuthorController {
     constructor(
         private readonly authorService: AuthorService

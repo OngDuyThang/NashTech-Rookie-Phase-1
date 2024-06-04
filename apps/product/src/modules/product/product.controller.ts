@@ -1,12 +1,12 @@
-import { Body, Controller, Delete, Get, Param, Patch, Post, Query, UseGuards } from '@nestjs/common';
+import { Body, Delete, Get, Param, Patch, Post, Query, UseGuards } from '@nestjs/common';
 import { ProductService } from './product.service';
-import { PaginationPipe, PermissionRequestGuard, ROLE, Roles, RolesGuard, SERVICE_MESSAGE, UUIDPipe, ProductSchema } from '@app/common';
+import { PaginationPipe, PermissionRequestGuard, ROLE, Roles, RolesGuard, SERVICE_MESSAGE, UUIDPipe, ProductSchema, ApiController } from '@app/common';
 import { CreateProductDto } from './dtos/create-product.dto';
 import { ProductEntity } from './entities/product.entity';
 import { RatingQueryDto } from './dtos/query.dto';
 import { MessagePattern, Payload } from '@nestjs/microservices';
 
-@Controller('products')
+@ApiController('products')
 export class ProductController {
   constructor(
     private readonly productService: ProductService

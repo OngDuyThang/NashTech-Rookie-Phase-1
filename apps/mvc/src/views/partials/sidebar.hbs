@@ -1,0 +1,25 @@
+<style>
+    .sidebar i {
+        width: 16px !important;
+    }
+</style>
+<section class="sidebar min-h-screen h-auto w-[220px] bg-slate-600 flex flex-col gap-8 p-8 text-white"></section>
+<script>
+    const menu = [
+        { title: 'Products', icon: '<i class="fa-solid fa-list"></i>', path: '/products' },
+        { title: 'Categories', icon: '<i class="fa-solid fa-book"></i>', path: '/categories' },
+        { title: 'Reviews', icon: '<i class="fa-solid fa-star"></i>', path: '/reviews' },
+        { title: 'Orders', icon: '<i class="fa-solid fa-receipt"></i>', path: '/orders' },
+        { title: 'Promotions', icon: '<i class="fa-solid fa-rectangle-ad"></i>', path: '/promotions' },
+        { title: 'About', icon: '<i class="fa-solid fa-circle-info"></i>', path: '/about' }
+    ]
+    const sidebar = document.querySelector('.sidebar')
+    menu.forEach(item => {
+        sidebar.innerHTML += `
+        <a href="${item.path}">
+            <span class="cursor-pointer flex gap-2 items-center justify-start">
+                ${item.icon} ${item.title}
+            </span>
+        </a>`
+    })
+</script>

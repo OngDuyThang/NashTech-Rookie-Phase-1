@@ -5,6 +5,7 @@ import * as url from 'node:url'
 import { NODE_ENV } from "../enums/node-env"
 import { ParsedUrlQueryInput } from "node:querystring"
 import { ERROR_MESSAGE } from "../enums/messages"
+import { join } from "path"
 
 export const getEnvFilePath = (serviceName: string) => `./apps/${serviceName}/.env.${process.env.NODE_ENV}`
 export const getGqlSchemaPath = (serviceName: string) => `apps/${serviceName}/src/schema.gql`

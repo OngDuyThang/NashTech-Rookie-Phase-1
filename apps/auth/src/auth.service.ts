@@ -111,8 +111,23 @@ export class AuthService {
 
     // Url to trigger client to send token request
     return getUrlEndpoint(
-      'localhost',
-      '8080',
+      this.env.FRONTEND_HOST_NAME,
+      this.env.FRONTEND_PORT,
+      '/callback',
+      { code: authCode }
+    )
+  }
+
+  private async getDashboardCallbackUrl(
+    userId: string
+  ): Promise<string> {
+    const authCode = this.generateFingerprint()
+    await this.cacheAuthCode(authCode, userId)
+
+    // Url to trigger client to send token request
+    return getUrlEndpoint(
+      this.env.MVC_HOST_NAME,
+      this.env.MVC_PORT,
       '/callback',
       { code: authCode }
     )
@@ -134,6 +149,15 @@ export class AuthService {
 
     // Return client callback url to client with authorization code in query
     const clientCallbackUrl = await this.getClientCallbackUrl(user.id)
+    return {
+      clientCallbackUrl
+    }
+  }
+
+  async dashboardLogin(
+    user: UserEntity
+  ): Promise<TLoginResponse> {
+    const clientCallbackUrl = await this.getDashboardCallbackUrl(user.id)
     return {
       clientCallbackUrl
     }

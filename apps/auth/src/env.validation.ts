@@ -69,4 +69,20 @@ export class EnvValidation extends AbstractEnvValidation {
     @IsString()
     @IsNotEmpty()
     GOOGLE_ISSUER: string
+
+    @IsString()
+    @IsNotEmpty()
+    FRONTEND_HOST_NAME: string
+
+    @IsString()
+    @IsNotEmpty()
+    FRONTEND_PORT: string
+
+    @IsString()
+    @IsNotEmpty()
+    MVC_HOST_NAME: string
+
+    @IsString()
+    @IsNotEmpty()
+    MVC_PORT: string
 }

@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+{{> head }}
+
+<body>
+    {{> sidebar }}
+    <main>
+        {{> header }}
+        <section class="mt-[68px] p-4 overflow-x-scroll">
+            <div class="flex justify-between items-center space-x-4 pb-8">
+                <h1 class="font-bold text-lg">Categories</h1>
+                <a href="/categories/create">
+                    <button type="submit"
+                        class=" text-green-500 inline-flex items-center hover:text-white border border-green-500 hover:bg-green-500 focus:ring-4 focus:outline-none focus:ring-green-500 font-semibold rounded-lg text-sm px-5 py-2.5 text-center ">
+                        Create New Category
+                    </button>
+                </a>
+            </div>
+            <table id="categories-table" class="w-full">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Name</th>
+                        <th>Parent</th>
+                        <th>Active</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody class="categories-table-body"></tbody>
+            </table>
+        </section>
+        {{> footer }}
+    </main>
+
+    <script>
+        const categories = {{ json categories }}
+        const removeUrl = {{ json removeUrl }}
+
+        $(document).ready(async () => {
+            const categoriesBody = $('.categories-table-body');
+            categories?.forEach((category) => {
+                categoriesBody.append(`
+                        <tr>
+                            <td>${category?.id}</td>
+                            <td>${category?.name}</td>
+                            <td>${category?.parent?.name || 'none'}</td>
+                            <td>${category?.active}</td>
+                            <td class='flex gap-8'>
+                                <a href='/categories/${category?.id}'><button><i class="fa-solid fa-pen-to-square" style="color: #43fa00;"></i></button></a>
+                                <button onclick="remove()" value="${category?.id}"><i class="fa-solid fa-xmark" style="color: #f08000;"></i></button>
+                                <button><i class="fa-solid fa-trash" style="color: #fd1c1c;"></i></button>
+                            </td>
+                        </tr>
+                    `)
+            })
+            $('#categories-table').DataTable({
+                pageLength: 5,
+                lengthMenu: [5, 10, 25, 50],
+            });
+        });
+
+        const remove = async () => {
+            const accessToken = localStorage.getItem('access_token')
+            const id = event?.currentTarget?.value
+            console.log(id)
+            try {
+                const res = await fetch(`${removeUrl}/${id}`, {
+                    method: 'DELETE',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${accessToken}`
+                    },
+                    credentials: 'include'
+                })
+                const data = await res.json()
+                toast(data)
+            } catch (e) {
+                console.log(e)
+            }
+        }
+    </script>
+    {{> common }}
+</body>
+
+</html>

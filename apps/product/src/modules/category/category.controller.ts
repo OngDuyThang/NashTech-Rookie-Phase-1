@@ -1,10 +1,10 @@
-import { Body, Controller, Get, Param, Patch, Post, Delete, UseGuards } from "@nestjs/common";
+import { Body, Get, Param, Patch, Post, Delete, UseGuards } from "@nestjs/common";
 import { CategoryService } from "./category.service";
-import { PermissionRequestGuard, ROLE, Roles, RolesGuard, UUIDPipe } from "@app/common";
+import { ApiController, PermissionRequestGuard, ROLE, Roles, RolesGuard, UUIDPipe } from "@app/common";
 import { CreateCategoryDto } from "./dtos/create-category.dto";
 import { CategoryEntity } from "./entities/category.entity";
 
-@Controller('categories')
+@ApiController('categories')
 export class CategoryController {
     constructor(
         private readonly categoryService: CategoryService

@@ -5,7 +5,7 @@ import { SERVICE_MESSAGE, SERVICE_NAME } from "../enums/rmq";
 import { ClientProxy } from "@nestjs/microservices";
 import { TimeoutError, catchError, tap, timeout } from "rxjs";
 import { TPermissionRequest } from "../types/permission-request";
-import { COOKIE_KEY_NAME } from "../enums/cookie";
+import { COMMON_KEY_NAME } from "../enums/token";
 import { convertRpcException } from "../utils/helpers";
 import { UserEntity } from "../entities/user.entity";
 import { GqlExecutionContext } from "@nestjs/graphql";
@@ -32,7 +32,7 @@ export class PermissionRequestGuard implements CanActivate {
 
         // Http request: get bearer token from headers and fingerprint from cookie
         const accessToken = req?.headers?.authorization?.split(' ')[1]
-        const fingerprint = req?.cookies?.[COOKIE_KEY_NAME.FINGERPRINT]
+        const fingerprint = req?.cookies?.[COMMON_KEY_NAME.FINGERPRINT]
         if (!accessToken || !fingerprint) {
             throw new UnauthorizedException(ERROR_MESSAGE.USER_UNAUTHORIZED)
         }

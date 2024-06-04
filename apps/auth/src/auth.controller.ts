@@ -35,12 +35,24 @@ export class AuthController {
   @Render('login')
   loginPage(): void {}
 
+  @Get('/dashboard-login')
+  @Render('dashboard-login')
+  dashboardLoginPage(): void {}
+
   @Post('/login')
   @UseGuards(LocalAuthGuard)
   async login(
     @GetUser() user: UserEntity
   ): Promise<TLoginResponse> {
     return await this.authService.login(user);
+  }
+
+  @Post('/dashboard-login')
+  @UseGuards(LocalAuthGuard)
+  async dashboardLogin(
+    @GetUser() user: UserEntity
+  ): Promise<TLoginResponse> {
+    return await this.authService.dashboardLogin(user);
   }
 
   // event pattern

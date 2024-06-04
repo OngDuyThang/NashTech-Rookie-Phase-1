@@ -1,0 +1,17 @@
+<script>
+    const toast = (data) => {
+        if (data?.statusCode != 201 && data?.statusCode != 200) {
+            $.toast({
+                text: data?.message,
+                icon: 'error',
+                position: 'top-right'
+            })
+        } else {
+            $.toast({
+                text: data?.message,
+                icon: 'success',
+                position: 'top-right'
+            })
+        }
+    }
+</script>

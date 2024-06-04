@@ -39,7 +39,14 @@ export class ProductService {
     }
 
     async findAll(): Promise<ProductEntity[]> {
-        return await this.productRepository.find({ where: { active: true } });
+        return await this.productRepository.find({
+            where: { active: true },
+            relations: {
+                author: true,
+                promotion: true,
+                category: true
+            }
+        });
     }
 
     async findList(

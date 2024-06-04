@@ -14,7 +14,9 @@ import { ProductModule } from "../product/product.module";
         ]),
         ProductModule
     ],
-    controllers: [CategoryController],
+    controllers: [
+        CategoryController
+    ],
     providers: [
         CategoryService,
         CategoryRepository,
