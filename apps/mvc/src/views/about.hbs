@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+{{> head }}
+
+<body>
+    {{> sidebar }}
+    <main>
+        {{> header }}
+        <section class="mt-[68px] p-4 overflow-x-scroll">
+            <h1 class="font-bold text-lg pb-8">About Page</h1>
+
+            <form action="/" method="PATCH" onsubmit="update()">
+
+                <textarea id="about-markdown" name="content">
+                Welcome to TinyMCE!
+            </textarea>
+                <div class="flex items-center space-x-4">
+                    <button type="submit"
+                        class=" text-green-500 inline-flex items-center hover:text-white border border-green-500 hover:bg-green-500 focus:ring-4 focus:outline-none focus:ring-green-500 font-semibold rounded-lg text-sm px-5 py-2.5 text-center ">
+                        Update
+                    </button>
+                </div>
+            </form>
+        </section>
+        {{> footer }}
+    </main>
+
+    <script>
+        const content = {{ json content }}
+        const updateAboutPageUrl = {{ json updateAboutPageUrl }}
+        const aboutMarkdown = document.querySelector('#about-markdown')
+
+        aboutMarkdown.value = content
+
+        const update = async () => {
+            event.preventDefault()
+            const formData = new FormData(event.target);
+            const body = Object.fromEntries(formData);
+
+            const accessToken = localStorage.getItem('access_token')
+            try {
+                const res = await fetch(updateAboutPageUrl, {
+                    method: 'PATCH',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${accessToken}`
+                    },
+                    body: JSON.stringify(body),
+                    credentials: 'include'
+                })
+                const data = await res.json()
+                toast(data)
+            } catch (e) {
+                console.log(e)
+            }
+        }
+    </script>
+    <script>
+        tinymce.init({
+            selector: 'textarea',
+            plugins: 'anchor autolink charmap codesample emoticons image link lists media searchreplace table visualblocks wordcount checklist mediaembed casechange export formatpainter pageembed linkchecker a11ychecker tinymcespellchecker permanentpen powerpaste advtable advcode editimage advtemplate ai mentions tinycomments tableofcontents footnotes mergetags autocorrect typography inlinecss markdown',
+            toolbar: 'undo redo | blocks fontfamily fontsize | bold italic underline strikethrough | link image media table mergetags | addcomment showcomments | spellcheckdialog a11ycheck typography | align lineheight | checklist numlist bullist indent outdent | emoticons charmap | removeformat',
+            tinycomments_mode: 'embedded',
+            tinycomments_author: 'Author name',
+            mergetags_list: [
+                { value: 'First.Name', title: 'First Name' },
+                { value: 'Email', title: 'Email' },
+            ],
+            ai_request: (request, respondWith) => respondWith.string(() => Promise.reject("See docs to implement AI Assistant")),
+        });
+    </script>
+    {{> common }}
+</body>
+
+</html>

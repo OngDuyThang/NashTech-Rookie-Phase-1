@@ -48,4 +48,12 @@ export class EnvValidation {
     @IsString()
     @IsNotEmpty()
     UPLOAD_SERVICE_PORT: string
+
+    @IsString()
+    @IsNotEmpty()
+    ASSET_SERVICE_HOST_NAME: string
+
+    @IsString()
+    @IsNotEmpty()
+    ASSET_SERVICE_PORT: string
 }

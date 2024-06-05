@@ -170,4 +170,12 @@ export class Env {
     get UPLOAD_SERVICE_PORT() {
         return this.configService.get<string>('UPLOAD_SERVICE_PORT');
     }
+
+    get ASSET_SERVICE_HOST_NAME() {
+        return this.configService.get<string>('ASSET_SERVICE_HOST_NAME');
+    }
+
+    get ASSET_SERVICE_PORT() {
+        return this.configService.get<string>('ASSET_SERVICE_PORT');
+    }
 }

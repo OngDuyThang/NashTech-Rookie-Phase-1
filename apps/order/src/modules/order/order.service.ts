@@ -1,6 +1,6 @@
 import { BadRequestException, Inject, Injectable, RequestTimeoutException } from "@nestjs/common";
 import { OrderRepository } from "./repositories/order.repository";
-import { CartSchema, ERROR_MESSAGE, SERVICE_MESSAGE, SERVICE_NAME, convertRpcException } from "@app/common";
+import { CartSchema, ChangeStatusDto, ERROR_MESSAGE, SERVICE_MESSAGE, SERVICE_NAME, convertRpcException } from "@app/common";
 import { ClientProxy } from "@nestjs/microservices";
 import { TimeoutError, catchError, lastValueFrom, timeout } from "rxjs";
 import { ItemService } from "../item/item.service";
@@ -77,5 +77,34 @@ export class OrderService {
         } finally {
             await queryRunner.release()
         }
+    }
+
+    async findAll(): Promise<OrderEntity[]> {
+        return await this.orderRepository.find()
+    }
+
+    async findOneById(
+        id: string
+    ): Promise<OrderEntity> {
+        return await this.orderRepository.findOne({
+            where: { id },
+            relations: { items: true }
+        })
+    }
+
+    async changeStatus(
+        id: string,
+        changeStatusDto: ChangeStatusDto
+    ): Promise<void> {
+        const { status } = changeStatusDto
+        await this.orderRepository.update({ id }, {
+            status
+        })
+    }
+
+    async delete(
+        id: string
+    ): Promise<void> {
+        await this.orderRepository.delete({ id })
     }
 }

@@ -13,7 +13,9 @@ const hbsutils = require('hbs-utils')(hbs);
 const viewDirectories = [
   'category',
   'product',
-  'promotion'
+  'promotion',
+  'review',
+  'order'
 ]
 
 async function bootstrap() {

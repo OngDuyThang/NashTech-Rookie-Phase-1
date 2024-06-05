@@ -3,13 +3,12 @@ import { ReviewRepository } from "./repositories/review.repository";
 import { ReviewEntity } from "./entities/review.entity";
 import { CreateReviewDto } from "./dtos/create-review.dto";
 import { UpdateReviewDto } from "./dtos/update-review.dto";
-import { QUERY_ORDER, STATUS } from "@app/common";
+import { ChangeStatusDto, QUERY_ORDER, STATUS } from "@app/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Repository } from "typeorm";
 import { ProductEntity } from "../product/entities/product.entity";
 import { ReviewQueryDto } from "./dtos/query.dto";
 import { REVIEW_SORT } from "./common";
-import { ChangeStatusDto } from "./dtos/change-status.dto";
 
 @Injectable()
 export class ReviewService {

@@ -44,7 +44,6 @@ export abstract class AbstractRepository<Entity extends AbstractEntity> {
             await this.repository.save(newEntity)
             return newEntity
         } catch (e) {
-            console.log(e)
             throw e
         }
     }

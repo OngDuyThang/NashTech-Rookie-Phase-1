@@ -21,7 +21,8 @@
     "typeorm": "npm run build && npx typeorm",
     "migration:generate": "npm run typeorm -- migration:generate",
     "migration:run": "npm run typeorm -- migration:run",
-    "migration:revert": "npm run typeorm -- migration:revert"
+    "migration:revert": "npm run typeorm -- migration:revert",
+    "dev:all": "concurrently \"npm run dev auth\" \"npm run dev product\" \"npm run dev cart\" \"npm run dev order\" \"npm run dev upload\" \"npm run dev asset\""
   },
   "dependencies": {
     "@apollo/server": "^4.10.4",
@@ -67,6 +68,7 @@
     "hbs-utils": "^0.0.4",
     "jwt-decode": "^4.0.0",
     "lodash": "^4.17.21",
+    "marked": "^12.0.2",
     "nodemailer": "^6.9.13",
     "otplib": "^12.0.1",
     "passport": "^0.7.0",
@@ -91,6 +93,7 @@
     "@types/supertest": "^6.0.0",
     "@typescript-eslint/eslint-plugin": "^6.0.0",
     "@typescript-eslint/parser": "^6.0.0",
+    "concurrently": "^8.2.2",
     "eslint": "^8.42.0",
     "eslint-config-prettier": "^9.0.0",
     "eslint-plugin-prettier": "^5.0.0",

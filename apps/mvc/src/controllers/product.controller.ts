@@ -56,7 +56,7 @@ export class ProductController {
         const uploadUrl = getUrlEndpoint(
             this.env.UPLOAD_SERVICE_HOST_NAME,
             this.env.UPLOAD_SERVICE_PORT,
-            '/upload/product-image'
+            '/api/upload/product-image'
         )
         let authors: object, categories: object, promotions: object
 
@@ -106,7 +106,7 @@ export class ProductController {
         const uploadUrl = getUrlEndpoint(
             this.env.UPLOAD_SERVICE_HOST_NAME,
             this.env.UPLOAD_SERVICE_PORT,
-            '/upload/product-image'
+            '/api/upload/product-image'
         )
         let product: object, authors: object, categories: object, promotions: object
 

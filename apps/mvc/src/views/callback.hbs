@@ -22,7 +22,8 @@
                     headers: {
                         'Content-Type': 'application/json'
                     },
-                    body: JSON.stringify({ authCode: code })
+                    body: JSON.stringify({ authCode: code }),
+                    credentials: 'include'
                 })
                 const data = await res.json()
                 localStorage.setItem('access_token', data?.data?.access_token)

@@ -1,9 +1,8 @@
 import { Body, Delete, Get, Param, Patch, Query, UseGuards } from '@nestjs/common';
-import { ApiController, PaginationPipe, PermissionRequestGuard, ROLE, Roles, RolesGuard, UUIDPipe } from '@app/common';
+import { ApiController, ChangeStatusDto, PaginationPipe, PermissionRequestGuard, ROLE, Roles, RolesGuard, UUIDPipe } from '@app/common';
 import { ReviewService } from "./review.service";
 import { ReviewEntity } from './entities/review.entity';
 import { ReviewQueryDto } from './dtos/query.dto';
-import { ChangeStatusDto } from './dtos/change-status.dto';
 
 @ApiController('reviews')
 export class ReviewsController {

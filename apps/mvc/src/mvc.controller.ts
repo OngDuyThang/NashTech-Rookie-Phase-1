@@ -44,4 +44,29 @@ export class MvcController {
         )
         res.render('callback', { code, tokenUrl })
     }
+
+    @Get('/about')
+    async about(
+        @Res() res: Response
+    ) {
+        const getAboutPageUrl = getUrlEndpoint(
+            this.env.ASSET_SERVICE_HOST_NAME,
+            this.env.ASSET_SERVICE_PORT,
+            '/api/assets/about-page'
+        )
+        const updateAboutPageUrl = getAboutPageUrl
+        let content: string
+
+        try {
+            const res = await fetch(getAboutPageUrl, {
+                method: 'GET'
+            })
+            const data = await res.json()
+            content = data?.data?.content
+        } catch (e) {
+            throw e
+        }
+
+        res.render('about', { content, updateAboutPageUrl })
+    }
 }

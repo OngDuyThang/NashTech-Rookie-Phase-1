@@ -1,6 +1,6 @@
-import { BadRequestException, Controller, FileTypeValidator, MaxFileSizeValidator, ParseFilePipe, Post, UploadedFile, UseInterceptors } from '@nestjs/common';
+import { BadRequestException, FileTypeValidator, MaxFileSizeValidator, ParseFilePipe, Post, UploadedFile, UseInterceptors } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { ERROR_MESSAGE } from '@app/common';
+import { ApiController, ERROR_MESSAGE } from '@app/common';
 import { S3Service } from '@app/s3';
 
 const FilePipe = new ParseFilePipe({
@@ -10,7 +10,7 @@ const FilePipe = new ParseFilePipe({
   ],
 })
 
-@Controller('upload')
+@ApiController('upload')
 export class UploadController {
   constructor(
     private readonly s3Service: S3Service
