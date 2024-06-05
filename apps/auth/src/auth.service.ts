@@ -157,6 +157,17 @@ export class AuthService {
   async dashboardLogin(
     user: UserEntity
   ): Promise<TLoginResponse> {
+    if (user.enable_two_factor) {
+      return {
+        validateOtpEndpoint: getUrlEndpoint(
+          this.env.SERVICE_HOST_NAME,
+          this.env.SERVICE_PORT,
+          this.env.VALIDATE_OTP_PATH_NAME
+        ),
+        userId: user.id,
+      };
+    }
+
     const clientCallbackUrl = await this.getDashboardCallbackUrl(user.id)
     return {
       clientCallbackUrl
@@ -211,6 +222,35 @@ export class AuthService {
 
       // Return client call back url to client with authorization code in query
       const clientCallbackUrl = await this.getClientCallbackUrl(user.id)
+      return {
+        clientCallbackUrl
+      }
+    } catch (e) {
+      throw e;
+    }
+  }
+
+  async dashboardValidateOtp(
+    otp: string,
+    userId: string
+  ): Promise<TLoginResponse> {
+    try {
+      const user = await this.userService.findOneById(userId);
+      if (!user.enable_two_factor) {
+        throw new MethodNotAllowedException(ERROR_MESSAGE.METHOD_NOT_ALLOWED);
+      }
+
+      const isValid = authenticator.verify({
+        token: otp,
+        secret: user.two_factor_secret,
+      });
+
+      if (!isValid) {
+        throw new ForbiddenException(ERROR_MESSAGE.INVALID_OTP);
+      }
+
+      // Return client call back url to client with authorization code in query
+      const clientCallbackUrl = await this.getDashboardCallbackUrl(user.id)
       return {
         clientCallbackUrl
       }

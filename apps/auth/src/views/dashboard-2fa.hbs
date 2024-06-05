@@ -7,7 +7,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
     <link rel="stylesheet" href="https://unicons.iconscout.com/release/v4.0.0/css/line.css">
-    <title>Admin Login</title>
+    <title>Admin OTP Validation</title>
 
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
@@ -53,7 +53,7 @@
             transition: margin-left 0.18s ease;
         }
 
-        .container.active .login {
+        .container.active .otp {
             margin-left: -50%;
             opacity: 0;
             transition: margin-left 0.18s ease, opacity 0.15s ease;
@@ -100,15 +100,6 @@
             transition: all 0.2s ease;
         }
 
-        .link-text {
-            margin-top: 30px;
-            width: 100%;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            gap: 16px;
-        }
-
         .input-field input:is(:focus, :valid) {
             border-bottom-color: #4070f4;
         }
@@ -136,6 +127,18 @@
             padding: 10px;
         }
 
+        .form .checkbox-text {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-top: 20px;
+        }
+
+        .checkbox-text .checkbox-content {
+            display: flex;
+            align-items: center;
+        }
+
         .checkbox-content input {
             margin-right: 10px;
             accent-color: #4070f4;
@@ -159,8 +162,7 @@
             margin-top: 35px;
         }
 
-        .form .button input,
-        .form .google input {
+        .form .button input {
             border: none;
             color: #fff;
             font-size: 17px;
@@ -175,55 +177,6 @@
         .button input:hover {
             background-color: #265df2;
         }
-
-        .login-with {
-            width: 100%;
-            margin-top: 30px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            color: #333;
-            font-size: 14;
-            font-weight: 500;
-            position: relative;
-        }
-
-        .login-with span {
-            position: absolute;
-            z-index: 10;
-            background-color: #fff;
-            padding: 0 8px;
-        }
-
-        .login-with div {
-            position: absolute;
-            top: 50%;
-            width: 100%;
-            border: 0.5px solid #ccc
-        }
-
-        .form .google input {
-            background-color: #de5246;
-        }
-
-        .form .google {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-        }
-
-        .google input:hover {
-            background-color: rgb(225, 85, 72);
-        }
-
-        .google input:is(:focus, :valid)~i {
-            color: #fff;
-        }
-
-        .google .google-icon {
-            color: #fff;
-            cursor: pointer;
-        }
     </style>
 </head>
 
@@ -231,25 +184,17 @@
 
     <div class="container">
         <div class="forms">
-            {{!-- Login --}}
-            <div class="form login">
-                <span class="title">Admin Login</span>
+            {{!-- OTP Validation --}}
+            <div class="form otp">
+                <span class="title">OTP Validation</span>
 
-                <form action="/" method="POST" onsubmit="submitLogin()">
+                <form action="/" method="POST" onsubmit="submitOtp()">
                     <div class="input-field">
-                        <input name="usernameOrEmail" class="email" type="text" placeholder="Enter your username/email"
-                            required>
-                        <i class="uil uil-user icon"></i>
-                    </div>
-                    <div class="input-field">
-                        <input name="password" class="password" type="password" class="password"
-                            placeholder="Enter your password" required>
+                        <input name="otp" class="otp" type="text" placeholder="Enter your OTP" required>
                         <i class="uil uil-lock icon"></i>
-                        <i class="uil uil-eye-slash showHidePw"></i>
                     </div>
-
                     <div class="input-field button">
-                        <input type="submit" value="Login">
+                        <input type="submit" value="Submit">
                     </div>
                 </form>
             </div>
@@ -258,38 +203,14 @@
 
     <script>
         const container = document.querySelector(".container")
-        const pwShowHide = document.querySelectorAll(".showHidePw")
-        const pwFields = document.querySelectorAll(".password")
-        const loginGoogleBtn = document.getElementById("google")
-        const loginGoogleIcon = document.querySelector(".google-icon")
 
-        // show/hide password
-        pwShowHide.forEach(eyeIcon => {
-            eyeIcon.addEventListener("click", () => {
-                pwFields.forEach(pwField => {
-                    if (pwField.type === "password") {
-                        pwField.type = "text";
-
-                        pwShowHide.forEach(icon => {
-                            icon.classList.replace("uil-eye-slash", "uil-eye");
-                        })
-                    } else {
-                        pwField.type = "password";
-
-                        pwShowHide.forEach(icon => {
-                            icon.classList.replace("uil-eye", "uil-eye-slash");
-                        })
-                    }
-                })
-            })
-        })
-
-        function submitLogin() {
+        function submitOtp() {
             event.preventDefault()
-            const formData = new FormData(event.target);
-            const body = Object.fromEntries(formData);
+            const formData = new FormData(event.target)
+            const body = Object.fromEntries(formData)
 
-            fetch('/auth/dashboard-login', {
+            body.userId = new URL(document.location.toString()).searchParams.get('userId')
+            fetch('/auth/dashboard-validate-otp', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
@@ -302,15 +223,6 @@
                         alert(data?.message)
                         return
                     }
-
-                    // validateOtpEndpoint POST method
-                    if (data.data.hasOwnProperty("validateOtpEndpoint")) {
-                        const userId = data.data.userId
-                        // auth/dashboard-2fa?userId=${userId} GET page method
-                        window.location.href = `/auth/dashboard-2fa?userId=${userId}`
-                        return
-                    }
-
                     alert("Login successfully")
                     window.location.href = data?.data?.clientCallbackUrl
                 })

@@ -8,16 +8,12 @@
         {{> header }}
         <section class="mt-[68px] p-4 overflow-x-scroll">
             <h1 class="font-bold text-lg pb-8">About Page</h1>
-
             <form action="/" method="PATCH" onsubmit="update()">
-
-                <textarea id="about-markdown" name="content">
-                Welcome to TinyMCE!
-            </textarea>
-                <div class="flex items-center space-x-4">
+                <textarea id="about-markdown" name="content"></textarea>
+                <div class="flex items-center space-x-4 mt-8">
                     <button type="submit"
                         class=" text-green-500 inline-flex items-center hover:text-white border border-green-500 hover:bg-green-500 focus:ring-4 focus:outline-none focus:ring-green-500 font-semibold rounded-lg text-sm px-5 py-2.5 text-center ">
-                        Update
+                        Update About Page
                     </button>
                 </div>
             </form>
@@ -67,6 +63,8 @@
                 { value: 'Email', title: 'Email' },
             ],
             ai_request: (request, respondWith) => respondWith.string(() => Promise.reject("See docs to implement AI Assistant")),
+            height: 600,
+            content_css: 'writer'
         });
     </script>
     {{> common }}
