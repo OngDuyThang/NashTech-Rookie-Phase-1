@@ -20,5 +20,9 @@ export class EnvValidation extends AbstractEnvValidation {
 
     @IsString()
     @IsNotEmpty()
+    CART_QUEUE: string
+
+    @IsString()
+    @IsNotEmpty()
     ORDER_QUEUE: string
 }

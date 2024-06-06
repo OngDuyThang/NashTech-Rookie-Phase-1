@@ -1,7 +1,7 @@
-import { Inject, Injectable, RequestTimeoutException } from "@nestjs/common";
+import { Inject, Injectable, NotFoundException, RequestTimeoutException } from "@nestjs/common";
 import { ItemRepository } from "./repositories/item.repository";
-import { ItemEntity } from "./entities/item.entity";
-import { CreateItemDto } from "./dtos/create-item.dto";
+import { CartItemEntity } from "./entities/item.entity";
+import { CreateCartItemDto } from "./dtos/create-item.dto";
 import { TempItemRepository } from "./repositories/temp-item.repository";
 import { CreateTempItemDto } from "./dtos/create-temp-item.dto";
 import { CartService } from "../cart/cart.service";
@@ -22,16 +22,34 @@ export class ItemService {
 
     async create(
         userId: string,
-        createItemDto: CreateItemDto
-    ): Promise<ItemEntity> {
+        createItemDto: CreateCartItemDto
+    ): Promise<CartItemEntity> {
         const cart = await this.cartService.getUserCart(userId);
 
         this.findProductForCart(createItemDto.product_id)
 
-        return await this.itemRepository.create({
-            ...createItemDto,
-            cart_id: cart.id
-        });
+        try {
+            const item = await this.itemRepository.findOne({
+                where: {
+                    product_id: createItemDto.product_id
+                }
+            })
+            await this.update(
+                item.id,
+                item.quantity + createItemDto.quantity
+            )
+
+            item.quantity += createItemDto.quantity
+            return item
+        } catch (e) {
+            if (e instanceof NotFoundException) {
+                return await this.itemRepository.create({
+                    ...createItemDto,
+                    cart_id: cart.id
+                });
+            }
+            throw e
+        }
     }
 
     async createForGuest(
@@ -100,7 +118,7 @@ export class ItemService {
             await queryRunner.connect()
             await queryRunner.startTransaction()
 
-            queryRunner.manager.delete(ItemEntity, { product_id: productId })
+            queryRunner.manager.delete(CartItemEntity, { product_id: productId })
             await queryRunner.commitTransaction()
 
             return true

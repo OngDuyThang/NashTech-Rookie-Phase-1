@@ -23,6 +23,7 @@ import { OPENID_PROVIDER, TOKEN_EXPIRY_TIME, TOKEN_KEY_NAME } from './common/enu
 import { CACHE_SERVICE } from '@app/cache';
 import { Cache } from 'cache-manager';
 import { isEmpty } from 'lodash';
+import { TokenExpiredError } from '@nestjs/jwt';
 
 @Injectable()
 export class AuthService {
@@ -110,9 +111,24 @@ export class AuthService {
 
     // Url to trigger client to send token request
     return getUrlEndpoint(
-      this.env.SERVICE_HOST_NAME,
-      this.env.SERVICE_PORT,
-      '/auth/something',
+      this.env.FRONTEND_HOST_NAME,
+      this.env.FRONTEND_PORT,
+      '/callback',
+      { code: authCode }
+    )
+  }
+
+  private async getDashboardCallbackUrl(
+    userId: string
+  ): Promise<string> {
+    const authCode = this.generateFingerprint()
+    await this.cacheAuthCode(authCode, userId)
+
+    // Url to trigger client to send token request
+    return getUrlEndpoint(
+      this.env.MVC_HOST_NAME,
+      this.env.MVC_PORT,
+      '/callback',
       { code: authCode }
     )
   }
@@ -133,6 +149,26 @@ export class AuthService {
 
     // Return client callback url to client with authorization code in query
     const clientCallbackUrl = await this.getClientCallbackUrl(user.id)
+    return {
+      clientCallbackUrl
+    }
+  }
+
+  async dashboardLogin(
+    user: UserEntity
+  ): Promise<TLoginResponse> {
+    if (user.enable_two_factor) {
+      return {
+        validateOtpEndpoint: getUrlEndpoint(
+          this.env.SERVICE_HOST_NAME,
+          this.env.SERVICE_PORT,
+          this.env.VALIDATE_OTP_PATH_NAME
+        ),
+        userId: user.id,
+      };
+    }
+
+    const clientCallbackUrl = await this.getDashboardCallbackUrl(user.id)
     return {
       clientCallbackUrl
     }
@@ -194,6 +230,35 @@ export class AuthService {
     }
   }
 
+  async dashboardValidateOtp(
+    otp: string,
+    userId: string
+  ): Promise<TLoginResponse> {
+    try {
+      const user = await this.userService.findOneById(userId);
+      if (!user.enable_two_factor) {
+        throw new MethodNotAllowedException(ERROR_MESSAGE.METHOD_NOT_ALLOWED);
+      }
+
+      const isValid = authenticator.verify({
+        token: otp,
+        secret: user.two_factor_secret,
+      });
+
+      if (!isValid) {
+        throw new ForbiddenException(ERROR_MESSAGE.INVALID_OTP);
+      }
+
+      // Return client call back url to client with authorization code in query
+      const clientCallbackUrl = await this.getDashboardCallbackUrl(user.id)
+      return {
+        clientCallbackUrl
+      }
+    } catch (e) {
+      throw e;
+    }
+  }
+
   async authenticated(
     user: UserEntity,
     res: Response
@@ -211,7 +276,7 @@ export class AuthService {
     delete jwtPayload.fingerprint
     const refreshToken = this.tokenService.generateToken(jwtPayload, this.env.REFRESH_TOKEN_SECRET, TOKEN_EXPIRY_TIME.REFRESH_TOKEN);
 
-    return this.tokenService.sendTokens(accessToken, refreshToken, fingerprint, user, res);
+    return this.tokenService.sendTokens(accessToken, refreshToken, fingerprint, res);
   }
 
   async forgotPassword(
@@ -345,10 +410,7 @@ export class AuthService {
       }
 
       // Validate access token and expired time under 5 minutes
-      const accessPayload = this.tokenService.validateToken(
-        accessToken,
-        this.env.ACCESS_TOKEN_SECRET
-      )
+      const accessPayload = this.tokenService.decodeToken(accessToken)
       if (isEmpty(accessPayload)) {
         throw error
       }
@@ -380,6 +442,9 @@ export class AuthService {
         res
       )
     } catch (e) {
+      if (e instanceof TokenExpiredError) {
+        throw error
+      }
       throw e
     }
   }

@@ -1,6 +1,6 @@
 import { IsEnum, IsNumber, IsOptional, Max, Min } from "class-validator";
 import { PaginationDto } from "@app/common";
-import { ArgsType, Field } from "@nestjs/graphql";
+import { ArgsType, Field, Int } from "@nestjs/graphql";
 import { REVIEW_SORT, STAR } from "../common";
 import { Type } from "class-transformer";
 
@@ -14,8 +14,8 @@ export class ReviewQueryDto extends PaginationDto {
     @Type(() => Number)
     @IsNumber()
     @IsOptional()
-    @Min(Number(STAR.MIN))
-    @Max(Number(STAR.MAX))
-    @Field(() => String, { nullable: true, defaultValue: STAR.MAX })
+    @Min(STAR.MIN)
+    @Max(STAR.MAX)
+    @Field(() => Int, { nullable: true, defaultValue: STAR.MAX })
     star?: number
 }

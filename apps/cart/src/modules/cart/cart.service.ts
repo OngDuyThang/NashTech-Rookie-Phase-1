@@ -3,10 +3,10 @@ import { CartEntity } from "./entities/cart.entity";
 import { CartRepository } from "./repositories/cart.repository";
 import { TempCartRepository } from "./repositories/temp-cart.repository";
 import { TempCartEntity } from "./entities/temp-cart.entity";
-import { ERROR_MESSAGE, ProductSchema, SERVICE_MESSAGE, SERVICE_NAME, convertRpcException } from "@app/common";
+import { ERROR_MESSAGE, ProductSchema, QUERY_ORDER, SERVICE_MESSAGE, SERVICE_NAME, convertRpcException } from "@app/common";
 import { ClientProxy, RpcException } from "@nestjs/microservices";
 import { TimeoutError, catchError, lastValueFrom, timeout } from "rxjs";
-import { cloneDeep, round } from "lodash";
+import { cloneDeep, isEmpty, round } from "lodash";
 
 @Injectable()
 export class CartService {
@@ -37,16 +37,18 @@ export class CartService {
         userId: string
     ): Promise<CartEntity> {
         try {
-            return await this.cartRepository.findOne({
-                where: { user_id: userId },
-                relations: {
-                    items: true
-                }
-            })
-        } catch (e) {
-            if (e instanceof NotFoundException) {
+            const cart = await this.cartRepository.createQueryBuilder()
+                .leftJoinAndSelect('cart.items', 'items')
+                .addSelect('cart.created_at')
+                .where('cart.user_id = :userId', { userId })
+                .orderBy('cart.created_at', QUERY_ORDER.DESC)
+                .getOne()
+
+            if (isEmpty(cart)) {
                 return await this.create(userId)
             }
+            return cart
+        } catch (e) {
             throw e
         }
     }
@@ -73,14 +75,14 @@ export class CartService {
         userId: string
     ): Promise<number> {
         const cart = await this.getUserCart(userId);
-        return cart.items.length;
+        return cart.items?.length;
     }
 
     async getGuestCartCount(
         guestId: string
     ): Promise<number> {
         const cart = await this.getGuestCart(guestId);
-        return cart.items.length;
+        return cart.items?.length;
     }
 
     async update(
@@ -119,7 +121,7 @@ export class CartService {
             })
             let total = 0
 
-            for (let i = 0; i < cart.items.length; i++) {
+            for (let i = 0; i < cart.items?.length; i++) {
                 const item = cart.items[i]
 
                 const _product = this.productService.send({ cmd: SERVICE_MESSAGE.GET_PRODUCT_BY_ID }, item.product_id)

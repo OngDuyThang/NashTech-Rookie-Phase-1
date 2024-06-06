@@ -3,7 +3,7 @@ import { AuthService } from './auth.service';
 import { GetUser } from './common/decorators';
 import { HashPasswordPipe } from './common/pipes';
 import { HideSensitiveInterceptor } from './common/interceptors';
-import { AccessTokenGuard, LocalAuthGuard, ValidateOtpGuard, ForgotPasswordGuard, ResetPasswordGuard, ValidateOttGuard, GoogleAuthGuard, ValidateAuthCodeGuard } from './common/guards';
+import { AccessTokenGuard, LocalAuthGuard, ValidateOtpGuard, ForgotPasswordGuard, ResetPasswordGuard, ValidateOttGuard, GoogleAuthGuard, ValidateAuthCodeGuard, DashboardOtpGuard } from './common/guards';
 import { RegisterDto, UserEntity } from './modules/user';
 import { Request, Response } from 'express';
 import { TEnableTwoFactorResponse, TForgotPasswordResponse, TGoogleLoginResponse, TLoginResponse, TTokenResponse } from './common/types';
@@ -35,12 +35,24 @@ export class AuthController {
   @Render('login')
   loginPage(): void {}
 
+  @Get('/dashboard-login')
+  @Render('dashboard-login')
+  dashboardLoginPage(): void {}
+
   @Post('/login')
   @UseGuards(LocalAuthGuard)
   async login(
     @GetUser() user: UserEntity
   ): Promise<TLoginResponse> {
     return await this.authService.login(user);
+  }
+
+  @Post('/dashboard-login')
+  @UseGuards(LocalAuthGuard)
+  async dashboardLogin(
+    @GetUser() user: UserEntity
+  ): Promise<TLoginResponse> {
+    return await this.authService.dashboardLogin(user);
   }
 
   // event pattern
@@ -68,6 +80,18 @@ export class AuthController {
   @Post('/validate-otp')
   @UseGuards(ValidateOtpGuard)
   validateOtp(
+    @Req() req: Request
+  ): TLoginResponse {
+    return req.user as TLoginResponse
+  }
+
+  @Get('/dashboard-2fa')
+  @Render('dashboard-2fa')
+  dashboardTwoFactorPage(): void {}
+
+  @Post('/dashboard-validate-otp')
+  @UseGuards(DashboardOtpGuard)
+  dashboardValidateOtp(
     @Req() req: Request
   ): TLoginResponse {
     return req.user as TLoginResponse

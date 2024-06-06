@@ -3,8 +3,8 @@ import { IsArray, IsEnum, IsNotEmpty, IsNumber, IsOptional, IsPositive, IsUUID, 
 import { Column, Entity, OneToMany } from "typeorm";
 import { Type } from "class-transformer";
 import { Field, ObjectType } from "@nestjs/graphql";
-import { ItemEntity } from "../../item/entities/item.entity";
-import { ORDER_STATUS } from "../common";
+import { OrderItemEntity } from "../../item/entities/item.entity";
+import { STATUS } from "@app/common";
 
 @Entity({ name: 'order' })
 @ObjectType()
@@ -23,17 +23,17 @@ export class OrderEntity extends AbstractEntity {
     @Field()
     total?: number
 
-    @OneToMany(() => ItemEntity, item => item.order)
+    @OneToMany(() => OrderItemEntity, item => item.order)
     @IsArray()
     @IsOptional()
     @ValidateNested({ each: true })
-    @Type(() => ItemEntity)
-    @Field(() => [ItemEntity], { nullable: true })
-    items?: ItemEntity[]
+    @Type(() => OrderItemEntity)
+    @Field(() => [OrderItemEntity], { nullable: true })
+    items?: OrderItemEntity[]
 
-    @Column({ type: 'varchar', length: 20, nullable: false, default: ORDER_STATUS.PENDING })
-    @IsEnum(ORDER_STATUS)
-    @IsNotEmpty()
-    @Field(() => String, { nullable: true, defaultValue: ORDER_STATUS.PENDING })
-    status: ORDER_STATUS
+    @Column({ type: 'varchar', length: 20, nullable: false, default: STATUS.PENDING })
+    @IsEnum(STATUS)
+    @IsOptional()
+    @Field(() => String, { nullable: true, defaultValue: STATUS.PENDING })
+    status?: STATUS
 }

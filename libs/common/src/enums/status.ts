@@ -1,4 +1,4 @@
-export enum ORDER_STATUS {
+export enum STATUS {
     PENDING = 'PENDING',
     CONFIRMED = 'CONFIRMED',
     CANCELLED = 'CANCELLED'

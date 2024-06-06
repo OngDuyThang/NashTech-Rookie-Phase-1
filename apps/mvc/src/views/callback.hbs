@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+{{> head }}
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Auth Callback</title>
+</head>
+
+<body>
+    <script>
+        const code = {{ json code }}
+        const tokenUrl = {{ json tokenUrl }}
+        console.log(code)
+        console.log(tokenUrl)
+
+        $(document).ready(async () => {
+            try {
+                const res = await fetch(tokenUrl, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ authCode: code }),
+                    credentials: 'include'
+                })
+                const data = await res.json()
+                localStorage.setItem('access_token', data?.data?.access_token)
+                window.location.href = '/products'
+            } catch (e) {
+                console.log(e)
+            }
+        })
+    </script>
+</body>
+
+</html>

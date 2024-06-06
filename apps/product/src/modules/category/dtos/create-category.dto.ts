@@ -8,5 +8,5 @@ export class CreateCategoryDto {
 
     @IsUUID(4)
     @IsOptional()
-    parent_id?: string
+    parent_id?: string = null
 }

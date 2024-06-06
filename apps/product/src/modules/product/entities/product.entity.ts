@@ -41,6 +41,7 @@ export class ProductEntity extends AbstractEntity {
     @JoinColumn({ name: 'author_id' })
     @IsOptional()
     @Type(() => AuthorEntity)
+    @Field(() => AuthorEntity, { nullable: true })
     author?: AuthorEntity;
 
     @Column({ type: 'uuid', nullable: true })
@@ -54,6 +55,7 @@ export class ProductEntity extends AbstractEntity {
     @JoinColumn({ name: 'category_id' })
     @IsOptional()
     @Type(() => CategoryEntity)
+    @Field(() => CategoryEntity, { nullable: true })
     category?: CategoryEntity
 
     @Column({ type: 'uuid', nullable: true })
@@ -66,6 +68,7 @@ export class ProductEntity extends AbstractEntity {
     @JoinColumn({ name: 'promotion_id' })
     @IsOptional()
     @Type(() => PromotionEntity)
+    @Field(() => PromotionEntity, { nullable: true })
     promotion?: PromotionEntity;
 
     @Column({ type: 'uuid', nullable: true })
@@ -85,14 +88,14 @@ export class ProductEntity extends AbstractEntity {
     @Column({ type: 'decimal', nullable: true, default: 0 })
     @IsNumber()
     @IsOptional()
-    @Field(() => String, { nullable: true })
+    @Field(() => Number, { nullable: true })
     rating?: number;
 
     @Column({ type: 'decimal', array: true, default: [0, 0, 0, 0, 0] })
     @IsArray({ each: true })
     @IsNumber()
     @IsOptional()
-    @Field(() => [String], { nullable: true })
+    @Field(() => [Number], { nullable: true })
     ratings?: number[];
 
     @Column({ type: 'boolean', default: true })

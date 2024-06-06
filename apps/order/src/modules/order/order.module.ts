@@ -5,6 +5,7 @@ import { OrderEntity } from "./entities/order.entity";
 import { OrderRepository } from "./repositories/order.repository";
 import { OrderResolver } from "./order.resolver";
 import { ItemModule } from "../item/item.module";
+import { OrderController } from "./order.controller";
 
 @Module({
     imports: [
@@ -12,6 +13,9 @@ import { ItemModule } from "../item/item.module";
             OrderEntity
         ]),
         ItemModule
+    ],
+    controllers: [
+        OrderController
     ],
     providers: [
         OrderService,

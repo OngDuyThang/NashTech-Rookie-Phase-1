@@ -4,6 +4,7 @@ import { ApolloDriver, ApolloDriverConfig } from '@nestjs/apollo';
 import { join } from 'path';
 import { Env } from '@app/env';
 import { NODE_ENV } from '@app/common';
+import { DateScalar } from './date.scalar';
 
 @Module({})
 export class GraphQLModule {
@@ -61,6 +62,7 @@ export class GraphQLModule {
           })
         }),
       ],
+      providers: [DateScalar],
       exports: [NestGraphQLModule]
     }
   }

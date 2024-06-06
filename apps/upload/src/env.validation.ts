@@ -11,18 +11,6 @@ export class EnvValidation {
 
     @IsString()
     @IsNotEmpty()
-    RABBIT_MQ_URI: string
-
-    @IsString()
-    @IsNotEmpty()
-    AUTH_QUEUE: string
-
-    @IsString()
-    @IsNotEmpty()
-    PRODUCT_QUEUE: string
-
-    @IsString()
-    @IsNotEmpty()
     AWS_S3_REGION: string
 
     @IsString()

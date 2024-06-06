@@ -3,49 +3,65 @@
 # ------------------------------------------------------
 
 type AuthorEntity {
+  created_at: DateTime
   id: String!
   pen_name: String!
-  products(limit: String = "10", page: String = "0", sort: String = "ON_SALE"): ProductList
+  updated_at: DateTime
 }
 
 type CartItemSchema {
   cart_id: String!
+  created_at: DateTime
   id: String!
   product: ProductSchema
   quantity: String
+  updated_at: DateTime
 }
 
 type CategoryEntity {
+  created_at: DateTime
   id: String!
   name: String!
   parent: CategoryEntity
   parent_id: String
-  products(limit: String = "10", page: String = "0", sort: String = "ON_SALE"): ProductList
+  updated_at: DateTime
 }
 
 input CreateReviewDto {
   description: String!
   product_id: String!
-  rating: String!
+  rating: Int!
   title: String!
 }
+
+scalar Date
+
+"""
+A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date-time format.
+"""
+scalar DateTime
 
 type Mutation {
   createReview(review: CreateReviewDto!): ReviewEntity!
 }
 
 type ProductEntity {
+  author: AuthorEntity
   author_id: String
+  category: CategoryEntity
   category_id: String
+  created_at: DateTime
   description: String
   id: String!
   image: String
   price: Float!
+  promotion: PromotionEntity
   promotion_id: String
-  rating: String
-  ratings: [String!]
-  reviews(limit: String = "10", page: String = "0", sort: String = "DATE_DESC", star: String = "5"): ReviewList
+  rating: Float
+  ratings: [Float!]
+  reviews(limit: Int = 10, page: Int = 0, sort: String = "DATE_DESC", star: Int = 5): ReviewList
   title: String!
+  updated_at: DateTime
 }
 
 type ProductList {
@@ -57,19 +73,23 @@ type ProductList {
 
 type ProductSchema {
   author: String
+  created_at: DateTime
   discount: Float
   id: String!
   image: String
   price: Float!
   title: String!
+  updated_at: DateTime
 }
 
 type PromotionEntity {
+  created_at: DateTime
   description: String
   discount_percent: Float!
   id: String!
   name: String!
-  products(limit: String = "10", page: String = "0"): ProductList
+  products(limit: Int = 10, page: Int = 0): ProductList
+  updated_at: DateTime
 }
 
 type Query {
@@ -77,9 +97,9 @@ type Query {
   authors: [AuthorEntity!]!
   categories: [CategoryEntity!]!
   category(id: String!): CategoryEntity!
+  popularProducts: [ProductEntity!]!
   product(id: String!): ProductEntity!
-  products(limit: String = "10", page: String = "0"): ProductList!
-  productsByRating(limit: String = "10", page: String = "0", rating: String = "5", sort: String = "ON_SALE"): ProductList!
+  products(authorIds: [String!], categoryIds: [String!], limit: Int = 10, page: Int = 0, ratings: [Int!], sort: String = "ON_SALE"): ProductList!
   promotion(id: String!): PromotionEntity!
   promotionProducts: [ProductEntity!]!
   promotions: [PromotionEntity!]!
@@ -90,11 +110,14 @@ type Query {
 }
 
 type ReviewEntity {
+  created_at: DateTime
   description: String!
   id: String!
   product_id: String!
   rating: Float!
+  status: String
   title: String!
+  updated_at: DateTime
   user_id: String!
 }
 

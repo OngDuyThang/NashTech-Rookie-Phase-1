@@ -18,7 +18,7 @@
           {
             "include": "**/*.hbs",
             "watchAssets": true,
-            "outDir": "dist/apps/auth/apps/auth"
+            "outDir": "dist/apps/auth"
           }
         ]
       }
@@ -29,7 +29,19 @@
       "entryFile": "main",
       "sourceRoot": "apps/product/src",
       "compilerOptions": {
-        "tsConfigPath": "apps/product/tsconfig.app.json"
+        "tsConfigPath": "apps/product/tsconfig.app.json",
+        "assets": [
+          {
+            "include": "**/*.hbs",
+            "watchAssets": true,
+            "outDir": "dist/apps/product"
+          },
+          {
+            "include": "**/*.css",
+            "watchAssets": true,
+            "outDir": "dist/apps/product"
+          }
+        ]
       }
     },
     "database": {
@@ -129,6 +141,45 @@
       "sourceRoot": "apps/order/src",
       "compilerOptions": {
         "tsConfigPath": "apps/order/tsconfig.app.json"
+      }
+    },
+    "mvc": {
+      "type": "application",
+      "root": "apps/mvc",
+      "entryFile": "main",
+      "sourceRoot": "apps/mvc/src",
+      "compilerOptions": {
+        "tsConfigPath": "apps/mvc/tsconfig.app.json",
+        "assets": [
+          {
+            "include": "**/*.hbs",
+            "watchAssets": true,
+            "outDir": "dist/apps/mvc"
+          },
+          {
+            "include": "**/*.svg",
+            "watchAssets": true,
+            "outDir": "dist/apps/mvc"
+          }
+        ]
+      }
+    },
+    "page": {
+      "type": "application",
+      "root": "apps/page",
+      "entryFile": "main",
+      "sourceRoot": "apps/page/src",
+      "compilerOptions": {
+        "tsConfigPath": "apps/page/tsconfig.app.json"
+      }
+    },
+    "asset": {
+      "type": "application",
+      "root": "apps/asset",
+      "entryFile": "main",
+      "sourceRoot": "apps/asset/src",
+      "compilerOptions": {
+        "tsConfigPath": "apps/asset/tsconfig.app.json"
       }
     }
   }

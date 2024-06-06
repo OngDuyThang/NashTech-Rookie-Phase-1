@@ -12,7 +12,7 @@ export class ItemService {
         orderId: string,
         cartItems: CartItemSchema[]
     ): Promise<void> {
-        for (let i = 0; i < cartItems.length; i++) {
+        for (let i = 0; i < cartItems?.length; i++) {
             const cartItem = cartItems[i];
 
             await this.itemRepository.create({

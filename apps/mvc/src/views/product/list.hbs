@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+{{> head }}
+
+<body>
+    {{> sidebar }}
+    <main>
+        {{> header }}
+        <section class="mt-[68px] p-4 overflow-x-scroll">
+            <div class="flex justify-between items-center space-x-4 pb-8">
+                <h1 class="font-bold text-lg">Products</h1>
+                <a href="/products/create">
+                    <button type="submit"
+                        class=" text-green-500 inline-flex items-center hover:text-white border border-green-500 hover:bg-green-500 focus:ring-4 focus:outline-none focus:ring-green-500 font-semibold rounded-lg text-sm px-5 py-2.5 text-center ">
+                        Create New Product
+                    </button>
+                </a>
+            </div>
+            <table id="products-table" class="w-full">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Title</th>
+                        <th>Description</th>
+                        <th>Price</th>
+                        <th>Image</th>
+                        <th>Author</th>
+                        <th>Category</th>
+                        <th>Promotion</th>
+                        <th>Rating</th>
+                        <th>Active</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody class="products-table-body"></tbody>
+            </table>
+        </section>
+
+        <div id="myTable"></div>
+        {{> footer }}
+    </main>
+
+    <script>
+        const products = {{ json products }}
+        const removeUrl = {{ json removeUrl }}
+        console.log(removeUrl)
+
+        $(document).ready(async () => {
+            const productsBody = $('.products-table-body');
+            products?.forEach((product) => {
+                productsBody.append(`
+                        <tr>
+                            <td>${product?.id}</td>
+                            <td>${product?.title}</td>
+                            <td>${product?.description || 'none'}</td>
+                            <td>${product?.price}</td>
+                            <td><img src="${product?.image || 'placeholder.svg'}" width="100" height="100"/></td>
+                            <td>${product?.author || 'none'}</td>
+                            <td>${product?.category?.name || 'none'}</td>
+                            <td>${product?.promotion?.name || 'none'}</td>
+                            <td>${product?.rating}</td>
+                            <td>${product?.active}</td>
+                            
+                            <td class='flex gap-8'>
+                                <a href='/products/${product?.id}'><button><i class="fa-solid fa-pen-to-square" style="color: #43fa00;"></i></button></a>
+                                <button onclick="remove()" value="${product?.id}"><i class="fa-solid fa-xmark" style="color: #f08000;"></i></button>
+                                <button><i class="fa-solid fa-trash" style="color: #fd1c1c;"></i></button>
+                            </td>
+                        </tr>
+                    `)
+            })
+            $('#products-table').DataTable({
+                pageLength: 5,
+                lengthMenu: [5, 10, 25, 50],
+                responsive: true
+            });
+        });
+
+        const remove = async () => {
+            const accessToken = localStorage.getItem('access_token')
+            const id = event?.currentTarget?.value
+            try {
+                const res = await fetch(`${removeUrl}/${id}`, {
+                    method: 'DELETE',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${accessToken}`
+                    },
+                    credentials: 'include'
+                })
+                const data = await res.json()
+                toast(data)
+            } catch (e) {
+                console.log(e)
+            }
+        }
+    </script>
+    {{> common }}
+</body>
+
+</html>

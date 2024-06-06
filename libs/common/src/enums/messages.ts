@@ -25,5 +25,6 @@ export enum ERROR_MESSAGE {
     EMAIL_ALREADY_USED = 'Email Already Used',
     INVALID_FORMAT_DATA = 'Invalid Format Data',
     UNAUTHORIZED_GOOGLE_ACCOUNT = 'Unauthorized Google Account',
-    NUMBER_PIPE = 'Validation failed (number or number-string is expected)'
+    NUMBER_PIPE = 'Validation failed (number or number-string is expected)',
+    EMPTY_CART = 'User Cart Is Empty'
 }

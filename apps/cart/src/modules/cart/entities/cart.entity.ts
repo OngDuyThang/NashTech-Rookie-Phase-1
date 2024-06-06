@@ -3,7 +3,7 @@ import { IsArray, IsNotEmpty, IsNumber, IsOptional, IsPositive, IsUUID, Validate
 import { Column, Entity, OneToMany } from "typeorm";
 import { Type } from "class-transformer";
 import { Field, ObjectType } from "@nestjs/graphql";
-import { ItemEntity } from "../../item/entities/item.entity";
+import { CartItemEntity } from "../../item/entities/item.entity";
 
 @Entity({ name: 'cart' })
 @ObjectType()
@@ -14,13 +14,13 @@ export class CartEntity extends AbstractEntity {
     @Field()
     user_id: string
 
-    @OneToMany(() => ItemEntity, item => item.cart)
+    @OneToMany(() => CartItemEntity, item => item.cart)
     @IsArray()
     @IsOptional()
     @ValidateNested({ each: true })
-    @Type(() => ItemEntity)
-    @Field(() => [ItemEntity], { nullable: true })
-    items?: ItemEntity[]
+    @Type(() => CartItemEntity)
+    @Field(() => [CartItemEntity], { nullable: true })
+    items?: CartItemEntity[]
 
     @Type(() => Number)
     @IsNumber()

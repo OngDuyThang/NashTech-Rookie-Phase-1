@@ -2,13 +2,13 @@ import { AbstractRepository } from "@app/database";
 import { Injectable } from "@nestjs/common";
 import { Repository } from "typeorm";
 import { InjectRepository } from "@nestjs/typeorm";
-import { ItemEntity } from "../entities/item.entity";
+import { OrderItemEntity } from "../entities/item.entity";
 
 @Injectable()
-export class ItemRepository extends AbstractRepository<ItemEntity> {
+export class ItemRepository extends AbstractRepository<OrderItemEntity> {
     constructor(
-        @InjectRepository(ItemEntity)
-        private readonly itemRepository: Repository<ItemEntity>
+        @InjectRepository(OrderItemEntity)
+        private readonly itemRepository: Repository<OrderItemEntity>
     ) {
         super(itemRepository);
     }

@@ -4,7 +4,6 @@ import { Column, Entity, OneToMany } from "typeorm";
 import { Type } from "class-transformer";
 import { Field, ObjectType } from "@nestjs/graphql";
 import { ProductEntity } from "../../product/entities/product.entity";
-import { ProductList } from "../../product/entities/product-list.schema";
 
 @Entity({ name: 'author' })
 @ObjectType()
@@ -21,6 +20,5 @@ export class AuthorEntity extends AbstractEntity {
     @IsOptional()
     @ValidateNested({ each: true })
     @Type(() => ProductEntity)
-    @Field(() => ProductList, { nullable: true })
     products?: ProductEntity[]
 }

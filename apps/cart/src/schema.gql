@@ -3,21 +3,34 @@
 # ------------------------------------------------------
 
 type CartEntity {
+  created_at: DateTime
   id: String!
-  items: [ItemEntity!]
+  items: [CartItemEntity!]
+  updated_at: DateTime
   user_id: String!
+}
+
+type CartItemEntity {
+  cart_id: String!
+  created_at: DateTime
+  id: String!
+  product: ProductSchema
+  quantity: Float!
+  updated_at: DateTime
 }
 
 type CartItemSchema {
   cart_id: String!
+  created_at: DateTime
   id: String!
   product: ProductSchema
   quantity: String
+  updated_at: DateTime
 }
 
-input CreateItemDto {
+input CreateCartItemDto {
   product_id: String!
-  quantity: String! = "1"
+  quantity: Int! = 1
 }
 
 input CreateTempItemDto {
@@ -25,29 +38,31 @@ input CreateTempItemDto {
   quantity: String! = "1"
 }
 
-type ItemEntity {
-  cart_id: String!
-  id: String!
-  product: ProductSchema
-  quantity: Float!
-}
+scalar Date
+
+"""
+A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date-time format.
+"""
+scalar DateTime
 
 type Mutation {
-  createCartItem(item: CreateItemDto!): ItemEntity!
+  createCartItem(item: CreateCartItemDto!): CartItemEntity!
   createCartItemForGuest(guestId: String!, item: CreateTempItemDto!): TempItemEntity!
   deleteCartItem(id: String!): String!
   deleteCartItemForGuest(id: String!): String!
-  updateCartItem(id: String!, quantity: String!): String!
+  updateCartItem(id: String!, quantity: Float!): String!
   updateCartItemForGuest(id: String!, quantity: Float!): String!
 }
 
 type ProductSchema {
   author: String
+  created_at: DateTime
   discount: Float
   id: String!
   image: String
   price: Float!
   title: String!
+  updated_at: DateTime
 }
 
 type Query {
@@ -58,16 +73,20 @@ type Query {
 }
 
 type TempCartEntity {
+  created_at: DateTime
   guest_id: String!
   id: String!
   items: [TempItemEntity!]
   total: Float!
+  updated_at: DateTime
 }
 
 type TempItemEntity {
+  created_at: DateTime
   id: String!
   product: ProductSchema
   product_id: String!
   quantity: Float!
   temp_cart_id: String!
+  updated_at: DateTime
 }

@@ -8,10 +8,7 @@ export type TLoginResponse = {
 }
 
 export type TTokenResponse = {
-    [TOKEN_KEY_NAME.ACCESS_TOKEN]: string,
-    username?: string,
-    email?: string,
-    picture?: string
+    [TOKEN_KEY_NAME.ACCESS_TOKEN]: string
 }
 
 export type TEnableTwoFactorResponse = {

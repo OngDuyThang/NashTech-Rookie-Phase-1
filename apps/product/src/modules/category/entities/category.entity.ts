@@ -1,6 +1,6 @@
 import { AbstractEntity } from "@app/database";
 import { IsArray, IsBoolean, IsNotEmpty, IsOptional, IsString, IsUUID, MaxLength, ValidateNested } from "class-validator";
-import { Column, Entity, JoinColumn, OneToMany, OneToOne } from "typeorm";
+import { Column, Entity, JoinColumn, ManyToOne, OneToMany } from "typeorm";
 import { Type } from "class-transformer";
 import { Field, ObjectType } from "@nestjs/graphql";
 import { ProductEntity } from "../../product/entities/product.entity";
@@ -16,7 +16,7 @@ export class CategoryEntity extends AbstractEntity {
     @Field()
     name: string;
 
-    @OneToOne(() => CategoryEntity, category => category.id, { onDelete: 'SET NULL' })
+    @ManyToOne(() => CategoryEntity, category => category.id, { onDelete: 'SET NULL' })
     @JoinColumn({ name: 'parent_id' })
     @IsOptional()
     @Type(() => CategoryEntity)
@@ -34,7 +34,6 @@ export class CategoryEntity extends AbstractEntity {
     @IsOptional()
     @ValidateNested({ each: true })
     @Type(() => ProductEntity)
-    @Field(() => ProductList, { nullable: true })
     products?: ProductEntity[];
 
     @Column({ type: 'boolean', default: true })

@@ -12,4 +12,8 @@ export class OrderRepository extends AbstractRepository<OrderEntity> {
     ) {
         super(orderRepository);
     }
+
+    createQueryBuilder() {
+        return this.orderRepository.createQueryBuilder('order');
+    }
 }

@@ -20,13 +20,13 @@ export class CreateProductDto {
 
     @IsUUID(4)
     @IsOptional()
-    author_id?: string;
+    author_id?: string = null;
 
     @IsUUID(4)
     @IsOptional()
-    category_id?: string;
+    category_id?: string = null;
 
     @IsUUID(4)
     @IsOptional()
-    promotion_id?: string;
+    promotion_id?: string = null;
 }

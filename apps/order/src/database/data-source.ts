@@ -2,7 +2,7 @@ import { DataSource, DataSourceOptions } from "typeorm";
 import * as dotenv from "dotenv";
 import { getEnvFilePath } from "@app/common";
 import { OrderEntity } from "../modules/order/entities/order.entity";
-import { ItemEntity } from "../modules/item/entities/item.entity";
+import { OrderItemEntity } from "../modules/item/entities/item.entity";
 
 dotenv.config({
     path: getEnvFilePath('order')
@@ -18,7 +18,7 @@ export const dataSourceOptions: DataSourceOptions = {
     synchronize: true,
     entities: [
         OrderEntity,
-        ItemEntity
+        OrderItemEntity
     ],
     // migrations: ["dist/apps/auth/database/migrations/*.js"],
 }

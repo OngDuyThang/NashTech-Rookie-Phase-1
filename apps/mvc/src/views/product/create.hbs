@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+{{> head }}
+
+<body>
+    {{> sidebar }}
+    <main>
+        {{> header }}
+        <section class="mt-[68px] p-4">
+            <h1 class="font-bold text-lg pb-8">Create Product</h1>
+            <form action="/" method="PATCH" onsubmit="create()">
+                <div class="grid gap-4 mb-4 sm:grid-cols-2 sm:gap-6 sm:mb-5">
+                    {{!-- TITLE --}}
+                    <div class="sm:col-span-2">
+                        <label for="title" class="block mb-2 text-sm font-medium text-gray-900">Book
+                            Title</label>
+                        <input type="text" name="title" id="title"
+                            class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:border-gray-600 dark:placeholder-gray-400 dark:focus:ring-primary-500 dark:focus:border-primary-500"
+                            placeholder="Type product name" required="">
+                    </div>
+                    {{!-- AUTHOR --}}
+                    <div>
+                        <label for="product-authors"
+                            class="block mb-2 text-sm font-medium text-gray-900 ">Authors</label>
+                        <select id="product-authors" name="author_id"
+                            class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5  dark:border-gray-600 dark:placeholder-gray-400 dark:focus:ring-primary-500 dark:focus:border-primary-500">
+                            <option value=""></option>
+                            {{#each authors}}
+                            <option value="{{this.id}}" id="{{this.id}}">
+                                {{this.pen_name}}</option>
+                            {{/each}}
+                        </select>
+                    </div>
+                    {{!-- PRICE --}}
+                    <div class="w-full">
+                        <label for="price" class="block mb-2 text-sm font-medium text-gray-900 ">Price</label>
+                        <input type="number" name="price" id="price"
+                            class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5  dark:border-gray-600 dark:placeholder-gray-400  dark:focus:ring-primary-500 dark:focus:border-primary-500"
+                            placeholder="$299" required="">
+                    </div>
+                    {{!-- CATEGORY --}}
+                    <div>
+                        <label for="product-categories"
+                            class="block mb-2 text-sm font-medium text-gray-900 ">Category</label>
+                        <select id="product-categories" name="category_id"
+                            class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5  dark:border-gray-600 dark:placeholder-gray-400 dark:focus:ring-primary-500 dark:focus:border-primary-500">
+                            <option value=""></option>
+                            {{#each categories}}
+                            <option value="{{this.id}}" id="{{this.id}}">
+                                {{this.name}}</option>
+                            {{/each}}
+                        </select>
+                    </div>
+                    {{!-- PROMOTION --}}
+                    <div>
+                        <label for="product-promotions"
+                            class="block mb-2 text-sm font-medium text-gray-900 ">Promotion</label>
+                        <select id="product-promotions" name="promotion_id"
+                            class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5  dark:border-gray-600 dark:placeholder-gray-400 dark:focus:ring-primary-500 dark:focus:border-primary-500">
+                            <option value=""></option>
+                            {{#each promotions}}
+                            <option value="{{this.id}}" id="{{this.id}}">
+                                {{this.name}}</option>
+                            {{/each}}
+                        </select>
+                    </div>
+                    {{!-- DESCRIPTION --}}
+                    <div class="sm:col-span-2">
+                        <label for="description"
+                            class="block mb-2 text-sm font-medium text-gray-900">Description</label>
+                        <textarea id="description" rows="8"
+                            class="block p-2.5 w-full text-sm text-gray-900 bg-gray-50 rounded-lg border border-gray-300 focus:ring-primary-500 focus:border-primary-500  dark:border-gray-600 dark:placeholder-gray-400  dark:focus:ring-primary-500 dark:focus:border-primary-500"
+                            placeholder="Write a product description here..."></textarea>
+                    </div>
+                    {{!-- FILE --}}
+                    <div class="sm:col-span-2">
+                        <label class="block mb-2 text-sm font-medium text-gray-900 " for="default_size">Product
+                            Image</label>
+                        <input onchange="previewImage()"
+                            class="block w-full mb-5 text-sm text-gray-900 border border-gray-300 rounded-lg cursor-pointer bg-gray-50 dark:text-gray-400 focus:outline-none dark:border-gray-600 dark:placeholder-gray-400"
+                            id="default_size" type="file">
+                        <p class="mt-1 text-sm text-gray-800" id="file_input_help">SVG, PNG, JPG or
+                            GIF
+                            (MAX. 800x400px).</p>
+                    </div>
+                    {{!-- PREVIEW IMAGE --}}
+                    <img id="preview-image" class="h-auto max-w-full" src="https://placehold.co/600x400"
+                        alt="image description">
+
+                </div>
+                <div class="flex items-center space-x-4">
+                    <button type="submit"
+                        class=" text-green-800 inline-flex items-center hover:text-white border border-green-800 hover:bg-green-800 focus:ring-4 focus:outline-none focus:ring-green-500 font-semibold rounded-lg text-sm px-5 py-2.5 text-center ">
+                        Create
+                    </button>
+                </div>
+            </form>
+        </section>
+        {{> footer }}
+    </main>
+
+    <script>
+        const authors = {{ json authors }}
+        const categories = {{ json categories }}
+        const promotions = {{ json promotions }}
+        const createUrl = {{ json createUrl }}
+        const uploadUrl = {{ json uploadUrl }}
+
+        const productAuthors = document.querySelector('#product-authors')
+        const productCategories = document.querySelector('#product-categories')
+        const productPromotions = document.querySelector('#product-promotions')
+        const previewImg = document.querySelector('#preview-image')
+        let fileToUpload
+
+        const create = async () => {
+            event.preventDefault()
+            const formData = new FormData(event.target);
+            const body = Object.fromEntries(formData);
+            body.author_id = body.author_id || null
+            body.category_id = body.category_id || null
+            body.promotion_id = body.promotion_id || null
+            body.price = Number(body.price)
+
+            const accessToken = localStorage.getItem('access_token')
+            try {
+                const location = await uploadFile()
+                if (location) {
+                    body.image = location
+                }
+
+                const res = await fetch(createUrl, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${accessToken}`
+                    },
+                    body: JSON.stringify(body),
+                    credentials: 'include'
+                })
+                const data = await res.json()
+                toast(data)
+            } catch (e) {
+                console.log(e)
+            }
+        }
+
+        const previewImage = () => {
+            const input = event.target
+            const reader = new FileReader()
+            console.log(input)
+
+            reader.onload = () => {
+                previewImg.src = reader.result;
+            };
+
+            if (input.files && input.files[0]) {
+                reader.readAsDataURL(input.files[0]);
+                fileToUpload = input.files[0];
+            }
+        }
+
+        const uploadFile = async () => {
+            const formData = new FormData();
+            formData.append('image', fileToUpload);
+            const res = await fetch(uploadUrl, {
+                method: 'POST',
+                body: formData
+            })
+            const data = await res.json()
+            return data?.data
+        }
+    </script>
+    {{> common }}
+</body>
+
+</html>

@@ -8,7 +8,7 @@ import { ProductSchema } from "@app/common";
 
 @Entity({ name: 'cart_item' })
 @ObjectType()
-export class ItemEntity extends AbstractEntity {
+export class CartItemEntity extends AbstractEntity {
     @Column({ type: 'uuid', nullable: false })
     @IsUUID(4)
     @IsNotEmpty()

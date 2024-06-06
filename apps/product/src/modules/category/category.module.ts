@@ -11,14 +11,18 @@ import { ProductModule } from "../product/product.module";
     imports: [
         DatabaseModule.forFeature([
             CategoryEntity
-        ]),
-        ProductModule
+        ])
     ],
-    controllers: [CategoryController],
+    controllers: [
+        CategoryController
+    ],
     providers: [
         CategoryService,
         CategoryRepository,
         CategoryResolver
+    ],
+    exports: [
+        CategoryRepository
     ]
 })
 export class CategoryModule {}

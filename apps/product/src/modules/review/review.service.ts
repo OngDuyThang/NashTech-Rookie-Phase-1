@@ -3,9 +3,7 @@ import { ReviewRepository } from "./repositories/review.repository";
 import { ReviewEntity } from "./entities/review.entity";
 import { CreateReviewDto } from "./dtos/create-review.dto";
 import { UpdateReviewDto } from "./dtos/update-review.dto";
-import { QUERY_ORDER } from "@app/common";
-import { InjectRepository } from "@nestjs/typeorm";
-import { Repository } from "typeorm";
+import { ChangeStatusDto, QUERY_ORDER, STATUS } from "@app/common";
 import { ProductEntity } from "../product/entities/product.entity";
 import { ReviewQueryDto } from "./dtos/query.dto";
 import { REVIEW_SORT } from "./common";
@@ -13,9 +11,7 @@ import { REVIEW_SORT } from "./common";
 @Injectable()
 export class ReviewService {
     constructor(
-        private readonly reviewRepository: ReviewRepository,
-        @InjectRepository(ReviewEntity)
-        private readonly reviewOrgRepo: Repository<ReviewEntity>
+        private readonly reviewRepository: ReviewRepository
     ) {}
 
     async create(
@@ -29,7 +25,11 @@ export class ReviewService {
     }
 
     async findAll(): Promise<ReviewEntity[]> {
-        return await this.reviewRepository.find();
+        return await this.reviewRepository.find({
+            relations: {
+                product: true
+            }
+        });
     }
 
     async findList(
@@ -38,17 +38,26 @@ export class ReviewService {
         const { page, limit, sort } = queryDto
         const order = sort == REVIEW_SORT.DATE_ASC ? QUERY_ORDER.ASC : QUERY_ORDER.DESC
 
-        return await this.reviewRepository.findList({
-            skip: page * limit,
-            take: limit,
-            order: { created_at: order }
-        });
+        try {
+            return await this.reviewRepository.createQueryBuilder()
+                .leftJoinAndSelect('review.product', 'product')
+                .addSelect('review.created_at')
+                .skip(page * limit)
+                .take(limit)
+                .orderBy('review.created_at', order)
+                .getManyAndCount()
+        } catch (e) {
+            throw e
+        }
     }
 
     async findOneById(
         id: string
     ): Promise<ReviewEntity> {
-        return await this.reviewRepository.findOne({ where: { id } });
+        return await this.reviewRepository.findOne({
+            where: { id },
+            relations: { product: true }
+        });
     }
 
     async update(
@@ -58,6 +67,16 @@ export class ReviewService {
         await this.reviewRepository.update({ id }, {
             ...updateReviewDto
         });
+    }
+
+    async changeStatus(
+        id: string,
+        changeStatusDto: ChangeStatusDto
+    ): Promise<void> {
+        const { status } = changeStatusDto
+        await this.reviewRepository.update({ id }, {
+            status
+        })
     }
 
     async delete(
@@ -86,7 +105,7 @@ export class ReviewService {
         productId: string
     ): Promise<number[]> {
         try {
-            const ratings = await this.reviewOrgRepo.createQueryBuilder('review')
+            const ratings = await this.reviewRepository.createQueryBuilder()
                 .select('review.rating', 'star')
                 .addSelect('COUNT(review.rating)', 'count')
                 .where('review.product_id = :productId', { productId })
@@ -100,7 +119,7 @@ export class ReviewService {
             return ratings.reduce((result, rating) => {
                 result[rating.star - 1] = Number(rating.count)
                 return result
-            }, new Array(5))
+            }, new Array(5).fill(0))
         } catch (e) {
             throw e
         }
@@ -134,14 +153,18 @@ export class ReviewService {
         order: QUERY_ORDER,
         star: number
     ): Promise<[ReviewEntity[], number]> {
-        return await this.reviewRepository.findList({
-            where: {
-                product_id: product.id,
-                rating: star
-            },
-            skip: page * limit,
-            take: limit,
-            order: { created_at: order }
-        })
+        try {
+            return await this.reviewRepository.createQueryBuilder()
+                .addSelect('review.created_at')
+                .where('review.product_id = :productId', { productId: product.id })
+                .andWhere('review.rating = :star', { star })
+                .andWhere('review.status = :status', { status: STATUS.CONFIRMED })
+                .orderBy('review.created_at', order)
+                .skip(page * limit)
+                .take(limit)
+                .getManyAndCount()
+        } catch (e) {
+            throw e
+        }
     }
 }
