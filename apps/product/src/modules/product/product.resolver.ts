@@ -81,7 +81,5 @@ export class ProductResolver {
     }
 
     @Query(() => [ProductEntity])
-    async searchProducts() {
-
-    }
+    async searchProducts() {}
 }

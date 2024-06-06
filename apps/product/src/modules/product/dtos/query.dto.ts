@@ -2,7 +2,6 @@ import { IsArray, IsEnum, IsNumber, IsOptional, IsString, Max, Min } from "class
 import { PaginationDto } from "@app/common";
 import { ArgsType, Field, Int } from "@nestjs/graphql";
 import { RATING, PRODUCT_SORT } from "../common";
-import { Type } from "class-transformer";
 
 @ArgsType()
 export class ProductQueryDto extends PaginationDto {
