@@ -2,10 +2,9 @@ import { Inject, Injectable, RequestTimeoutException } from '@nestjs/common';
 import { ProductRepository } from './repositories/product.repository';
 import { CreateProductDto } from './dtos/create-product.dto';
 import { ProductEntity } from './entities/product.entity';
-import { PaginationDto, QUERY_ORDER, ProductSchema, SERVICE_NAME, SERVICE_MESSAGE, ERROR_MESSAGE, convertRpcException } from '@app/common';
-import { InjectRepository } from '@nestjs/typeorm';
-import { IsNull, Not, Repository } from 'typeorm';
-import { RatingQueryDto } from './dtos/query.dto';
+import { QUERY_ORDER, ProductSchema, SERVICE_NAME, SERVICE_MESSAGE, ERROR_MESSAGE, convertRpcException } from '@app/common';
+import { In, SelectQueryBuilder } from 'typeorm';
+import { ProductQueryDto } from './dtos/query.dto';
 import { LAST_PRODUCT_CACHE_KEY, PRODUCT, PRODUCT_SORT, TCacheLastProduct } from './common';
 import { ReviewService } from '../review/review.service';
 import { Interval } from '@nestjs/schedule';
@@ -16,20 +15,24 @@ import { REVIEW_SORT } from '../review/common';
 import { ReviewEntity } from '../review/entities/review.entity';
 import { ClientProxy, RpcException } from '@nestjs/microservices';
 import { TimeoutError, catchError, lastValueFrom, timeout } from 'rxjs';
+import { CategoryRepository } from '../category/repositories/category.repository';
+import { isEmpty, max, min } from 'lodash';
 
 @Injectable()
 export class ProductService {
     constructor(
         private readonly productRepository: ProductRepository,
-        @InjectRepository(ProductEntity)
-        private readonly productOrgRepo: Repository<ProductEntity>,
-
+        private readonly categoryRepository: CategoryRepository,
         private readonly reviewService: ReviewService,
+
         @Inject(CACHE_MANAGER)
         private readonly cacheManager: Cache,
 
         @Inject(SERVICE_NAME.CART_SERVICE)
-        private readonly cartService: ClientProxy
+        private readonly cartService: ClientProxy,
+
+        @Inject(SERVICE_NAME.ORDER_SERVICE)
+        private readonly orderService: ClientProxy
     ) {}
 
     async create(
@@ -50,22 +53,93 @@ export class ProductService {
     }
 
     async findList(
-        queryDto: PaginationDto
+        queryDto: ProductQueryDto
     ): Promise<[ProductEntity[], number]> {
-        const { page, limit } = queryDto
+        const { categoryIds, authorIds, ratings, page, limit, sort } = queryDto;
+        const subcategoryIds = await this.categoryRepository.getAllSubcategoryIds(categoryIds)
 
-        return await this.productRepository.findList({
-            where: { active: true },
-            skip: page * limit,
-            take: limit
-        });
+        const query = this.productRepository.createQueryBuilder()
+            .leftJoinAndSelect('product.author', 'author')
+            .leftJoinAndSelect('product.promotion', 'promotion')
+            .where('product.active = true')
+
+        if (!isEmpty(subcategoryIds)) {
+            query.andWhere('product.category_id IN (:...subcategoryIds)', { subcategoryIds })
+        }
+
+        if (!isEmpty(authorIds)) {
+            query.andWhere('product.author_id IN (:...authorIds)', { authorIds })
+        }
+
+        if (!isEmpty(ratings)) {
+            const minRating = min(ratings);
+            const maxRating = max(ratings);
+            query
+                .andWhere('product.rating >= :minRating', { minRating })
+                .andWhere('product.rating <= :maxRating', { maxRating })
+        }
+
+        try {
+            switch (sort) {
+                case PRODUCT_SORT.ON_SALE:
+                    return await this.productsOnSale(query, page, limit)
+                case PRODUCT_SORT.PRICE_ASC:
+                    return await this.productsByPrice(query, page, limit, QUERY_ORDER.ASC)
+                case PRODUCT_SORT.PRICE_DESC:
+                    return await this.productsByPrice(query, page, limit, QUERY_ORDER.DESC)
+                default:
+                    return await this.productRepository.findList({
+                        where: { active: true },
+                        skip: page * limit,
+                        take: limit
+                    });
+            }
+        } catch (e) {
+            throw e
+        }
+    }
+
+    private async productsOnSale(
+        query: SelectQueryBuilder<ProductEntity>,
+        page: number,
+        limit: number
+    ): Promise<[ProductEntity[], number]> {
+        query.andWhere('product.promotion_id IS NOT NULL')
+
+        try {
+            return await query
+                .skip(page * limit)
+                .take(limit)
+                .getManyAndCount();
+        } catch (e) {
+            throw e
+        }
+    }
+
+    private async productsByPrice(
+        query: SelectQueryBuilder<ProductEntity>,
+        page: number,
+        limit: number,
+        order: QUERY_ORDER
+    ): Promise<[ProductEntity[], number]> {
+        query.orderBy('product.price', order)
+
+        try {
+            return await
+                query
+                    .skip(page * limit)
+                    .take(limit)
+                    .getManyAndCount();
+        } catch (e) {
+            throw e
+        }
     }
 
     async findOneById(
         id: string
     ): Promise<ProductEntity> {
         try {
-            return await this.productOrgRepo.createQueryBuilder('product')
+            return await this.productRepository.createQueryBuilder()
                 .leftJoinAndSelect('product.author', 'author')
                 .leftJoinAndSelect('product.promotion', 'promotion')
                 .leftJoinAndSelect('product.reviews', 'reviews')
@@ -133,7 +207,7 @@ export class ProductService {
 
     async findPromotionProducts(): Promise<ProductEntity[]> {
         try {
-            return await this.productOrgRepo.createQueryBuilder('product')
+            return await this.productRepository.createQueryBuilder()
                 .leftJoinAndSelect('product.author', 'author')
                 .leftJoinAndSelect('product.promotion', 'promotion')
                 .addSelect('product.updated_at')
@@ -148,7 +222,7 @@ export class ProductService {
     }
 
     private async initProductCache(): Promise<TCacheLastProduct> {
-        const firstProductRecord = await this.productOrgRepo.createQueryBuilder('product')
+        const firstProductRecord = await this.productRepository.createQueryBuilder()
             .addSelect('product.created_at')
             .orderBy('product.created_at', QUERY_ORDER.ASC)
             .getOne()
@@ -190,7 +264,7 @@ export class ProductService {
         id: string,
         created_at: Date,
     ): Promise<ProductEntity[]> {
-        return await this.productOrgRepo.createQueryBuilder('product')
+        return await this.productRepository.createQueryBuilder()
             .where(
                 'product.created_at > :createdAt OR (product.created_at = :createdAt AND product.id > :id)',
                 { createdAt: created_at, id }
@@ -236,7 +310,7 @@ export class ProductService {
 
     async findRecommendProducts(): Promise<ProductEntity[]> {
         try {
-            return await this.productOrgRepo.createQueryBuilder('product')
+            return await this.productRepository.createQueryBuilder()
                 .leftJoinAndSelect('product.author', 'author')
                 .leftJoinAndSelect('product.promotion', 'promotion')
                 .where('product.active = :active', { active: true })
@@ -248,24 +322,49 @@ export class ProductService {
         }
     }
 
-    async findProductsByRating(
-        queryDto: RatingQueryDto
-    ): Promise<[ProductEntity[], number]> {
-        const { page, limit, rating, sort } = queryDto
+    async findPopularProducts(): Promise<ProductEntity[]> {
+        const _popularProductIds = this.orderService.send({ cmd: SERVICE_MESSAGE.GET_POPULAR_PRODUCTS }, {})
+            .pipe(
+                timeout(10000),
+                catchError(e => {
+                    if (e instanceof TimeoutError) {
+                        throw new RequestTimeoutException(ERROR_MESSAGE.TIME_OUT)
+                    }
+                    throw convertRpcException(e)
+                })
+            )
+        const popularProductIds = await lastValueFrom(_popularProductIds) as string[]
 
-        try {
-            switch (sort) {
-                case PRODUCT_SORT.ON_SALE:
-                    return await this.productsOnSale(page, limit, rating)
-                case PRODUCT_SORT.PRICE_ASC:
-                    return await this.productsByPrice(page, limit, rating, QUERY_ORDER.ASC)
-                case PRODUCT_SORT.PRICE_DESC:
-                    return await this.productsByPrice(page, limit, rating, QUERY_ORDER.DESC)
+        return await this.productRepository.find({
+            where: {
+                id: In(popularProductIds),
+                active: true
+            },
+            relations: {
+                author: true,
+                promotion: true
             }
-        } catch (e) {
-            throw e
-        }
+        })
     }
+
+    // async findProductsByRating(
+    //     queryDto: RatingQueryDto
+    // ): Promise<[ProductEntity[], number]> {
+    //     const { page, limit, rating, sort } = queryDto
+
+    //     try {
+    //         switch (sort) {
+    //             case PRODUCT_SORT.ON_SALE:
+    //                 return await this.productsOnSale(page, limit, rating)
+    //             case PRODUCT_SORT.PRICE_ASC:
+    //                 return await this.productsByPrice(page, limit, rating, QUERY_ORDER.ASC)
+    //             case PRODUCT_SORT.PRICE_DESC:
+    //                 return await this.productsByPrice(page, limit, rating, QUERY_ORDER.DESC)
+    //         }
+    //     } catch (e) {
+    //         throw e
+    //     }
+    // }
 
     // private productsByRatingQuery(
     //     page: number,
@@ -286,50 +385,6 @@ export class ProductService {
     //         .skip(page)
     //         .take(limit)
     // }
-
-    private async productsOnSale(
-        page: number,
-        limit: number,
-        rating: number
-    ): Promise<[ProductEntity[], number]> {
-        try {
-            return await this.productOrgRepo.createQueryBuilder('product')
-                .leftJoinAndSelect('product.author', 'author')
-                .leftJoinAndSelect('product.promotion', 'promotion')
-                .where('product.rating >= :rating', { rating: rating <= 1 ? 0 : rating })
-                .andWhere('product.rating < :nextStar', { nextStar: rating + 1 })
-                .andWhere('product.promotion_id IS NOT NULL')
-                .andWhere('product.active = true')
-                .skip(page * limit)
-                .take(limit)
-                .getManyAndCount();
-        } catch (e) {
-            throw e
-        }
-    }
-
-    private async productsByPrice(
-        page: number,
-        limit: number,
-        rating: number,
-        order: QUERY_ORDER
-    ): Promise<[ProductEntity[], number]> {
-        try {
-            return await this.productOrgRepo.createQueryBuilder('product')
-                .leftJoinAndSelect('product.author', 'author')
-                .leftJoinAndSelect('product.promotion', 'promotion')
-                .where('product.rating >= :rating', { rating: rating <= 1 ? 0 : rating })
-                .andWhere('product.rating < :nextStar', { nextStar: rating + 1 })
-                .andWhere('product.promotion_id IS NOT NULL')
-                .andWhere('product.active = true')
-                .orderBy('product.price', order)
-                .skip(page * limit)
-                .take(limit)
-                .getManyAndCount();
-        } catch (e) {
-            throw e
-        }
-    }
 
     async findReviewsByProduct(
         product: ProductEntity,

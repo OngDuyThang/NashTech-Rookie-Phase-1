@@ -1,9 +1,7 @@
-import { Args, Parent, Query, ResolveField, Resolver } from '@nestjs/graphql';
-import { PaginationPipe, UUIDPipe } from '@app/common';
+import { Args, Query, Resolver } from '@nestjs/graphql';
+import { UUIDPipe } from '@app/common';
 import { AuthorEntity } from './entities/author.entity';
 import { AuthorService } from './author.service';
-import { ProductList } from '../product/entities/product-list.schema';
-import { SortQueryDto } from '../product/dtos/query.dto';
 
 @Resolver(() => AuthorEntity)
 export class AuthorResolver {
@@ -23,22 +21,22 @@ export class AuthorResolver {
         return await this.authorService.findOneById(id);
     }
 
-    @ResolveField(() => ProductList)
-    async products(
-        @Parent() author: AuthorEntity,
-        @Args(PaginationPipe) queryDto: SortQueryDto
-    ): Promise<ProductList> {
-        const [products, total] = await this.authorService.findProductsByAuthor(
-            author,
-            queryDto
-        );
+    // @ResolveField(() => ProductList)
+    // async products(
+    //     @Parent() author: AuthorEntity,
+    //     @Args(PaginationPipe) queryDto: SortQueryDto
+    // ): Promise<ProductList> {
+    //     const [products, total] = await this.authorService.findProductsByAuthor(
+    //         author,
+    //         queryDto
+    //     );
 
-        const { page, limit } = queryDto
-        return {
-            data: products,
-            page,
-            limit,
-            total
-        }
-    }
+    //     const { page, limit } = queryDto
+    //     return {
+    //         data: products,
+    //         page,
+    //         limit,
+    //         total
+    //     }
+    // }
 }

@@ -11,8 +11,7 @@ import { ProductModule } from "../product/product.module";
     imports: [
         DatabaseModule.forFeature([
             CategoryEntity
-        ]),
-        ProductModule
+        ])
     ],
     controllers: [
         CategoryController
@@ -21,6 +20,9 @@ import { ProductModule } from "../product/product.module";
         CategoryService,
         CategoryRepository,
         CategoryResolver
+    ],
+    exports: [
+        CategoryRepository
     ]
 })
 export class CategoryModule {}

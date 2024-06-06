@@ -1,9 +1,9 @@
 import { ProductService } from './product.service';
 import { Args, Parent, Query, ResolveField, Resolver } from '@nestjs/graphql';
 import { ProductEntity } from './entities/product.entity';
-import { PaginationDto, PaginationPipe, UUIDPipe } from '@app/common';
+import { PaginationPipe, UUIDPipe } from '@app/common';
 import { ProductList } from './entities/product-list.schema';
-import { RatingQueryDto } from './dtos/query.dto';
+import { ProductQueryDto } from './dtos/query.dto';
 import { ReviewList } from '../review/entities/review-list.schema';
 import { ReviewQueryDto } from '../review/dtos/query.dto';
 
@@ -15,7 +15,7 @@ export class ProductResolver {
 
     @Query(() => ProductList)
     async products(
-        @Args(PaginationPipe) queryDto: PaginationDto
+        @Args(PaginationPipe) queryDto: ProductQueryDto
     ): Promise<ProductList> {
         const [products, total] = await this.productService.findList(queryDto);
         return {
@@ -36,20 +36,26 @@ export class ProductResolver {
         return await this.productService.findRecommendProducts();
     }
 
-    @Query(() => ProductList)
-    async productsByRating(
-        @Args(PaginationPipe) queryDto: RatingQueryDto
-    ): Promise<ProductList> {
-        const [products, total] = await this.productService.findProductsByRating(queryDto);
-        const { page, limit } = queryDto
-
-        return {
-            data: products,
-            page,
-            limit,
-            total
-        }
+    @Query(() => [ProductEntity])
+    async popularProducts(
+    ): Promise<ProductEntity[]> {
+        return await this.productService.findPopularProducts();
     }
+
+    // @Query(() => ProductList)
+    // async productsByRating(
+    //     @Args(PaginationPipe) queryDto: RatingQueryDto
+    // ): Promise<ProductList> {
+    //     const [products, total] = await this.productService.findProductsByRating(queryDto);
+    //     const { page, limit } = queryDto
+
+    //     return {
+    //         data: products,
+    //         page,
+    //         limit,
+    //         total
+    //     }
+    // }
 
     @Query(() => ProductEntity)
     async product(

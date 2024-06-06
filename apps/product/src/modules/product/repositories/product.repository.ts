@@ -12,4 +12,8 @@ export class ProductRepository extends AbstractRepository<ProductEntity> {
     ) {
         super(productRepository);
     }
+
+    createQueryBuilder() {
+        return this.productRepository.createQueryBuilder('product')
+    }
 }

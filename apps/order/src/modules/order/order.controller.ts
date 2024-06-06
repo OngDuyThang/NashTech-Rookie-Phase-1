@@ -1,7 +1,8 @@
-import { ApiController, ChangeStatusDto, PermissionRequestGuard, ROLE, Roles, RolesGuard, UUIDPipe } from "@app/common";
+import { ApiController, ChangeStatusDto, PermissionRequestGuard, ROLE, Roles, RolesGuard, SERVICE_MESSAGE, UUIDPipe } from "@app/common";
 import { OrderService } from "./order.service";
 import { Body, Delete, Get, Param, Patch, UseGuards } from "@nestjs/common";
 import { OrderEntity } from "./entities/order.entity";
+import { MessagePattern } from "@nestjs/microservices";
 
 @ApiController('orders')
 export class OrderController {
@@ -44,5 +45,10 @@ export class OrderController {
         @Param('id', UUIDPipe) id: string
     ): Promise<void> {
         await this.orderService.delete(id)
+    }
+
+    @MessagePattern({ cmd: SERVICE_MESSAGE.GET_POPULAR_PRODUCTS })
+    async getPopularProducts(): Promise<string[]> {
+        return await this.orderService.getPopularProducts()
     }
 }

@@ -34,7 +34,6 @@ export class CategoryEntity extends AbstractEntity {
     @IsOptional()
     @ValidateNested({ each: true })
     @Type(() => ProductEntity)
-    @Field(() => ProductList, { nullable: true })
     products?: ProductEntity[];
 
     @Column({ type: 'boolean', default: true })

@@ -6,7 +6,6 @@ type AuthorEntity {
   created_at: DateTime
   id: String!
   pen_name: String!
-  products(limit: Int = 10, page: Int = 0, sort: String = "ON_SALE"): ProductList
   updated_at: DateTime
 }
 
@@ -25,7 +24,6 @@ type CategoryEntity {
   name: String!
   parent: CategoryEntity
   parent_id: String
-  products(limit: Int = 10, page: Int = 0, sort: String = "ON_SALE"): ProductList
   updated_at: DateTime
 }
 
@@ -99,9 +97,9 @@ type Query {
   authors: [AuthorEntity!]!
   categories: [CategoryEntity!]!
   category(id: String!): CategoryEntity!
+  popularProducts: [ProductEntity!]!
   product(id: String!): ProductEntity!
-  products(limit: Int = 10, page: Int = 0): ProductList!
-  productsByRating(limit: Int = 10, page: Int = 0, rating: Float = 5, sort: String = "ON_SALE"): ProductList!
+  products(authorIds: [String!], categoryIds: [String!], limit: Int = 10, page: Int = 0, ratings: [Int!], sort: String = "ON_SALE"): ProductList!
   promotion(id: String!): PromotionEntity!
   promotionProducts: [ProductEntity!]!
   promotions: [PromotionEntity!]!

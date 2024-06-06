@@ -1,11 +1,12 @@
 import { BadRequestException, Inject, Injectable, RequestTimeoutException } from "@nestjs/common";
 import { OrderRepository } from "./repositories/order.repository";
-import { CartSchema, ChangeStatusDto, ERROR_MESSAGE, SERVICE_MESSAGE, SERVICE_NAME, convertRpcException } from "@app/common";
+import { CartSchema, ChangeStatusDto, ERROR_MESSAGE, QUERY_ORDER, SERVICE_MESSAGE, SERVICE_NAME, convertRpcException } from "@app/common";
 import { ClientProxy } from "@nestjs/microservices";
 import { TimeoutError, catchError, lastValueFrom, timeout } from "rxjs";
 import { ItemService } from "../item/item.service";
 import { OrderEntity } from "./entities/order.entity";
 import { isEmpty } from "lodash";
+import { PRODUCT } from "apps/product/src/modules/product/common";
 
 @Injectable()
 export class OrderService {
@@ -106,5 +107,22 @@ export class OrderService {
         id: string
     ): Promise<void> {
         await this.orderRepository.delete({ id })
+    }
+
+    async getPopularProducts(): Promise<string[]> {
+        try {
+            const result = await this.orderRepository.createQueryBuilder()
+                .leftJoinAndSelect('order.items', 'items')
+                .select('items.product_id', 'product_id')
+                .addSelect('COUNT(*)', 'total')
+                .groupBy('items.product_id')
+                .orderBy('total', QUERY_ORDER.DESC)
+                .limit(PRODUCT.POPULAR)
+                .getRawMany()
+
+            return result.map(item => item?.product_id)
+        } catch (e) {
+            throw e
+        }
     }
 }

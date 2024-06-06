@@ -4,8 +4,6 @@ import { ReviewEntity } from "./entities/review.entity";
 import { CreateReviewDto } from "./dtos/create-review.dto";
 import { UpdateReviewDto } from "./dtos/update-review.dto";
 import { ChangeStatusDto, QUERY_ORDER, STATUS } from "@app/common";
-import { InjectRepository } from "@nestjs/typeorm";
-import { Repository } from "typeorm";
 import { ProductEntity } from "../product/entities/product.entity";
 import { ReviewQueryDto } from "./dtos/query.dto";
 import { REVIEW_SORT } from "./common";
@@ -13,9 +11,7 @@ import { REVIEW_SORT } from "./common";
 @Injectable()
 export class ReviewService {
     constructor(
-        private readonly reviewRepository: ReviewRepository,
-        @InjectRepository(ReviewEntity)
-        private readonly reviewOrgRepo: Repository<ReviewEntity>
+        private readonly reviewRepository: ReviewRepository
     ) {}
 
     async create(
@@ -109,7 +105,7 @@ export class ReviewService {
         productId: string
     ): Promise<number[]> {
         try {
-            const ratings = await this.reviewOrgRepo.createQueryBuilder('review')
+            const ratings = await this.reviewRepository.createQueryBuilder()
                 .select('review.rating', 'star')
                 .addSelect('COUNT(review.rating)', 'count')
                 .where('review.product_id = :productId', { productId })
@@ -158,7 +154,7 @@ export class ReviewService {
         star: number
     ): Promise<[ReviewEntity[], number]> {
         try {
-            return await this.reviewOrgRepo.createQueryBuilder('review')
+            return await this.reviewRepository.createQueryBuilder()
                 .addSelect('review.created_at')
                 .where('review.product_id = :productId', { productId: product.id })
                 .andWhere('review.rating = :star', { star })
