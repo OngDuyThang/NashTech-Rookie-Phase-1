@@ -4,7 +4,13 @@ export enum PAYMENT_METHOD {
 }
 
 export enum PAYMENT_STATUS {
-    PENDING = 'PENDING',
     PAID = 'PAID',
     UNPAID = 'UNPAID'
+}
+
+export enum ORDER_STATUS {
+    PENDING = 'PENDING',
+    CONFIRMED = 'CONFIRMED',
+    SHIPPING = 'SHIPPING',
+    COMPLETED = 'COMPLETED'
 }

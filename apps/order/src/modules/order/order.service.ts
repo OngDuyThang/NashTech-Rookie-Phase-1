@@ -9,7 +9,8 @@ import { isEmpty } from "lodash";
 import { CreateOrderDto } from "./dtos/create-order.dto";
 import Stripe from 'stripe';
 import { Env } from "@app/env";
-import { PAYMENT_METHOD, PAYMENT_STATUS, TPaymentResponse } from "./common";
+import { PAYMENT_METHOD, TPaymentResponse } from "./common";
+import { UpdateOrderDto } from "./dtos/update-order.dto";
 
 @Injectable()
 export class OrderService {
@@ -147,12 +148,14 @@ export class OrderService {
         })
     }
 
-    async updatePaymentStatus(
+    async update(
         id: string,
-        paymentStatus: PAYMENT_STATUS
+        updateOrderDto: UpdateOrderDto
     ): Promise<void> {
+        delete updateOrderDto?.orderId
+
         await this.orderRepository.update({ id }, {
-            payment_status: paymentStatus
+            ...updateOrderDto
         })
     }
 

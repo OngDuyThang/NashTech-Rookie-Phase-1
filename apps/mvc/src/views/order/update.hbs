@@ -61,14 +61,25 @@
                             value={{ json order.payment_method }} required="">
                     </div>
                     {{!-- PAYMENT STATUS --}}
-                    <div class="order-status">
-                        <label for="order-status" class="block mb-2 text-sm font-medium text-gray-900 ">Payment
+                    <div>
+                        <label for="payment-status" class="block mb-2 text-sm font-medium text-gray-900 ">Payment
                             Status</label>
-                        <select id="order-status" name="payment_status" value={{ json order.payment_status }}
+                        <select id="payment-status" name="payment_status" value={{ json order.payment_status }}
                             class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5  dark:border-gray-600 dark:placeholder-gray-400 dark:focus:ring-primary-500 dark:focus:border-primary-500">
-                            <option value="PENDING" id="PENDING" class="status">PENDING</option>
-                            <option value="PAID" id="PAID" class="status">PAID</option>
-                            <option value="UNPAID" id="UNPAID" class="status">UNPAID</option>
+                            <option value="PAID" id="PAID" class="payment-status">PAID</option>
+                            <option value="UNPAID" id="UNPAID" class="payment-status">UNPAID</option>
+                        </select>
+                    </div>
+                    {{!-- ORDER STATUS --}}
+                    <div>
+                        <label for="order-status" class="block mb-2 text-sm font-medium text-gray-900 ">Order
+                            Status</label>
+                        <select id="order-status" name="status" value={{ json order.status }}
+                            class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5  dark:border-gray-600 dark:placeholder-gray-400 dark:focus:ring-primary-500 dark:focus:border-primary-500">
+                            <option value="PENDING" id="PENDING" class="order-status">PENDING</option>
+                            <option value="CONFIRMED" id="CONFIRMED" class="order-status">CONFIRMED</option>
+                            <option value="SHIPPING" id="SHIPPING" class="order-status">SHIPPING</option>
+                            <option value="COMPLETED" id="COMPLETED" class="order-status">COMPLETED</option>
                         </select>
                     </div>
                     {{!-- ORDER ITEMS --}}
@@ -116,17 +127,23 @@
         const updateUrl = {{ json updateUrl }}
 
         const orderStatus = document.querySelector('#order-status')
-        const statusArr = document.querySelectorAll('.status')
-
-        for (let item of statusArr) {
+        const orderStatusArr = document.querySelectorAll('.order-status')
+        for (let item of orderStatusArr) {
             if (item.value == order.status) {
                 orderStatus.value = item.value
             }
         }
 
+        const paymentStatus = document.querySelector('#payment-status')
+        const paymentStatusArr = document.querySelectorAll('.payment-status')
+        for (let item of paymentStatusArr) {
+            if (item.value == order.payment_status) {
+                paymentStatus.value = item.value
+            }
+        }
         if (order?.payment_status == "PAID") {
-            orderStatus.disabled = true
-            orderStatus.value = "PAID"
+            paymentStatus.disabled = true
+            paymentStatus.value = "PAID"
         }
 
         const update = async () => {

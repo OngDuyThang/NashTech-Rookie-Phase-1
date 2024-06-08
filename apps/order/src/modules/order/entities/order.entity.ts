@@ -5,7 +5,7 @@ import { Type } from "class-transformer";
 import { Field, ObjectType } from "@nestjs/graphql";
 import { OrderItemEntity } from "../../item/entities/item.entity";
 import { Trim } from "@app/common";
-import { PAYMENT_METHOD, PAYMENT_STATUS } from "../common";
+import { ORDER_STATUS, PAYMENT_METHOD, PAYMENT_STATUS } from "../common";
 
 @Entity({ name: 'order' })
 @ObjectType()
@@ -31,6 +31,12 @@ export class OrderEntity extends AbstractEntity {
     @Type(() => OrderItemEntity)
     @Field(() => [OrderItemEntity], { nullable: true })
     items?: OrderItemEntity[]
+
+    @Column({ type: 'varchar', length: 20, nullable: false, default: ORDER_STATUS.PENDING })
+    @IsEnum(ORDER_STATUS)
+    @IsOptional()
+    @Field(() => String, { nullable: true, defaultValue: ORDER_STATUS.PENDING })
+    status?: ORDER_STATUS
 
     @Column({ type: 'varchar', length: 100, nullable: false, default: '' })
     @IsString()
@@ -70,9 +76,9 @@ export class OrderEntity extends AbstractEntity {
     @Field(() => String, { nullable: true, defaultValue: PAYMENT_METHOD.COD })
     payment_method: PAYMENT_METHOD
 
-    @Column({ type: 'varchar', nullable: false, default: PAYMENT_STATUS.PENDING })
+    @Column({ type: 'varchar', nullable: false, default: PAYMENT_STATUS.UNPAID })
     @IsEnum(PAYMENT_STATUS)
     @IsNotEmpty()
-    @Field(() => String, { nullable: true, defaultValue: PAYMENT_STATUS.PENDING })
+    @Field(() => String, { nullable: true, defaultValue: PAYMENT_STATUS.UNPAID })
     payment_status: PAYMENT_STATUS
 }

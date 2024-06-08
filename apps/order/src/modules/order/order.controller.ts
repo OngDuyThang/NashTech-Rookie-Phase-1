@@ -3,7 +3,7 @@ import { OrderService } from "./order.service";
 import { Body, Delete, Get, Param, Patch, UseGuards } from "@nestjs/common";
 import { OrderEntity } from "./entities/order.entity";
 import { MessagePattern } from "@nestjs/microservices";
-import { UpdatePaymentStatusDto } from "./dtos/update-payment-status.dto";
+import { UpdateOrderDto } from "./dtos/update-order.dto";
 
 @ApiController('orders')
 export class OrderController {
@@ -29,12 +29,11 @@ export class OrderController {
         PermissionRequestGuard,
         RolesGuard
     )
-    async updatePaymentStatus(
+    async update(
         @Param('id', UUIDPipe) id: string,
-        @Body() updatePaymentStatusDto: UpdatePaymentStatusDto
+        @Body() updateOrderDto: UpdateOrderDto
     ): Promise<void> {
-        const { payment_status } = updatePaymentStatusDto
-        await this.orderService.updatePaymentStatus(id, payment_status)
+        await this.orderService.update(id, updateOrderDto)
     }
 
     @Delete('/:id')

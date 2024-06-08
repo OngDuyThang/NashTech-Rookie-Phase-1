@@ -5,7 +5,7 @@ import { UseGuards } from "@nestjs/common";
 import { GetUser, PermissionRequestGuard, ROLE, Roles, RolesGuard, UserEntity } from "@app/common";
 import { CreateOrderDto } from "./dtos/create-order.dto";
 import { TPaymentResponse } from "./common";
-import { UpdatePaymentStatusDto } from "./dtos/update-payment-status.dto";
+import { UpdateOrderDto } from "./dtos/update-order.dto";
 
 @Resolver(() => OrderEntity)
 export class OrderResolver {
@@ -36,10 +36,10 @@ export class OrderResolver {
         RolesGuard
     )
     async updatePaymentStatus(
-        @Args() updatePaymentStatusDto: UpdatePaymentStatusDto
+        @Args() updatePaymentStatusDto: UpdateOrderDto
     ): Promise<string> {
-        const { orderId, payment_status } = updatePaymentStatusDto
-        await this.orderService.updatePaymentStatus(orderId, payment_status);
+        const { orderId } = updatePaymentStatusDto
+        await this.orderService.update(orderId, updatePaymentStatusDto);
         return ''
     }
 }
