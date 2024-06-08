@@ -1,0 +1,16 @@
+export enum PAYMENT_METHOD {
+    COD = 'COD',
+    STRIPE = 'STRIPE'
+}
+
+export enum PAYMENT_STATUS {
+    PAID = 'PAID',
+    UNPAID = 'UNPAID'
+}
+
+export enum ORDER_STATUS {
+    PENDING = 'PENDING',
+    CONFIRMED = 'CONFIRMED',
+    SHIPPING = 'SHIPPING',
+    COMPLETED = 'COMPLETED'
+}

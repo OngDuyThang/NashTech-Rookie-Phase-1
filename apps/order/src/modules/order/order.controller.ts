@@ -1,8 +1,9 @@
-import { ApiController, ChangeStatusDto, PermissionRequestGuard, ROLE, Roles, RolesGuard, SERVICE_MESSAGE, UUIDPipe } from "@app/common";
+import { ApiController, PermissionRequestGuard, ROLE, Roles, RolesGuard, SERVICE_MESSAGE, UUIDPipe } from "@app/common";
 import { OrderService } from "./order.service";
 import { Body, Delete, Get, Param, Patch, UseGuards } from "@nestjs/common";
 import { OrderEntity } from "./entities/order.entity";
 import { MessagePattern } from "@nestjs/microservices";
+import { UpdateOrderDto } from "./dtos/update-order.dto";
 
 @ApiController('orders')
 export class OrderController {
@@ -28,11 +29,11 @@ export class OrderController {
         PermissionRequestGuard,
         RolesGuard
     )
-    async changeStatus(
+    async update(
         @Param('id', UUIDPipe) id: string,
-        @Body() changeStatusDto: ChangeStatusDto
+        @Body() updateOrderDto: UpdateOrderDto
     ): Promise<void> {
-        await this.orderService.changeStatus(id, changeStatusDto)
+        await this.orderService.update(id, updateOrderDto)
     }
 
     @Delete('/:id')

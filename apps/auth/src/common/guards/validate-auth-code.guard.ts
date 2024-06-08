@@ -30,6 +30,9 @@ export class ValidateAuthCodeGuard implements CanActivate {
             delete user.password
             req.user = user
 
+            // clear cache auth code when user navigate successfully
+            await this.cacheService.del(authCode)
+
             return true;
         } catch (e) {
             if (

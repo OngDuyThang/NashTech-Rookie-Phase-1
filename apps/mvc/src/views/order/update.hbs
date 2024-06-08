@@ -17,12 +17,70 @@
                             class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:border-gray-600 dark:placeholder-gray-400 dark:focus:ring-primary-500 dark:focus:border-primary-500"
                             value={{ json order.total }} required="">
                     </div>
-                    {{!-- CUSTOMER --}}
+                    {{!-- CUSTOMER ID --}}
                     <div>
-                        <label for="customer" class="block mb-2 text-sm font-medium text-gray-900">Customer</label>
+                        <label for="customer" class="block mb-2 text-sm font-medium text-gray-900">Customer ID</label>
                         <input type="text" id="customer" disabled
                             class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:border-gray-600 dark:placeholder-gray-400 dark:focus:ring-primary-500 dark:focus:border-primary-500"
                             value={{ json order.user_id }} required="">
+                    </div>
+                    {{!-- NAME --}}
+                    <div>
+                        <label for="name" class="block mb-2 text-sm font-medium text-gray-900">Name</label>
+                        <input type="text" id="name" disabled
+                            class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:border-gray-600 dark:placeholder-gray-400 dark:focus:ring-primary-500 dark:focus:border-primary-500"
+                            value={{ json order.name }} required="">
+                    </div>
+                    {{!-- PHONE --}}
+                    <div>
+                        <label for="phone" class="block mb-2 text-sm font-medium text-gray-900">Phone</label>
+                        <input type="text" id="phone" disabled
+                            class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:border-gray-600 dark:placeholder-gray-400 dark:focus:ring-primary-500 dark:focus:border-primary-500"
+                            value={{ json order.phone }} required="">
+                    </div>
+                    {{!-- EMAIL --}}
+                    <div>
+                        <label for="email" class="block mb-2 text-sm font-medium text-gray-900">Email</label>
+                        <input type="text" id="email" disabled
+                            class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:border-gray-600 dark:placeholder-gray-400 dark:focus:ring-primary-500 dark:focus:border-primary-500"
+                            value={{ json order.email }} required="">
+                    </div>
+                    {{!-- ADDRESS --}}
+                    <div>
+                        <label for="address" class="block mb-2 text-sm font-medium text-gray-900">Address</label>
+                        <input type="text" id="address" disabled
+                            class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:border-gray-600 dark:placeholder-gray-400 dark:focus:ring-primary-500 dark:focus:border-primary-500"
+                            value={{ json order.address }} required="">
+                    </div>
+                    {{!-- PAYMENT METHOD --}}
+                    <div>
+                        <label for="payment_method" class="block mb-2 text-sm font-medium text-gray-900">Payment
+                            Method</label>
+                        <input type="text" id="payment_method" disabled
+                            class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:border-gray-600 dark:placeholder-gray-400 dark:focus:ring-primary-500 dark:focus:border-primary-500"
+                            value={{ json order.payment_method }} required="">
+                    </div>
+                    {{!-- PAYMENT STATUS --}}
+                    <div>
+                        <label for="payment-status" class="block mb-2 text-sm font-medium text-gray-900 ">Payment
+                            Status</label>
+                        <select id="payment-status" name="payment_status" value={{ json order.payment_status }}
+                            class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5  dark:border-gray-600 dark:placeholder-gray-400 dark:focus:ring-primary-500 dark:focus:border-primary-500">
+                            <option value="PAID" id="PAID" class="payment-status">PAID</option>
+                            <option value="UNPAID" id="UNPAID" class="payment-status">UNPAID</option>
+                        </select>
+                    </div>
+                    {{!-- ORDER STATUS --}}
+                    <div>
+                        <label for="order-status" class="block mb-2 text-sm font-medium text-gray-900 ">Order
+                            Status</label>
+                        <select id="order-status" name="status" value={{ json order.status }}
+                            class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5  dark:border-gray-600 dark:placeholder-gray-400 dark:focus:ring-primary-500 dark:focus:border-primary-500">
+                            <option value="PENDING" id="PENDING" class="order-status">PENDING</option>
+                            <option value="CONFIRMED" id="CONFIRMED" class="order-status">CONFIRMED</option>
+                            <option value="SHIPPING" id="SHIPPING" class="order-status">SHIPPING</option>
+                            <option value="COMPLETED" id="COMPLETED" class="order-status">COMPLETED</option>
+                        </select>
                     </div>
                     {{!-- ORDER ITEMS --}}
                     <div class="sm:col-span-2">
@@ -40,16 +98,6 @@
                             </li>
                             {{/each}}
                         </ul>
-                    </div>
-                    {{!-- STATUS --}}
-                    <div class="order-status">
-                        <label for="order-status" class="block mb-2 text-sm font-medium text-gray-900 ">Status</label>
-                        <select id="order-status" name="status" value={{ json order.status }}
-                            class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5  dark:border-gray-600 dark:placeholder-gray-400 dark:focus:ring-primary-500 dark:focus:border-primary-500">
-                            <option value="PENDING" id="PENDING" class="status">PENDING</option>
-                            <option value="CONFIRMED" id="CONFIRMED" class="status">CONFIRMED</option>
-                            <option value="CANCELLED" id="CANCELLED" class="status">CANCELLED</option>
-                        </select>
                     </div>
                 </div>
                 <div class="flex items-center space-x-4">
@@ -79,12 +127,23 @@
         const updateUrl = {{ json updateUrl }}
 
         const orderStatus = document.querySelector('#order-status')
-        const statusArr = document.querySelectorAll('.status')
-
-        for (let item of statusArr) {
+        const orderStatusArr = document.querySelectorAll('.order-status')
+        for (let item of orderStatusArr) {
             if (item.value == order.status) {
                 orderStatus.value = item.value
             }
+        }
+
+        const paymentStatus = document.querySelector('#payment-status')
+        const paymentStatusArr = document.querySelectorAll('.payment-status')
+        for (let item of paymentStatusArr) {
+            if (item.value == order.payment_status) {
+                paymentStatus.value = item.value
+            }
+        }
+        if (order?.payment_status == "PAID") {
+            paymentStatus.disabled = true
+            paymentStatus.value = "PAID"
         }
 
         const update = async () => {

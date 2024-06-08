@@ -11,6 +11,14 @@ type CartItemSchema {
   updated_at: DateTime
 }
 
+input CreateOrderDto {
+  address: String!
+  email: String!
+  name: String!
+  payment_method: String = "COD"
+  phone: String!
+}
+
 scalar Date
 
 """
@@ -19,7 +27,8 @@ A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date
 scalar DateTime
 
 type Mutation {
-  createOrder: String!
+  placeOrder(order: CreateOrderDto!): TPaymentResponse!
+  updatePaymentStatus(orderId: String!, payment_status: String!): String!
 }
 
 type OrderItemEntity {
@@ -44,4 +53,9 @@ type ProductSchema {
 
 type Query {
   query: String!
+}
+
+type TPaymentResponse {
+  clientSecret: String!
+  orderId: String!
 }

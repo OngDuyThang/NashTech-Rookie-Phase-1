@@ -1,21 +1,33 @@
 import { BadRequestException, Inject, Injectable, RequestTimeoutException } from "@nestjs/common";
 import { OrderRepository } from "./repositories/order.repository";
-import { CartSchema, ChangeStatusDto, ERROR_MESSAGE, QUERY_ORDER, SERVICE_MESSAGE, SERVICE_NAME, convertRpcException } from "@app/common";
+import { CartSchema, ERROR_MESSAGE, QUERY_ORDER, SERVICE_MESSAGE, SERVICE_NAME, convertRpcException } from "@app/common";
 import { ClientProxy } from "@nestjs/microservices";
 import { TimeoutError, catchError, lastValueFrom, timeout } from "rxjs";
 import { ItemService } from "../item/item.service";
 import { OrderEntity } from "./entities/order.entity";
 import { isEmpty } from "lodash";
-import { PRODUCT } from "apps/product/src/modules/product/common";
+import { CreateOrderDto } from "./dtos/create-order.dto";
+import Stripe from 'stripe';
+import { Env } from "@app/env";
+import { PAYMENT_METHOD, TPaymentResponse } from "./common";
+import { UpdateOrderDto } from "./dtos/update-order.dto";
 
 @Injectable()
 export class OrderService {
+    private readonly stripe: Stripe;
+
     constructor(
         private readonly orderRepository: OrderRepository,
         private readonly itemService: ItemService,
         @Inject(SERVICE_NAME.CART_SERVICE)
-        private readonly cartService: ClientProxy
-    ) {}
+        private readonly cartService: ClientProxy,
+        private readonly env: Env,
+    ) {
+        this.stripe = new Stripe(
+            this.env.STRIPE_SECRET_KEY,
+            { apiVersion: '2024-04-10' }
+        )
+    }
 
     async findCart(
         userId: string
@@ -34,9 +46,28 @@ export class OrderService {
         return await lastValueFrom(_cart) as CartSchema
     }
 
-    async create(
-        userId: string
-    ): Promise<void> {
+    async placeOrder(
+        userId: string,
+        createOrderDto: CreateOrderDto
+    ): Promise<TPaymentResponse> {
+        const order = await this.createOrder(userId, createOrderDto)
+
+        const { payment_method } = createOrderDto
+        switch (payment_method) {
+            case PAYMENT_METHOD.COD:
+                return {
+                    clientSecret: '',
+                    orderId: ''
+                }
+            case PAYMENT_METHOD.STRIPE:
+                return await this.createStripePayment(order.id, order.total)
+        }
+    }
+
+    private async createOrder(
+        userId: string,
+        createOrderDto: CreateOrderDto
+    ): Promise<OrderEntity> {
         const cart = await this.findCart(userId)
         if (isEmpty(cart.items)) {
             throw new BadRequestException(ERROR_MESSAGE.EMPTY_CART)
@@ -52,7 +83,8 @@ export class OrderService {
 
             const order = queryRunner.manager.create(OrderEntity, {
                 user_id: userId,
-                total: cart.total
+                total: cart.total,
+                ...createOrderDto
             })
             await queryRunner.manager.save(order)
 
@@ -71,6 +103,7 @@ export class OrderService {
             if (ok) {
                 await queryRunner.commitTransaction()
                 await this.itemService.create(order.id, cart.items)
+                return order
             }
         } catch (e) {
             await queryRunner.rollbackTransaction()
@@ -80,8 +113,30 @@ export class OrderService {
         }
     }
 
+    private async createStripePayment(
+        orderId: string,
+        amount: number
+    ): Promise<TPaymentResponse> {
+        const paymentIntent = await this.stripe.paymentIntents.create({
+            amount: Number(amount) * 100,
+            currency: 'usd'
+        });
+
+        return {
+            clientSecret: paymentIntent.client_secret,
+            orderId
+        }
+    }
+
     async findAll(): Promise<OrderEntity[]> {
-        return await this.orderRepository.find()
+        try {
+            return await this.orderRepository.createQueryBuilder()
+                .addSelect('order.created_at')
+                .orderBy('order.created_at', QUERY_ORDER.DESC)
+                .getMany()
+        } catch (e) {
+            throw e
+        }
     }
 
     async findOneById(
@@ -93,13 +148,14 @@ export class OrderService {
         })
     }
 
-    async changeStatus(
+    async update(
         id: string,
-        changeStatusDto: ChangeStatusDto
+        updateOrderDto: UpdateOrderDto
     ): Promise<void> {
-        const { status } = changeStatusDto
+        delete updateOrderDto?.orderId
+
         await this.orderRepository.update({ id }, {
-            status
+            ...updateOrderDto
         })
     }
 
@@ -117,7 +173,7 @@ export class OrderService {
                 .addSelect('COUNT(*)', 'total')
                 .groupBy('items.product_id')
                 .orderBy('total', QUERY_ORDER.DESC)
-                .limit(PRODUCT.POPULAR)
+                .limit(20)
                 .getRawMany()
 
             return result.map(item => item?.product_id)

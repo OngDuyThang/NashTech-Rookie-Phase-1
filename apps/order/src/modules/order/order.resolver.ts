@@ -1,8 +1,11 @@
-import { Mutation, Resolver, Query } from "@nestjs/graphql";
+import { Mutation, Resolver, Query, Args } from "@nestjs/graphql";
 import { OrderEntity } from "./entities/order.entity";
 import { OrderService } from "./order.service";
 import { UseGuards } from "@nestjs/common";
 import { GetUser, PermissionRequestGuard, ROLE, Roles, RolesGuard, UserEntity } from "@app/common";
+import { CreateOrderDto } from "./dtos/create-order.dto";
+import { TPaymentResponse } from "./common";
+import { UpdateOrderDto } from "./dtos/update-order.dto";
 
 @Resolver(() => OrderEntity)
 export class OrderResolver {
@@ -13,16 +16,30 @@ export class OrderResolver {
     @Query(() => String)
     query() { return '' }
 
+    @Mutation(() => TPaymentResponse)
+    @Roles([ROLE.USER])
+    @UseGuards(
+        PermissionRequestGuard,
+        RolesGuard
+    )
+    async placeOrder(
+        @GetUser() user: UserEntity,
+        @Args('order') createOrderDto: CreateOrderDto
+    ): Promise<TPaymentResponse> {
+        return await this.orderService.placeOrder(user.id, createOrderDto);
+    }
+
     @Mutation(() => String)
     @Roles([ROLE.USER])
     @UseGuards(
         PermissionRequestGuard,
         RolesGuard
     )
-    async createOrder(
-        @GetUser() user: UserEntity
+    async updatePaymentStatus(
+        @Args() updatePaymentStatusDto: UpdateOrderDto
     ): Promise<string> {
-        await this.orderService.create(user.id);
+        const { orderId } = updatePaymentStatusDto
+        await this.orderService.update(orderId, updatePaymentStatusDto);
         return ''
     }
 }
