@@ -25,4 +25,8 @@ export class EnvValidation extends AbstractEnvValidation {
     @IsString()
     @IsNotEmpty()
     ORDER_QUEUE: string
+
+    @IsString()
+    @IsNotEmpty()
+    STRIPE_SECRET_KEY: string
 }

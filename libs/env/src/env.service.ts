@@ -178,4 +178,8 @@ export class Env {
     get ASSET_SERVICE_PORT() {
         return this.configService.get<string>('ASSET_SERVICE_PORT');
     }
+
+    get STRIPE_SECRET_KEY() {
+        return this.configService.get<string>('STRIPE_SECRET_KEY');
+    }
 }

@@ -14,7 +14,8 @@
                         <th>ID</th>
                         <th>Total</th>
                         <th>Customer</th>
-                        <th>Status</th>
+                        <th>Phone</th>
+                        <th>Payment Status</th>
                         <th>Actions</th>
                     </tr>
                 </thead>
@@ -35,8 +36,9 @@
                         <tr>
                             <td>${order?.id}</td>
                             <td>${order?.total}$</td>
-                            <td>${order?.user_id}</td>
-                            <td>${order?.status}</td>
+                            <td>${order?.name}</td>
+                             <td>${order?.phone}</td>
+                            <td>${order?.payment_status}</td>
                             <td class='flex gap-8'>
                                 <a href='/orders/${order?.id}'><button><i class="fa-solid fa-pen-to-square" style="color: #43fa00;"></i></button></a>
                                 <button onclick="remove()" value="${order?.id}"><i class="fa-solid fa-xmark" style="color: #f08000;"></i></button>
