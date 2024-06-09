@@ -66,6 +66,11 @@ export class PromotionController {
     ) {
         const findOneUrl = this.urlEndpoint(`promotions/${id}`)
         const updateUrl = findOneUrl
+        const uploadUrl = getUrlEndpoint(
+            this.env.UPLOAD_SERVICE_HOST_NAME,
+            this.env.UPLOAD_SERVICE_PORT,
+            '/api/upload/product-image'
+        )
         let promotion: object
 
         try {
@@ -78,6 +83,6 @@ export class PromotionController {
             throw e
         }
 
-        res.render(this.viewPath('update'), { promotion, updateUrl })
+        res.render(this.viewPath('update'), { promotion, updateUrl, uploadUrl })
     }
 }

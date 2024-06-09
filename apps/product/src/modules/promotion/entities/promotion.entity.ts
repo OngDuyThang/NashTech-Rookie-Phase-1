@@ -52,7 +52,7 @@ export class PromotionEntity extends AbstractEntity {
     @Column({ type: 'text', nullable: true })
     @IsString()
     @IsOptional()
-    @Field({ nullable: true })
+    @Field(() => String, { nullable: true })
     image?: string;
 
     @OneToMany(() => ProductEntity, product => product.promotion)

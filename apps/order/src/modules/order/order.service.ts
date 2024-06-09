@@ -213,4 +213,13 @@ export class OrderService {
             throw e
         }
     }
+
+    async findAllByUserId(
+        userId: string
+    ): Promise<OrderEntity[]> {
+        return this.orderRepository.find({
+            where: { user_id: userId },
+            relations: { items: true }
+        })
+    }
 }

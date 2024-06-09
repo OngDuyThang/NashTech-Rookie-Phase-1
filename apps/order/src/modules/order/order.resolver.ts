@@ -42,4 +42,16 @@ export class OrderResolver {
         await this.orderService.update(orderId, updatePaymentStatusDto);
         return ''
     }
+
+    @Query(() => [OrderEntity])
+    @Roles([ROLE.USER])
+    @UseGuards(
+        PermissionRequestGuard,
+        RolesGuard
+    )
+    async findAllByUserId(
+        @GetUser() user: UserEntity
+    ): Promise<OrderEntity[]> {
+        return await this.orderService.findAllByUserId(user.id);
+    }
 }

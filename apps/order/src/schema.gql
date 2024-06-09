@@ -31,6 +31,22 @@ type Mutation {
   updatePaymentStatus(orderId: String!, payment_status: String!): String!
 }
 
+type OrderEntity {
+  address: String!
+  created_at: DateTime
+  email: String!
+  id: String!
+  items: [OrderItemEntity!]
+  name: String!
+  payment_method: String
+  payment_status: String
+  phone: String!
+  status: String
+  total: Float!
+  updated_at: DateTime
+  user_id: String!
+}
+
 type OrderItemEntity {
   created_at: DateTime
   id: String!
@@ -52,6 +68,7 @@ type ProductSchema {
 }
 
 type Query {
+  findAllByUserId: [OrderEntity!]!
   query: String!
 }
 
