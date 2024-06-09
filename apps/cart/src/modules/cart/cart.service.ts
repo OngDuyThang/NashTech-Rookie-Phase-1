@@ -1,12 +1,11 @@
-import { Inject, Injectable, NotFoundException, RequestTimeoutException } from "@nestjs/common";
+import { Inject, Injectable, NotFoundException } from "@nestjs/common";
 import { CartEntity } from "./entities/cart.entity";
 import { CartRepository } from "./repositories/cart.repository";
 import { TempCartRepository } from "./repositories/temp-cart.repository";
 import { TempCartEntity } from "./entities/temp-cart.entity";
-import { ERROR_MESSAGE, ProductSchema, QUERY_ORDER, SERVICE_MESSAGE, SERVICE_NAME, convertRpcException } from "@app/common";
+import { QUERY_ORDER, SERVICE_NAME } from "@app/common";
 import { ClientProxy, RpcException } from "@nestjs/microservices";
-import { TimeoutError, catchError, lastValueFrom, timeout } from "rxjs";
-import { cloneDeep, isEmpty, round } from "lodash";
+import { isEmpty } from "lodash";
 
 @Injectable()
 export class CartService {
@@ -49,6 +48,9 @@ export class CartService {
             }
             return cart
         } catch (e) {
+            if (e instanceof NotFoundException) {
+                return await this.create(userId)
+            }
             throw e
         }
     }
@@ -119,37 +121,7 @@ export class CartService {
                 where: { user_id: userId },
                 relations: { items: true }
             })
-            let total = 0
 
-            for (let i = 0; i < cart.items?.length; i++) {
-                const item = cart.items[i]
-
-                const _product = this.productService.send({ cmd: SERVICE_MESSAGE.GET_PRODUCT_BY_ID }, item.product_id)
-                    .pipe(
-                        timeout(10000),
-                        catchError(e => {
-                            if (e instanceof TimeoutError) {
-                                throw new RequestTimeoutException(ERROR_MESSAGE.TIME_OUT)
-                            }
-                            throw convertRpcException(e)
-                        })
-                    )
-
-                const product = await lastValueFrom(_product) as ProductSchema
-                item.product = cloneDeep(product)
-
-                if (item?.product) {
-                    const { price, discount } = item.product
-
-                    if (discount) {
-                        total += price * (discount / 100) * item.quantity
-                    } else {
-                        total += price * item.quantity
-                    }
-                }
-            }
-
-            cart.total = round(total, 2)
             return cart
         } catch (e) {
             throw new RpcException(e)

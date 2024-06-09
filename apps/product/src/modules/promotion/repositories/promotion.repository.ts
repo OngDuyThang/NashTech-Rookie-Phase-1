@@ -12,4 +12,8 @@ export class PromotionRepository extends AbstractRepository<PromotionEntity> {
     ) {
         super(promotionRepository);
     }
+
+    createQueryBuilder() {
+        return this.promotionRepository.createQueryBuilder('promotion');
+    }
 }

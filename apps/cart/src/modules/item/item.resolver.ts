@@ -4,7 +4,6 @@ import { GetUser, NumberPipe, PermissionRequestGuard, ProductSchema, ROLE, Roles
 import { CartItemEntity } from './entities/item.entity';
 import { ItemService } from './item.service';
 import { CreateCartItemDto } from './dtos/create-item.dto';
-import { Observable } from 'rxjs';
 
 @Resolver(() => CartItemEntity)
 export class ItemResolver {
@@ -53,9 +52,9 @@ export class ItemResolver {
     }
 
     @ResolveField(() => ProductSchema)
-    product(
+    async product(
         @Parent() item: CartItemEntity
-    ): Observable<ProductSchema> {
-        return this.itemService.findProductForCart(item.product_id)
+    ): Promise<ProductSchema> {
+        return await this.itemService.findProductForCart(item.product_id)
     }
 }

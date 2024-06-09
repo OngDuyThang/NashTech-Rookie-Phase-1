@@ -14,6 +14,13 @@ export class CartEntity extends AbstractEntity {
     @Field()
     user_id: string
 
+    @Column({ type: 'decimal', nullable: false, default: 0 })
+    @IsNumber()
+    @IsPositive()
+    @IsOptional()
+    @Field()
+    total?: number
+
     @OneToMany(() => CartItemEntity, item => item.cart)
     @IsArray()
     @IsOptional()
@@ -21,10 +28,4 @@ export class CartEntity extends AbstractEntity {
     @Type(() => CartItemEntity)
     @Field(() => [CartItemEntity], { nullable: true })
     items?: CartItemEntity[]
-
-    @Type(() => Number)
-    @IsNumber()
-    @IsPositive()
-    @IsOptional()
-    total?: number
 }

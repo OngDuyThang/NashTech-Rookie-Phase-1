@@ -6,6 +6,7 @@ type CartEntity {
   created_at: DateTime
   id: String!
   items: [CartItemEntity!]
+  total: Float!
   updated_at: DateTime
   user_id: String!
 }
