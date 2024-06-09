@@ -36,10 +36,10 @@ export class TempItemResolver {
         return ''
     }
 
-    @ResolveField(() => ProductSchema)
-    product(
-        @Parent() item: TempItemEntity
-    ): Observable<ProductSchema> {
-        return this.itemService.findProductForCart(item.product_id)
-    }
+    // @ResolveField(() => ProductSchema)
+    // product(
+    //     @Parent() item: TempItemEntity
+    // ): Observable<ProductSchema> {
+    //     return this.itemService.findProductForCart(item.product_id)
+    // }
 }

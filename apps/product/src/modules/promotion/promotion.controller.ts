@@ -1,8 +1,9 @@
 import { Body, Delete, Get, Param, Patch, Post, UseGuards } from '@nestjs/common';
-import { ApiController, PermissionRequestGuard, ROLE, Roles, RolesGuard, UUIDPipe } from '@app/common';
+import { ApiController, PermissionRequestGuard, ROLE, Roles, RolesGuard, SERVICE_MESSAGE, UUIDPipe } from '@app/common';
 import { PromotionService } from './promotion.service';
 import { CreatePromotionDto } from './dtos/create-promotion.dto';
 import { PromotionEntity } from './entities/promotion.entity';
+import { MessagePattern, Payload } from '@nestjs/microservices';
 
 @ApiController('promotions')
 export class PromotionController {
@@ -57,5 +58,12 @@ export class PromotionController {
         @Param('id', UUIDPipe) id: string
     ): Promise<void> {
         await this.promotionService.delete(id)
+    }
+
+    @MessagePattern({ cmd: SERVICE_MESSAGE.FIND_ORDER_PROMOTION })
+    async findOrderPromotion(
+        @Payload() total: number
+    ): Promise<PromotionEntity> {
+        return await this.promotionService.findOrderPromotion(total);
     }
 }

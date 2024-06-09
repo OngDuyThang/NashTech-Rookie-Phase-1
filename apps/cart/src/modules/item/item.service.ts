@@ -9,6 +9,7 @@ import { ERROR_MESSAGE, ProductSchema, SERVICE_MESSAGE, SERVICE_NAME, convertRpc
 import { ClientProxy, RpcException } from "@nestjs/microservices";
 import { Observable, TimeoutError, catchError, lastValueFrom, timeout } from "rxjs";
 import { TempItemEntity } from "./entities/temp-item.entity";
+import { round } from "lodash";
 
 @Injectable()
 export class ItemService {
@@ -25,8 +26,9 @@ export class ItemService {
         createItemDto: CreateCartItemDto
     ): Promise<CartItemEntity> {
         const cart = await this.cartService.getUserCart(userId);
+        const cartTotal = Number(cart.total)
 
-        this.findProductForCart(createItemDto.product_id)
+        const product = await this.findProductForCart(createItemDto.product_id)
 
         try {
             const item = await this.itemRepository.findOne({
@@ -38,15 +40,27 @@ export class ItemService {
                 item.id,
                 item.quantity + createItemDto.quantity
             )
+            const productPrice = product?.discount ? product?.price - (product?.price * product?.discount) / 100 : product?.price
+            await this.cartService.update(
+                cart.id,
+                round(cartTotal + (createItemDto.quantity * productPrice), 2)
+            )
 
             item.quantity += createItemDto.quantity
             return item
         } catch (e) {
             if (e instanceof NotFoundException) {
-                return await this.itemRepository.create({
+                const item = await this.itemRepository.create({
                     ...createItemDto,
                     cart_id: cart.id
                 });
+                const productPrice = product?.discount ? product?.price - (product?.price * product?.discount) / 100 : product?.price
+                await this.cartService.update(
+                    cart.id,
+                    round(cartTotal + (createItemDto.quantity * productPrice), 2)
+                )
+
+                return item
             }
             throw e
         }
@@ -70,6 +84,27 @@ export class ItemService {
         id: string,
         quantity: number
     ): Promise<void> {
+        const item = await this.itemRepository.findOne({
+            where: { id },
+            relations: { cart: true }
+        })
+        const cartTotal = Number(item?.cart?.total)
+
+        const product = await this.findProductForCart(item.product_id)
+        const productPrice = product?.discount ? product?.price - (product?.price * product?.discount) / 100 : product?.price
+
+        if (quantity > item.quantity) {
+            await this.cartService.update(
+                item.cart_id,
+                round(cartTotal + (quantity - item.quantity) * productPrice, 2)
+            )
+        } else if (quantity < item.quantity) {
+            await this.cartService.update(
+                item.cart_id,
+                round(cartTotal - (item.quantity - quantity) * productPrice, 2)
+            )
+        }
+
         await this.itemRepository.update({ id }, { quantity });
     }
 
@@ -83,6 +118,20 @@ export class ItemService {
     async delete(
         id: string
     ): Promise<void> {
+        const item = await this.itemRepository.findOne({
+            where: { id },
+            relations: { cart: true }
+        })
+        const cartTotal = Number(item?.cart?.total)
+
+        const product = await this.findProductForCart(item.product_id)
+        const productPrice = product?.discount ? product?.price - (product?.price * product?.discount) / 100 : product?.price
+
+        await this.cartService.update(
+            item.cart_id,
+            round(cartTotal - (item.quantity * productPrice), 2)
+        )
+
         await this.itemRepository.delete({ id });
     }
 
@@ -92,10 +141,10 @@ export class ItemService {
         await this.tempItemRepository.delete({ id });
     }
 
-    findProductForCart(
+    async findProductForCart(
         productId: string
-    ): Observable<ProductSchema> {
-        return this.productService.send({ cmd: SERVICE_MESSAGE.GET_PRODUCT_BY_ID }, productId)
+    ): Promise<ProductSchema> {
+        const _product = this.productService.send({ cmd: SERVICE_MESSAGE.GET_PRODUCT_BY_ID }, productId)
             .pipe(
                 timeout(10000),
                 catchError((e) => {
@@ -105,6 +154,11 @@ export class ItemService {
                     throw convertRpcException(e)
                 })
             )
+        try {
+            return await lastValueFrom(_product) as ProductSchema
+        } catch (e) {
+            throw e
+        }
     }
 
     async removeCartItemForProduct(

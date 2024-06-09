@@ -1,6 +1,6 @@
 import { BadRequestException, Inject, Injectable, RequestTimeoutException } from "@nestjs/common";
 import { OrderRepository } from "./repositories/order.repository";
-import { CartSchema, ERROR_MESSAGE, QUERY_ORDER, SERVICE_MESSAGE, SERVICE_NAME, convertRpcException } from "@app/common";
+import { CartSchema, ERROR_MESSAGE, PromotionEntity, QUERY_ORDER, SERVICE_MESSAGE, SERVICE_NAME, convertRpcException } from "@app/common";
 import { ClientProxy } from "@nestjs/microservices";
 import { TimeoutError, catchError, lastValueFrom, timeout } from "rxjs";
 import { ItemService } from "../item/item.service";
@@ -19,9 +19,13 @@ export class OrderService {
     constructor(
         private readonly orderRepository: OrderRepository,
         private readonly itemService: ItemService,
+        private readonly env: Env,
+
         @Inject(SERVICE_NAME.CART_SERVICE)
         private readonly cartService: ClientProxy,
-        private readonly env: Env,
+
+        @Inject(SERVICE_NAME.PRODUCT_SERVICE)
+        private readonly productService: ClientProxy
     ) {
         this.stripe = new Stripe(
             this.env.STRIPE_SECRET_KEY,
@@ -177,6 +181,26 @@ export class OrderService {
                 .getRawMany()
 
             return result.map(item => item?.product_id)
+        } catch (e) {
+            throw e
+        }
+    }
+
+    async findOrderPromotion(
+        total: number
+    ): Promise<PromotionEntity> {
+        const _promotion = this.productService.send({ cmd: SERVICE_MESSAGE.FIND_ORDER_PROMOTION }, total)
+            .pipe(
+                timeout(10000),
+                catchError((e) => {
+                    if (e instanceof TimeoutError) {
+                        throw new RequestTimeoutException(ERROR_MESSAGE.TIME_OUT)
+                    }
+                    throw convertRpcException(e)
+                })
+            )
+        try {
+            return await lastValueFrom(_promotion) as PromotionEntity
         } catch (e) {
             throw e
         }

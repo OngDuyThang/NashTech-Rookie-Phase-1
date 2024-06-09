@@ -129,7 +129,7 @@ export class ReviewService {
         ratings: number[]
     ): number {
         const totalReview = ratings.reduce((result, item) => {
-            result += item
+            result += Number(item)
             return result
         }, 0)
 
@@ -138,7 +138,7 @@ export class ReviewService {
         }
 
         const totalStar = ratings.reduce((result, item, index) => {
-            result += item * (index + 1)
+            result += Number(item) * (index + 1)
             return result
         }, 0)
 

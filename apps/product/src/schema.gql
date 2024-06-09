@@ -83,13 +83,16 @@ type ProductSchema {
 }
 
 type PromotionEntity {
+  condition: String
   created_at: DateTime
   description: String
   discount_percent: Float!
   id: String!
+  level: String
   name: String!
   products(limit: Int = 10, page: Int = 0): ProductList
   updated_at: DateTime
+  value: Float!
 }
 
 type Query {
