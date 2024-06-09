@@ -110,7 +110,7 @@ type Query {
   recommendProducts: [ProductEntity!]!
   review(id: String!): ReviewEntity!
   reviews: [ReviewEntity!]!
-  searchProducts: [ProductEntity!]!
+  searchProducts(query: String!): [ProductEntity!]!
 }
 
 type ReviewEntity {

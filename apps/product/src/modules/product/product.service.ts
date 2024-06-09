@@ -445,4 +445,34 @@ export class ProductService {
             throw new RpcException(e)
         }
     }
+
+    async getRecentlyUpdatedProducts() {
+        try {
+            const oneHourAgo = new Date();
+            oneHourAgo.setHours(oneHourAgo.getHours() - 1);
+
+            const products = await this.productRepository.createQueryBuilder()
+                .where('product.updatedAt > :oneHourAgo', { oneHourAgo })
+                .orderBy('product.updatedAt', 'DESC')
+                .getMany();
+
+            return products;
+        } catch (e) {
+            throw e
+        }
+    }
+
+    async searchProducts(
+        query: string
+    ): Promise<ProductEntity[]> {
+        try {
+            return await this.productRepository.createQueryBuilder()
+                .leftJoinAndSelect('product.author', 'author')
+                .where('product.title ILIKE :query', { query: `%${query}%` })
+                .orWhere('author.pen_name ILIKE :query', { query: `%${query}%` })
+                .getMany();
+        } catch (e) {
+            throw e
+        }
+    }
 }

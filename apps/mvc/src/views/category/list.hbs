@@ -30,11 +30,23 @@
             </table>
         </section>
         {{> footer }}
+
+        <dialog id="dialog"
+            class="w-[400px] h-[250px] bg-blue-950 absolute top-0 left-0 right-0 bottom-0 m-auto rounded-lg">
+            <h3 class="w-full text-center mt-8 font-bold text-white">Are you sure you want to delete this?</h3>
+            <button id="cancelBtn" onclick="closeModal()"
+                class="float-right bg-white rounded-lg mr-4 px-4 py-2 mt-[100px]">Cancel</button>
+            <button id="confirmBtn" onclick="remove()"
+                class="float-right bg-white rounded-lg mr-4 px-4 py-2 mt-[100px]">Confirm</button>
+        </dialog>
     </main>
 
     <script>
         const categories = {{ json categories }}
         const removeUrl = {{ json removeUrl }}
+
+        const dialog = document.getElementById('dialog');
+        let id = ''
 
         $(document).ready(async () => {
             const categoriesBody = $('.categories-table-body');
@@ -47,7 +59,7 @@
                             <td>${category?.active}</td>
                             <td class='flex gap-8'>
                                 <a href='/categories/${category?.id}'><button><i class="fa-solid fa-pen-to-square" style="color: #43fa00;"></i></button></a>
-                                <button onclick="remove()" value="${category?.id}"><i class="fa-solid fa-xmark" style="color: #f08000;"></i></button>
+                                <button onclick="showModal(event)" value="${category?.id}"><i class="fa-solid fa-xmark" style="color: #f08000;"></i></button>
                                 <button><i class="fa-solid fa-trash" style="color: #fd1c1c;"></i></button>
                             </td>
                         </tr>
@@ -59,9 +71,16 @@
             });
         });
 
+        const showModal = (event) => {
+            id = event.currentTarget.value
+            dialog.showModal()
+        }
+        const closeModal = () => {
+            dialog.close()
+        }
+
         const remove = async () => {
             const accessToken = localStorage.getItem('access_token')
-            const id = event?.currentTarget?.value
             console.log(id)
             try {
                 const res = await fetch(`${removeUrl}/${id}`, {
@@ -77,6 +96,7 @@
             } catch (e) {
                 console.log(e)
             }
+            closeModal()
         }
     </script>
     {{> common }}

@@ -81,5 +81,9 @@ export class ProductResolver {
     }
 
     @Query(() => [ProductEntity])
-    async searchProducts() {}
+    async searchProducts(
+        @Args('query') query: string
+    ): Promise<ProductEntity[]> {
+        return await this.productService.searchProducts(query)
+    }
 }

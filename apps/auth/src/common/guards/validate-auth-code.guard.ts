@@ -21,7 +21,7 @@ export class ValidateAuthCodeGuard implements CanActivate {
             const { authCode } = classValidate(ExchangeTokenDto, req.body)
 
             const userId = await this.cacheService.get<string>(authCode);
-            console.log(userId)
+            console.log('authCode', authCode)
             if (!userId) {
                 throw error
             }
