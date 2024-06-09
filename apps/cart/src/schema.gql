@@ -69,6 +69,7 @@ type ProductSchema {
 type Query {
   cart: CartEntity!
   cartForGuest(guestId: String!): TempCartEntity!
+  findOrderPromotion(total: Float!): Float!
   getGuestCartCount(guestId: String!): Float!
   getUserCartCount: Float!
 }

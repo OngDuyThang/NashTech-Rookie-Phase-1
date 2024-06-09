@@ -8,7 +8,7 @@ import { ProductList } from "../../product/entities/product-list.schema";
 import { PROMOTION_CONDITION, PROMOTION_LEVEL } from "@app/common";
 
 @Entity({ name: 'promotion' })
-@Check(`"value" >= 0 AND "value" <= 100`)
+@Check(`"discount_percent" >= 0 AND "discount_percent" <= 100`)
 @ObjectType()
 export class PromotionEntity extends AbstractEntity {
     @Column({ type: 'varchar', length: 255, nullable: false })
@@ -41,13 +41,19 @@ export class PromotionEntity extends AbstractEntity {
     @IsNumber()
     @IsOptional()
     @Field()
-    value?: number
+    min_value?: number
 
     @Column({ type: 'decimal', nullable: false })
     @IsNumber()
     @IsNotEmpty()
     @Field()
     discount_percent: number
+
+    @Column({ type: 'text', nullable: true })
+    @IsString()
+    @IsOptional()
+    @Field({ nullable: true })
+    image?: string;
 
     @OneToMany(() => ProductEntity, product => product.promotion)
     @IsArray()

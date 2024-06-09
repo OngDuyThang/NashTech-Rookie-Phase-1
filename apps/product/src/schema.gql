@@ -88,11 +88,12 @@ type PromotionEntity {
   description: String
   discount_percent: Float!
   id: String!
+  image: String
   level: String
+  min_value: Float!
   name: String!
   products(limit: Int = 10, page: Int = 0): ProductList
   updated_at: DateTime
-  value: Float!
 }
 
 type Query {

@@ -30,7 +30,7 @@ export class ReviewController {
         let reviews: object
 
         try {
-            const res = await fetch(findAllUrl, {
+            const res = await fetch(`${findAllUrl}/all`, {
                 method: 'GET'
             })
             const data = await res.json()

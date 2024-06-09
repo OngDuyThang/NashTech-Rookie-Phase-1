@@ -46,8 +46,31 @@ export class OrderService {
                     throw convertRpcException(e)
                 })
             );
+        try {
+            return await lastValueFrom(_cart) as CartSchema
+        } catch (e) {
+            throw e
+        }
+    }
 
-        return await lastValueFrom(_cart) as CartSchema
+    async findOrderPromotion(
+        total: number
+    ): Promise<PromotionEntity> {
+        const _promotion = this.productService.send({ cmd: SERVICE_MESSAGE.FIND_ORDER_PROMOTION }, total)
+            .pipe(
+                timeout(10000),
+                catchError((e) => {
+                    if (e instanceof TimeoutError) {
+                        throw new RequestTimeoutException(ERROR_MESSAGE.TIME_OUT)
+                    }
+                    throw convertRpcException(e)
+                })
+            )
+        try {
+            return await lastValueFrom(_promotion) as PromotionEntity
+        } catch (e) {
+            throw e
+        }
     }
 
     async placeOrder(
@@ -76,6 +99,11 @@ export class OrderService {
         if (isEmpty(cart.items)) {
             throw new BadRequestException(ERROR_MESSAGE.EMPTY_CART)
         }
+        const promotion = await this.findOrderPromotion(cart.total)
+
+        const cartTotal = Number(cart.total)
+        const discountPercent = promotion?.discount_percent ? Number(promotion?.discount_percent) : 0
+        const finalTotal = cartTotal - (cartTotal * discountPercent) / 100
 
         let queryRunner = this.orderRepository.createQueryRunner()
         if (queryRunner.isReleased) {
@@ -87,7 +115,7 @@ export class OrderService {
 
             const order = queryRunner.manager.create(OrderEntity, {
                 user_id: userId,
-                total: cart.total,
+                total: finalTotal,
                 ...createOrderDto
             })
             await queryRunner.manager.save(order)
@@ -181,26 +209,6 @@ export class OrderService {
                 .getRawMany()
 
             return result.map(item => item?.product_id)
-        } catch (e) {
-            throw e
-        }
-    }
-
-    async findOrderPromotion(
-        total: number
-    ): Promise<PromotionEntity> {
-        const _promotion = this.productService.send({ cmd: SERVICE_MESSAGE.FIND_ORDER_PROMOTION }, total)
-            .pipe(
-                timeout(10000),
-                catchError((e) => {
-                    if (e instanceof TimeoutError) {
-                        throw new RequestTimeoutException(ERROR_MESSAGE.TIME_OUT)
-                    }
-                    throw convertRpcException(e)
-                })
-            )
-        try {
-            return await lastValueFrom(_promotion) as PromotionEntity
         } catch (e) {
             throw e
         }

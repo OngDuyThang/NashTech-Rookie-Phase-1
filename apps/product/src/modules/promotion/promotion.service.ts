@@ -52,7 +52,7 @@ export class PromotionService {
             return this.promotionRepository.createQueryBuilder()
                 .where('promotion.level = :level', { level: PROMOTION_LEVEL.ORDER })
                 .andWhere('promotion.condition = :condition', { condition: PROMOTION_CONDITION.AT_LEAST })
-                .andWhere('promotion.value <= :total', { total })
+                .andWhere('promotion.min_value <= :total', { total })
                 .orderBy('promotion.discount_percent', QUERY_ORDER.DESC)
                 .take(1)
                 .getOne();

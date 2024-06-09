@@ -141,6 +141,10 @@
             }
         }
 
+        if (product?.image) {
+            previewImg.src = product?.image
+        }
+
         const update = async () => {
             event.preventDefault()
             const formData = new FormData(event.target);

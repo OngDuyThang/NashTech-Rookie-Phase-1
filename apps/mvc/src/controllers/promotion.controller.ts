@@ -50,8 +50,13 @@ export class PromotionController {
         @Res() res: Response
     ) {
         const createUrl = this.urlEndpoint('promotions')
+        const uploadUrl = getUrlEndpoint(
+            this.env.UPLOAD_SERVICE_HOST_NAME,
+            this.env.UPLOAD_SERVICE_PORT,
+            '/api/upload/product-image'
+        )
 
-        res.render(this.viewPath('create'), { createUrl })
+        res.render(this.viewPath('create'), { createUrl, uploadUrl })
     }
 
     @Get('/:id')

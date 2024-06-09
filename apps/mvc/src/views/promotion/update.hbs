@@ -18,6 +18,34 @@
                             class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:border-gray-600 dark:placeholder-gray-400 dark:focus:ring-primary-500 dark:focus:border-primary-500"
                             value={{ json promotion.name }} placeholder="Enter category name" required="">
                     </div>
+                    {{!-- PROMOTION LEVEL --}}
+                    <div>
+                        <label for="promotion-level" class="block mb-2 text-sm font-medium text-gray-900 ">Promotion
+                            Level</label>
+                        <select id="promotion-level" name="level"
+                            class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5  dark:border-gray-600 dark:placeholder-gray-400 dark:focus:ring-primary-500 dark:focus:border-primary-500">
+                            <option value="PRODUCT" id="PRODUCT" class="promotion-level">PRODUCT</option>
+                            <option value="ORDER" id="ORDER" class="promotion-level">ORDER</option>
+                        </select>
+                    </div>
+                    {{!-- PROMOTION CONDITION --}}
+                    <div>
+                        <label for="promotion-condition" class="block mb-2 text-sm font-medium text-gray-900 ">Promotion
+                            Condition</label>
+                        <select id="promotion-condition" name="condition"
+                            class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5  dark:border-gray-600 dark:placeholder-gray-400 dark:focus:ring-primary-500 dark:focus:border-primary-500">
+                            <option value="EVENT" id="EVENT" class="promotion-condition">EVENT</option>
+                            <option value="AT_LEAST" id="AT_LEAST" class="promotion-condition">AT_LEAST</option>
+                        </select>
+                    </div>
+                    {{!-- MIN VALUE --}}
+                    <div>
+                        <label for="min_value" class="block mb-2 text-sm font-medium text-gray-900 ">Min Value</label>
+                        <input type="number" name="min_value" id="min_value" min="0" max="9999"
+                            oninput="this.value = Math.max(0, Math.min(this.value, 9999))"
+                            class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5  dark:border-gray-600 dark:placeholder-gray-400  dark:focus:ring-primary-500 dark:focus:border-primary-500"
+                            value={{ json promotion.min_value }} placeholder="100$" required="">
+                    </div>
                     {{!-- DISCOUNT --}}
                     <div>
                         <label for="discount_percent" class="block mb-2 text-sm font-medium text-gray-900 ">Discount
@@ -35,6 +63,20 @@
                             class="block p-2.5 w-full text-sm text-gray-900 bg-gray-50 rounded-lg border border-gray-300 focus:ring-primary-500 focus:border-primary-500  dark:border-gray-600 dark:placeholder-gray-400  dark:focus:ring-primary-500 dark:focus:border-primary-500"
                             placeholder="Write a advertisement here...">{{ json promotion.description }}</textarea>
                     </div>
+                    {{!-- FILE --}}
+                    <div class="sm:col-span-2">
+                        <label class="block mb-2 text-sm font-medium text-gray-900 " for="default_size">Product
+                            Image</label>
+                        <input onchange="previewImage()"
+                            class="block w-full mb-5 text-sm text-gray-900 border border-gray-300 rounded-lg cursor-pointer bg-gray-50 dark:text-gray-400 focus:outline-none dark:border-gray-600 dark:placeholder-gray-400"
+                            id="default_size" type="file">
+                        <p class="mt-1 text-sm text-gray-800" id="file_input_help">SVG, PNG, JPG or
+                            GIF
+                            (MAX. 800x400px).</p>
+                    </div>
+                    {{!-- PREVIEW IMAGE --}}
+                    <img id="preview-image" class="h-auto max-w-full" src="https://placehold.co/600x400"
+                        alt="image description">
                 </div>
                 <div class="flex items-center space-x-4">
                     <button type="submit"
@@ -61,15 +103,45 @@
     <script>
         const promotion = {{ json promotion }}
         const updateUrl = {{ json updateUrl }}
+        const uploadUrl = {{ json uploadUrl }}
+
+        const promotionLevel = document.querySelector('#promotion-level')
+        const promotionCondition = document.querySelector('#promotion-condition')
+        const promotionLevelArr = document.querySelectorAll('.promotion-level')
+        const promotionConditionArr = document.querySelectorAll('.promotion-condition')
+        const previewImg = document.querySelector('#preview-image')
+        let fileToUpload
+
+        for (let item of promotionLevelArr) {
+            if (item.value == promotion.level) {
+                promotionLevel.value = item.value
+            }
+        }
+
+        for (let item of promotionConditionArr) {
+            if (item.value == promotion.condition) {
+                promotionCondition.value = item.value
+            }
+        }
+
+        if (promotion?.image) {
+            previewImg.src = promotion?.image
+        }
 
         const update = async () => {
             event.preventDefault()
             const formData = new FormData(event.target);
             const body = Object.fromEntries(formData);
             body.discount_percent = Number(body.discount_percent)
+            body.min_value = Number(body.min_value)
 
             const accessToken = localStorage.getItem('access_token')
             try {
+                const location = await uploadFile()
+                if (location) {
+                    body.image = location
+                }
+
                 const res = await fetch(updateUrl, {
                     method: 'PATCH',
                     headers: {
@@ -84,6 +156,31 @@
             } catch (e) {
                 console.log(e)
             }
+        }
+
+        const previewImage = () => {
+            const input = event.target
+            const reader = new FileReader()
+
+            reader.onload = () => {
+                previewImg.src = reader.result;
+            };
+
+            if (input.files && input.files[0]) {
+                reader.readAsDataURL(input.files[0]);
+                fileToUpload = input.files[0];
+            }
+        }
+
+        const uploadFile = async () => {
+            const formData = new FormData();
+            formData.append('image', fileToUpload);
+            const res = await fetch(uploadUrl, {
+                method: 'POST',
+                body: formData
+            })
+            const data = await res.json()
+            return data?.data
         }
     </script>
     {{> common }}

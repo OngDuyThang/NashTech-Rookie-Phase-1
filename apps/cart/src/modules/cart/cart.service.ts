@@ -1,17 +1,19 @@
-import { Inject, Injectable, NotFoundException } from "@nestjs/common";
+import { Inject, Injectable, NotFoundException, RequestTimeoutException } from "@nestjs/common";
 import { CartEntity } from "./entities/cart.entity";
 import { CartRepository } from "./repositories/cart.repository";
 import { TempCartRepository } from "./repositories/temp-cart.repository";
 import { TempCartEntity } from "./entities/temp-cart.entity";
-import { QUERY_ORDER, SERVICE_NAME } from "@app/common";
+import { ERROR_MESSAGE, PromotionEntity, QUERY_ORDER, SERVICE_MESSAGE, SERVICE_NAME, convertRpcException } from "@app/common";
 import { ClientProxy, RpcException } from "@nestjs/microservices";
 import { isEmpty } from "lodash";
+import { TimeoutError, catchError, lastValueFrom, timeout } from "rxjs";
 
 @Injectable()
 export class CartService {
     constructor(
         private readonly cartRepository: CartRepository,
         private readonly tempCartRepository: TempCartRepository,
+
         @Inject(SERVICE_NAME.PRODUCT_SERVICE)
         private readonly productService: ClientProxy
     ) {}
@@ -148,6 +150,26 @@ export class CartService {
             throw new RpcException(e)
         } finally {
             await queryRunner.release()
+        }
+    }
+
+    async findOrderPromotion(
+        total: number
+    ): Promise<PromotionEntity> {
+        const _promotion = this.productService.send({ cmd: SERVICE_MESSAGE.FIND_ORDER_PROMOTION }, total)
+            .pipe(
+                timeout(10000),
+                catchError((e) => {
+                    if (e instanceof TimeoutError) {
+                        throw new RequestTimeoutException(ERROR_MESSAGE.TIME_OUT)
+                    }
+                    throw convertRpcException(e)
+                })
+            )
+        try {
+            return await lastValueFrom(_promotion) as PromotionEntity
+        } catch (e) {
+            throw e
         }
     }
 }
