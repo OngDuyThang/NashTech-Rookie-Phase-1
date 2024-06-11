@@ -55,7 +55,7 @@
                         <tr>
                             <td>${promotion?.id}</td>
                             <td>${promotion?.name}</td>
-                            <td>${promotion?.description}</td>
+                            <td>${new String(promotion?.description).slice(0, 20) + '...' || 'none'}</td>
                             <td>${promotion?.discount_percent}%</td>
                             <td class='flex gap-8'>
                                 <a href='/promotions/${promotion?.id}'><button><i class="fa-solid fa-pen-to-square" style="color: #43fa00;"></i></button></a>

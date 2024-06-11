@@ -154,6 +154,8 @@ export class ReviewService {
         star: number
     ): Promise<[ReviewEntity[], number]> {
         try {
+            console.log('page', page)
+            console.log('limit', limit)
             return await this.reviewRepository.createQueryBuilder()
                 .addSelect('review.created_at')
                 .where('review.product_id = :productId', { productId: product.id })

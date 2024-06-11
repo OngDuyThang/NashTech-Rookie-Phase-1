@@ -64,7 +64,7 @@
                         <tr>
                             <td>${product?.id}</td>
                             <td>${product?.title}</td>
-                            <td>${product?.description || 'none'}</td>
+                            <td>${new String(product?.description).slice(0, 20) + '...' || 'none'}</td>
                             <td>${product?.price}</td>
                             <td><img src="${product?.image || 'placeholder.svg'}" width="100" height="100"/></td>
                             <td>${product?.author?.pen_name || 'none'}</td>
@@ -73,7 +73,7 @@
                             <td>${product?.rating}</td>
                             <td>${product?.active}</td>
                             
-                            <td class='flex gap-8'>
+                            <td class='mt-8 flex gap-8 items-center'>
                                 <a href='/products/${product?.id}'><button><i class="fa-solid fa-pen-to-square" style="color: #43fa00;"></i></button></a>
                                 <button onclick="showModal(event)" value="${product?.id}"><i class="fa-solid fa-xmark" style="color: #f08000;"></i></button>
                                 <button><i class="fa-solid fa-trash" style="color: #fd1c1c;"></i></button>

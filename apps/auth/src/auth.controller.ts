@@ -131,7 +131,7 @@ export class AuthController {
     return
   }
 
-  @Patch('/reset-password')
+  @Post('/reset-password')
   @UseGuards(ResetPasswordGuard, ValidateOttGuard)
   @UsePipes(HashPasswordPipe)
   async resetPassword(

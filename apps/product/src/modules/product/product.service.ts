@@ -3,7 +3,7 @@ import { ProductRepository } from './repositories/product.repository';
 import { CreateProductDto } from './dtos/create-product.dto';
 import { ProductEntity } from './entities/product.entity';
 import { QUERY_ORDER, ProductSchema, SERVICE_NAME, SERVICE_MESSAGE, ERROR_MESSAGE, convertRpcException } from '@app/common';
-import { In, SelectQueryBuilder } from 'typeorm';
+import { ILike, In, SelectQueryBuilder } from 'typeorm';
 import { ProductQueryDto } from './dtos/query.dto';
 import { LAST_PRODUCT_CACHE_KEY, PRODUCT, PRODUCT_SORT, TCacheLastProduct } from './common';
 import { ReviewService } from '../review/review.service';
@@ -61,7 +61,9 @@ export class ProductService {
         const query = this.productRepository.createQueryBuilder()
             .leftJoinAndSelect('product.author', 'author')
             .leftJoinAndSelect('product.promotion', 'promotion')
+            .addSelect('product.updated_at')
             .where('product.active = true')
+            .orderBy('product.updated_at', QUERY_ORDER.DESC)
 
         if (!isEmpty(subcategoryIds)) {
             query.andWhere('product.category_id IN (:...subcategoryIds)', { subcategoryIds })
@@ -82,21 +84,21 @@ export class ProductService {
         try {
             switch (sort) {
                 case PRODUCT_SORT.ON_SALE:
-                    return await this.productsOnSale(query, page, limit)
+                    return await this.productsOnSale(query, page, limit);
                 case PRODUCT_SORT.PRICE_ASC:
-                    return await this.productsByPrice(query, page, limit, QUERY_ORDER.ASC)
+                    return await this.productsByPrice(query, page, limit, QUERY_ORDER.ASC);
                 case PRODUCT_SORT.PRICE_DESC:
-                    return await this.productsByPrice(query, page, limit, QUERY_ORDER.DESC)
-                default:
-                    return await this.productRepository.findList({
-                        where: { active: true },
-                        skip: page * limit,
-                        take: limit
-                    });
+                    return await this.productsByPrice(query, page, limit, QUERY_ORDER.DESC);
+                case PRODUCT_SORT.ALL:
+                    return await query.
+                        skip(page * limit)
+                        .take(limit)
+                        .getManyAndCount();;
             }
         } catch (e) {
             throw e
         }
+
     }
 
     private async productsOnSale(
@@ -427,19 +429,13 @@ export class ProductService {
                 }
             })
 
-            const {
-                title, price, image,
-                promotion: { discount_percent },
-                author: { pen_name }
-            } = product
-
             return {
                 id,
-                title,
-                price,
-                discount: discount_percent,
-                image,
-                author: pen_name
+                title: product?.title || '',
+                price: product?.price || 0,
+                discount: product?.promotion?.discount_percent || 0,
+                image: product?.image || '',
+                author: product?.author?.pen_name || ''
             }
         } catch (e) {
             throw new RpcException(e)
@@ -466,11 +462,15 @@ export class ProductService {
         query: string
     ): Promise<ProductEntity[]> {
         try {
-            return await this.productRepository.createQueryBuilder()
-                .leftJoinAndSelect('product.author', 'author')
-                .where('product.title ILIKE :query', { query: `%${query}%` })
-                .orWhere('author.pen_name ILIKE :query', { query: `%${query}%` })
-                .getMany();
+            return this.productRepository.find({
+                where: [
+                    { title: ILike(`%${query}%`), active: true },
+                    { author: { pen_name: ILike(`%${query}%`) }, active: true }
+                ],
+                relations: {
+                    author: true
+                }
+            })
         } catch (e) {
             throw e
         }
