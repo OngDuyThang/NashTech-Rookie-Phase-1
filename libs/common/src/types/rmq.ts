@@ -1,4 +1,4 @@
 export type RmqClientOption = {
-    provide: string,
-    queueName: string
-}
+  provide: string;
+  queueName: string;
+};

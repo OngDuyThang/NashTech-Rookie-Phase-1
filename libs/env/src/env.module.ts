@@ -10,7 +10,7 @@ import { AbstractEnvValidation } from './env.validation';
 export class EnvModule {
   static forRoot(
     path: string,
-    validationClass: ClassConstructor<AbstractEnvValidation>
+    validationClass: ClassConstructor<AbstractEnvValidation>,
   ): DynamicModule {
     return {
       module: EnvModule,
@@ -18,14 +18,13 @@ export class EnvModule {
         ConfigModule.forRoot({
           envFilePath: path,
           validate: (config: Record<string, unknown>) => {
-            return classValidate(validationClass, config, true)
+            return classValidate(validationClass, config, true);
           },
-          isGlobal: true
-        })
+          isGlobal: true,
+        }),
       ],
       providers: [Env],
-      exports: [Env]
-    }
+      exports: [Env],
+    };
   }
 }
-

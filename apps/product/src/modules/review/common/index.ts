@@ -1,2 +1,2 @@
-export * from './enums/sort'
-export * from './enums/star'
+export * from './enums/sort';
+export * from './enums/star';

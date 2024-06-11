@@ -5,10 +5,7 @@ import { UUIDPipe } from '@app/common';
 
 @Resolver(() => CategoryEntity)
 export class CategoryResolver {
-  constructor(
-    private readonly categoryService: CategoryService,
-
-  ) {}
+  constructor(private readonly categoryService: CategoryService) {}
 
   @Query(() => [CategoryEntity])
   async categories(): Promise<CategoryEntity[]> {
@@ -16,9 +13,7 @@ export class CategoryResolver {
   }
 
   @Query(() => CategoryEntity)
-  async category(
-    @Args('id', UUIDPipe) id: string
-  ): Promise<CategoryEntity> {
+  async category(@Args('id', UUIDPipe) id: string): Promise<CategoryEntity> {
     return await this.categoryService.findOneById(id);
   }
 

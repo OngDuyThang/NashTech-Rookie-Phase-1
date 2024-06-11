@@ -1,4 +1,13 @@
-import { HttpExceptionFilter, QUEUE_NAME, RmqClientOption, RpcExceptionFilter, SERVICE_NAME, TypeORMExceptionFilter, getEnvFilePath, getGqlSchemaPath } from '@app/common';
+import {
+  HttpExceptionFilter,
+  QUEUE_NAME,
+  RmqClientOption,
+  RpcExceptionFilter,
+  SERVICE_NAME,
+  TypeORMExceptionFilter,
+  getEnvFilePath,
+  getGqlSchemaPath,
+} from '@app/common';
 import { DatabaseModule } from '@app/database';
 import { EnvModule } from '@app/env';
 import { GraphQLModule } from '@app/graphql';
@@ -13,50 +22,42 @@ import { ItemModule } from './modules/item/item.module';
 const rmqClients: RmqClientOption[] = [
   {
     provide: SERVICE_NAME.AUTH_SERVICE,
-    queueName: QUEUE_NAME.AUTH
+    queueName: QUEUE_NAME.AUTH,
   },
   {
     provide: SERVICE_NAME.PRODUCT_SERVICE,
-    queueName: QUEUE_NAME.PRODUCT
+    queueName: QUEUE_NAME.PRODUCT,
   },
   {
     provide: SERVICE_NAME.CART_SERVICE,
-    queueName: QUEUE_NAME.CART
-  }
-]
+    queueName: QUEUE_NAME.CART,
+  },
+];
 
 const providers: Provider[] = [
   {
     provide: APP_FILTER,
-    useClass: HttpExceptionFilter
+    useClass: HttpExceptionFilter,
   },
   {
     provide: APP_FILTER,
-    useClass: TypeORMExceptionFilter
+    useClass: TypeORMExceptionFilter,
   },
   {
     provide: APP_FILTER,
-    useClass: RpcExceptionFilter
-  }
-]
+    useClass: RpcExceptionFilter,
+  },
+];
 
 @Module({
   imports: [
     DatabaseModule.forRoot(dataSourceOptions),
-    EnvModule.forRoot(
-      getEnvFilePath('order'),
-      EnvValidation
-    ),
+    EnvModule.forRoot(getEnvFilePath('order'), EnvValidation),
     RmqModule.register(rmqClients),
-    GraphQLModule.forRoot(
-      getGqlSchemaPath('order')
-    ),
+    GraphQLModule.forRoot(getGqlSchemaPath('order')),
     OrderModule,
-    ItemModule
+    ItemModule,
   ],
-  providers: [
-    Logger,
-    ...providers
-  ],
+  providers: [Logger, ...providers],
 })
 export class AppModule {}

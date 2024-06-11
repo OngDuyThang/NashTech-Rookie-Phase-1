@@ -1,7 +1,7 @@
-import { IsNotEmpty, IsString } from "class-validator";
+import { IsNotEmpty, IsString } from 'class-validator';
 
 export class UpdateAboutDto {
-    @IsString()
-    @IsNotEmpty()
-    content: string
+  @IsString()
+  @IsNotEmpty()
+  content: string;
 }

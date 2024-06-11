@@ -5,21 +5,19 @@ import { TempCartEntity } from './entities/temp-cart.entity';
 
 @Resolver(() => TempCartEntity)
 export class TempCartResolver {
-    constructor(
-        private readonly cartService: CartService,
-    ) {}
+  constructor(private readonly cartService: CartService) {}
 
-    @Query(() => TempCartEntity)
-    async cartForGuest(
-        @Args('guestId', UUIDPipe) guestId: string
-    ): Promise<TempCartEntity> {
-        return await this.cartService.getGuestCart(guestId);
-    }
+  @Query(() => TempCartEntity)
+  async cartForGuest(
+    @Args('guestId', UUIDPipe) guestId: string,
+  ): Promise<TempCartEntity> {
+    return await this.cartService.getGuestCart(guestId);
+  }
 
-    @Query(() => Number)
-    async getGuestCartCount(
-        @Args('guestId', UUIDPipe) guestId: string
-    ): Promise<number> {
-        return await this.cartService.getGuestCartCount(guestId);
-    }
+  @Query(() => Number)
+  async getGuestCartCount(
+    @Args('guestId', UUIDPipe) guestId: string,
+  ): Promise<number> {
+    return await this.cartService.getGuestCartCount(guestId);
+  }
 }

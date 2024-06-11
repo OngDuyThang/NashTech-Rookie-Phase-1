@@ -3,18 +3,18 @@ import { Kind, ValueNode } from 'graphql';
 
 @Scalar('Date')
 export class DateScalar implements CustomScalar<string, Date> {
-    parseValue(value: string): Date {
-        return new Date(value); // value from the client
-    }
+  parseValue(value: string): Date {
+    return new Date(value); // value from the client
+  }
 
-    serialize(value: Date): string {
-        return value.toISOString(); // value sent to the client
-    }
+  serialize(value: Date): string {
+    return value.toISOString(); // value sent to the client
+  }
 
-    parseLiteral(ast: ValueNode): Date {
-        if (ast.kind === Kind.STRING) {
-            return new Date(ast.value);
-        }
-        return null;
+  parseLiteral(ast: ValueNode): Date {
+    if (ast.kind === Kind.STRING) {
+      return new Date(ast.value);
     }
+    return null;
+  }
 }

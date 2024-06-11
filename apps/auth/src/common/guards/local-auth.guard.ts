@@ -1,22 +1,26 @@
-import { ExecutionContext, Injectable, UnauthorizedException } from "@nestjs/common";
-import { AuthGuard } from "@nestjs/passport";
+import {
+  ExecutionContext,
+  Injectable,
+  UnauthorizedException,
+} from '@nestjs/common';
+import { AuthGuard } from '@nestjs/passport';
 
 @Injectable()
-export class LocalAuthGuard extends AuthGuard("local") {
-    constructor() {
-        super();
+export class LocalAuthGuard extends AuthGuard('local') {
+  constructor() {
+    super();
+  }
+
+  canActivate(context: ExecutionContext) {
+    return super.canActivate(context);
+  }
+
+  handleRequest(e: any, user: any) {
+    if (e || !user) {
+      throw e || new UnauthorizedException();
     }
 
-    canActivate(context: ExecutionContext) {
-        return super.canActivate(context);
-    }
-
-    handleRequest(e: any, user: any) {
-        if (e || !user) {
-            throw e || new UnauthorizedException()
-        }
-
-        delete user.password
-        return user
-    }
+    delete user.password;
+    return user;
+  }
 }

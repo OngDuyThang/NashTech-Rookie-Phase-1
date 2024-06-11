@@ -1,34 +1,32 @@
-import { join } from "path"
+import { join } from 'path';
 import * as hbs from 'hbs';
-import { COMMON_KEY_NAME } from "../enums/token";
-import { TUserState } from "../types/common";
-import { isEmpty } from "lodash";
-import { getUrlEndpoint } from "./helpers";
+import { COMMON_KEY_NAME } from '../enums/token';
+import { TUserState } from '../types/common';
+import { isEmpty } from 'lodash';
+import { getUrlEndpoint } from './helpers';
 
-export const getViewPath = (
-    dir: string,
-    file?: string
-) => {
-    if (file) {
-        return join(__dirname, 'views', dir, file)
-    }
-    return join(__dirname, 'views', dir)
-}
+export const getViewPath = (dir: string, file?: string) => {
+  if (file) {
+    return join(__dirname, 'views', dir, file);
+  }
+  return join(__dirname, 'views', dir);
+};
 
 export const hbsJsonHelper = () => {
-    hbs.registerHelper('json', (obj) =>
-        new hbs.handlebars.SafeString(JSON.stringify(obj))
-    )
+  hbs.registerHelper(
+    'json',
+    (obj) => new hbs.handlebars.SafeString(JSON.stringify(obj)),
+  );
 };
 
 export const hbsEqualHelper = () => {
-    hbs.registerHelper('equal', (a: unknown, b: unknown, options) => {
-        if (a === b) {
-            return options.fn(this);
-        }
-        return options.inverse(this);
-    });
-}
+  hbs.registerHelper('equal', (a: unknown, b: unknown, options) => {
+    if (a === b) {
+      return options.fn(this);
+    }
+    return options.inverse(this);
+  });
+};
 
 // export const setUserRoot = (user: TUserState) => {
 //     if (typeof window !== 'undefined') {

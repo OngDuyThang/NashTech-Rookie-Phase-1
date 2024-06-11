@@ -1,5 +1,14 @@
 import { Logger, Module, Provider } from '@nestjs/common';
-import { HttpExceptionFilter, QUEUE_NAME, RmqClientOption, RpcExceptionFilter, SERVICE_NAME, TypeORMExceptionFilter, getEnvFilePath, getGqlSchemaPath } from '@app/common';
+import {
+  HttpExceptionFilter,
+  QUEUE_NAME,
+  RmqClientOption,
+  RpcExceptionFilter,
+  SERVICE_NAME,
+  TypeORMExceptionFilter,
+  getEnvFilePath,
+  getGqlSchemaPath,
+} from '@app/common';
 import { APP_FILTER } from '@nestjs/core';
 import { DatabaseModule } from '@app/database';
 import { dataSourceOptions } from './database/data-source';
@@ -13,50 +22,42 @@ import { ItemModule } from './modules/item/item.module';
 const rmqClients: RmqClientOption[] = [
   {
     provide: SERVICE_NAME.AUTH_SERVICE,
-    queueName: QUEUE_NAME.AUTH
+    queueName: QUEUE_NAME.AUTH,
   },
   {
     provide: SERVICE_NAME.PRODUCT_SERVICE,
-    queueName: QUEUE_NAME.PRODUCT
+    queueName: QUEUE_NAME.PRODUCT,
   },
   {
     provide: SERVICE_NAME.ORDER_SERVICE,
-    queueName: QUEUE_NAME.ORDER
-  }
-]
+    queueName: QUEUE_NAME.ORDER,
+  },
+];
 
 const providers: Provider[] = [
   {
     provide: APP_FILTER,
-    useClass: HttpExceptionFilter
+    useClass: HttpExceptionFilter,
   },
   {
     provide: APP_FILTER,
-    useClass: TypeORMExceptionFilter
+    useClass: TypeORMExceptionFilter,
   },
   {
     provide: APP_FILTER,
-    useClass: RpcExceptionFilter
-  }
-]
+    useClass: RpcExceptionFilter,
+  },
+];
 
 @Module({
   imports: [
     DatabaseModule.forRoot(dataSourceOptions),
-    EnvModule.forRoot(
-      getEnvFilePath('cart'),
-      EnvValidation
-    ),
+    EnvModule.forRoot(getEnvFilePath('cart'), EnvValidation),
     RmqModule.register(rmqClients),
-    GraphQLModule.forRoot(
-      getGqlSchemaPath('cart')
-    ),
+    GraphQLModule.forRoot(getGqlSchemaPath('cart')),
     CartModule,
-    ItemModule
+    ItemModule,
   ],
-  providers: [
-    Logger,
-    ...providers
-  ],
+  providers: [Logger, ...providers],
 })
 export class AppModule {}

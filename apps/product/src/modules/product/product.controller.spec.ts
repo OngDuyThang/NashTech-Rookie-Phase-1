@@ -11,7 +11,7 @@ import { PRODUCT_SORT } from './common';
 
 describe('ProductController', () => {
   let productController: ProductController;
-  const productId: string = uuidv4()
+  const productId: string = uuidv4();
 
   const productQueryDto: ProductQueryDto = {
     categoryIds: [],
@@ -19,8 +19,8 @@ describe('ProductController', () => {
     ratings: [],
     page: 0,
     limit: 10,
-    sort: PRODUCT_SORT.ON_SALE
-  }
+    sort: PRODUCT_SORT.ON_SALE,
+  };
 
   beforeEach(async () => {
     const app: TestingModule = await Test.createTestingModule({
@@ -29,20 +29,22 @@ describe('ProductController', () => {
         {
           provide: ProductService,
           useFactory: (): Partial<ProductService> => ({
-            findAll: jest.fn().mockImplementation(
-              () => Promise.resolve([new ProductEntity()])
-            ),
-            findOneById: jest.fn().mockImplementation(
-              () => Promise.resolve(new ProductEntity())
-            ),
-            findList: jest.fn().mockImplementation(
-              () => Promise.resolve([[new ProductEntity()], 1])
-            ),
+            findAll: jest
+              .fn()
+              .mockImplementation(() => Promise.resolve([new ProductEntity()])),
+            findOneById: jest
+              .fn()
+              .mockImplementation(() => Promise.resolve(new ProductEntity())),
+            findList: jest
+              .fn()
+              .mockImplementation(() =>
+                Promise.resolve([[new ProductEntity()], 1]),
+              ),
           }),
         },
         {
           provide: SERVICE_NAME.AUTH_SERVICE,
-          useValue: ClientProxy
+          useValue: ClientProxy,
         },
       ],
     }).compile();
@@ -56,7 +58,7 @@ describe('ProductController', () => {
       expect(result).toBeInstanceOf(Array);
 
       if (!isEmpty(result)) {
-        expect(result[0]).toBeInstanceOf(ProductEntity)
+        expect(result[0]).toBeInstanceOf(ProductEntity);
       }
     });
   });
@@ -70,12 +72,13 @@ describe('ProductController', () => {
 
   describe('findList', () => {
     it('should return product array', async () => {
-      const [products, total] = await productController.findList(productQueryDto);
-      expect(products).toBeInstanceOf(Array)
-      expect(total).toBeGreaterThanOrEqual(0)
+      const [products, total] =
+        await productController.findList(productQueryDto);
+      expect(products).toBeInstanceOf(Array);
+      expect(total).toBeGreaterThanOrEqual(0);
 
       if (!isEmpty(products)) {
-        expect(products[0]).toBeInstanceOf(ProductEntity)
+        expect(products[0]).toBeInstanceOf(ProductEntity);
       }
     });
   });

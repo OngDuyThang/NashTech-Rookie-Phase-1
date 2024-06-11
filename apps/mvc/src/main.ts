@@ -6,29 +6,23 @@ import * as cookieParser from 'cookie-parser';
 import { getEnvFilePath, getViewPath, hbsJsonHelper } from '@app/common';
 import { join } from 'path';
 import * as hbs from 'hbs';
-import * as dotenv from 'dotenv'
+import * as dotenv from 'dotenv';
 
 const hbsutils = require('hbs-utils')(hbs);
 
-const viewDirectories = [
-  'category',
-  'product',
-  'promotion',
-  'review',
-  'order'
-]
+const viewDirectories = ['category', 'product', 'promotion', 'review', 'order'];
 
 async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(MvcModule);
   const logger = app.get(Logger);
 
   dotenv.config({
-    path: getEnvFilePath('mvc')
+    path: getEnvFilePath('mvc'),
   });
 
   app.enableCors({
     origin: true,
-    credentials: true
+    credentials: true,
   });
 
   app.use(cookieParser());
@@ -36,13 +30,13 @@ async function bootstrap() {
   app.setViewEngine('hbs');
   app.useStaticAssets(join(__dirname, 'public'));
   app.setBaseViewsDir([
-    ...viewDirectories.map(dir => getViewPath(dir)),
-    join(__dirname, 'views')
-  ])
+    ...viewDirectories.map((dir) => getViewPath(dir)),
+    join(__dirname, 'views'),
+  ]);
   hbsutils.registerWatchedPartials(join(__dirname, 'views', 'partials'));
-  hbsJsonHelper()
+  hbsJsonHelper();
 
-  const port = process.env.PORT || 8081
+  const port = process.env.PORT || 8081;
   await app.listen(port);
   logger.log(`MVC app is listening on port ${port}`);
 }

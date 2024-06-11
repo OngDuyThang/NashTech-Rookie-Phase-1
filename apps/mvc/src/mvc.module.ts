@@ -1,7 +1,17 @@
-import { Logger, MiddlewareConsumer, Module, NestModule, Provider } from '@nestjs/common';
+import {
+  Logger,
+  MiddlewareConsumer,
+  Module,
+  NestModule,
+  Provider,
+} from '@nestjs/common';
 import { CategoryController } from './controllers/category.controller';
 import { EnvModule } from '@app/env';
-import { HttpExceptionFilter, LoggerMiddleware, getEnvFilePath } from '@app/common';
+import {
+  HttpExceptionFilter,
+  LoggerMiddleware,
+  getEnvFilePath,
+} from '@app/common';
 import { EnvValidation } from './env.validation';
 import { APP_FILTER } from '@nestjs/core';
 import { DashboardMiddleware } from './middlewares/dashboard.middleware';
@@ -14,30 +24,25 @@ import { OrderController } from './controllers/order.controller';
 const providers: Provider[] = [
   {
     provide: APP_FILTER,
-    useClass: HttpExceptionFilter
-  }
-]
+    useClass: HttpExceptionFilter,
+  },
+];
 
 @Module({
-  imports: [
-    EnvModule.forRoot(
-      getEnvFilePath('mvc'),
-      EnvValidation as any
-    )
-  ],
+  imports: [EnvModule.forRoot(getEnvFilePath('mvc'), EnvValidation as any)],
   controllers: [
     MvcController,
     ProductController,
     CategoryController,
     PromotionController,
     ReviewController,
-    OrderController
+    OrderController,
   ],
   providers: [Logger, ...providers],
 })
 export class MvcModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {
-    consumer.apply(DashboardMiddleware).exclude('callback').forRoutes('*')
-    consumer.apply(LoggerMiddleware).forRoutes('*')
+    consumer.apply(DashboardMiddleware).exclude('callback').forRoutes('*');
+    consumer.apply(LoggerMiddleware).forRoutes('*');
   }
 }

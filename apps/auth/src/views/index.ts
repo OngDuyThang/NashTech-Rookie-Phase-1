@@ -1,1 +1,1 @@
-export * from './reset-pw-mail-template'
+export * from './reset-pw-mail-template';

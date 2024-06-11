@@ -1,1 +1,1 @@
-export * from './hide-sensitive.interceptor'
+export * from './hide-sensitive.interceptor';

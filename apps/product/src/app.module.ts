@@ -1,8 +1,21 @@
-import { Logger, MiddlewareConsumer, Module, NestModule, Provider } from '@nestjs/common';
+import {
+  Logger,
+  MiddlewareConsumer,
+  Module,
+  NestModule,
+  Provider,
+} from '@nestjs/common';
 import { DatabaseModule } from '@app/database';
 import { dataSourceOptions } from './database/data-source';
 import { EnvModule } from '@app/env';
-import { HttpExceptionFilter, LoggerMiddleware, RpcExceptionFilter, TypeORMExceptionFilter, getEnvFilePath, getGqlSchemaPath } from '@app/common';
+import {
+  HttpExceptionFilter,
+  LoggerMiddleware,
+  RpcExceptionFilter,
+  TypeORMExceptionFilter,
+  getEnvFilePath,
+  getGqlSchemaPath,
+} from '@app/common';
 import { GraphQLModule } from '@app/graphql';
 import { RmqModule } from '@app/rmq';
 import { QUEUE_NAME, RmqClientOption, SERVICE_NAME } from '@app/common';
@@ -18,60 +31,50 @@ import { PaginationMiddleware } from '@app/common/middlewares/pagination.middlew
 const rmqClients: RmqClientOption[] = [
   {
     provide: SERVICE_NAME.AUTH_SERVICE,
-    queueName: QUEUE_NAME.AUTH
+    queueName: QUEUE_NAME.AUTH,
   },
   {
     provide: SERVICE_NAME.CART_SERVICE,
-    queueName: QUEUE_NAME.CART
+    queueName: QUEUE_NAME.CART,
   },
   {
     provide: SERVICE_NAME.ORDER_SERVICE,
-    queueName: QUEUE_NAME.ORDER
-  }
-]
+    queueName: QUEUE_NAME.ORDER,
+  },
+];
 
 const providers: Provider[] = [
   {
     provide: APP_FILTER,
-    useClass: HttpExceptionFilter
+    useClass: HttpExceptionFilter,
   },
   {
     provide: APP_FILTER,
-    useClass: TypeORMExceptionFilter
+    useClass: TypeORMExceptionFilter,
   },
   {
     provide: APP_FILTER,
-    useClass: RpcExceptionFilter
-  }
-]
+    useClass: RpcExceptionFilter,
+  },
+];
 
 @Module({
   imports: [
     DatabaseModule.forRoot(dataSourceOptions),
-    EnvModule.forRoot(
-      getEnvFilePath('product'),
-      EnvValidation
-    ),
+    EnvModule.forRoot(getEnvFilePath('product'), EnvValidation),
     RmqModule.register(rmqClients),
-    GraphQLModule.forRoot(
-      getGqlSchemaPath('product')
-    ),
+    GraphQLModule.forRoot(getGqlSchemaPath('product')),
     ProductModule,
     CategoryModule,
     AuthorModule,
     PromotionModule,
-    ReviewModule
+    ReviewModule,
   ],
-  providers: [
-    Logger,
-    ...providers
-  ],
+  providers: [Logger, ...providers],
 })
 export class AppModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {
-    consumer
-      .apply(LoggerMiddleware)
-      .forRoutes('*');
+    consumer.apply(LoggerMiddleware).forRoutes('*');
 
     consumer
       .apply(PaginationMiddleware)

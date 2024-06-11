@@ -1,4 +1,4 @@
 export type TPermissionRequest = {
-    accessToken: string;
-    fingerprint: string;
-}
+  accessToken: string;
+  fingerprint: string;
+};

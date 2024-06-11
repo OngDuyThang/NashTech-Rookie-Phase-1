@@ -1,3 +1,1 @@
-export enum PAYMENT_TYPE {
-
-}
+export enum PAYMENT_TYPE {}

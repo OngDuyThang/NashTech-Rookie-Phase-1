@@ -1,24 +1,39 @@
-import { Body, Delete, Get, Param, Patch, Post, Query, UseGuards } from '@nestjs/common';
+import {
+  Body,
+  Delete,
+  Get,
+  Param,
+  Patch,
+  Post,
+  Query,
+  UseGuards,
+} from '@nestjs/common';
 import { ProductService } from './product.service';
-import { PaginationPipe, PermissionRequestGuard, ROLE, Roles, RolesGuard, SERVICE_MESSAGE, UUIDPipe, ProductSchema, ApiController, PaginationDto } from '@app/common';
+import {
+  PaginationPipe,
+  PermissionRequestGuard,
+  ROLE,
+  Roles,
+  RolesGuard,
+  SERVICE_MESSAGE,
+  UUIDPipe,
+  ProductSchema,
+  ApiController,
+  PaginationDto,
+} from '@app/common';
 import { CreateProductDto } from './dtos/create-product.dto';
 import { ProductEntity } from './entities/product.entity';
 import { MessagePattern, Payload } from '@nestjs/microservices';
 
 @ApiController('products')
 export class ProductController {
-  constructor(
-    private readonly productService: ProductService
-  ) {}
+  constructor(private readonly productService: ProductService) {}
 
   @Post()
   @Roles([ROLE.ADMIN])
-  @UseGuards(
-    PermissionRequestGuard,
-    RolesGuard
-  )
+  @UseGuards(PermissionRequestGuard, RolesGuard)
   async create(
-    @Body() createProductDto: CreateProductDto
+    @Body() createProductDto: CreateProductDto,
   ): Promise<ProductEntity> {
     return await this.productService.create(createProductDto);
   }
@@ -38,53 +53,36 @@ export class ProductController {
   }
 
   @Get('/:id')
-  async findOneById(
-    @Param('id', UUIDPipe) id: string
-  ): Promise<ProductEntity> {
+  async findOneById(@Param('id', UUIDPipe) id: string): Promise<ProductEntity> {
     return await this.productService.findOneById(id);
   }
 
   @Patch('/:id')
   @Roles([ROLE.ADMIN])
-  @UseGuards(
-    PermissionRequestGuard,
-    RolesGuard
-  )
+  @UseGuards(PermissionRequestGuard, RolesGuard)
   async update(
     @Param('id', UUIDPipe) id: string,
-    @Body() updateProductDto: CreateProductDto
+    @Body() updateProductDto: CreateProductDto,
   ): Promise<void> {
     await this.productService.update(id, updateProductDto);
   }
 
   @Delete('/:id')
   @Roles([ROLE.ADMIN])
-  @UseGuards(
-    PermissionRequestGuard,
-    RolesGuard
-  )
-  async remove(
-    @Param('id', UUIDPipe) id: string
-  ): Promise<void> {
-    await this.productService.remove(id)
+  @UseGuards(PermissionRequestGuard, RolesGuard)
+  async remove(@Param('id', UUIDPipe) id: string): Promise<void> {
+    await this.productService.remove(id);
   }
 
   @Delete('/delete/:id')
   @Roles([ROLE.ADMIN])
-  @UseGuards(
-    PermissionRequestGuard,
-    RolesGuard
-  )
-  async delete(
-    @Param('id', UUIDPipe) id: string
-  ): Promise<void> {
-    await this.productService.delete(id)
+  @UseGuards(PermissionRequestGuard, RolesGuard)
+  async delete(@Param('id', UUIDPipe) id: string): Promise<void> {
+    await this.productService.delete(id);
   }
 
   @MessagePattern({ cmd: SERVICE_MESSAGE.GET_PRODUCT_BY_ID })
-  async findProductOnCart(
-    @Payload() id: string
-  ): Promise<ProductSchema> {
+  async findProductOnCart(@Payload() id: string): Promise<ProductSchema> {
     return await this.productService.findProductOnCart(id);
   }
 }

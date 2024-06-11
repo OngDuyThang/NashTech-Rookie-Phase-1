@@ -1,5 +1,5 @@
 export enum OPENID_PROVIDER {
-    google = 'google',
-    facebook = 'facebook',
-    twitter = 'twitter'
+  google = 'google',
+  facebook = 'facebook',
+  twitter = 'twitter',
 }

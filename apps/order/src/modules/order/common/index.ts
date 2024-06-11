@@ -1,2 +1,2 @@
-export * from './enums/payment'
-export * from './types/payment'
+export * from './enums/payment';
+export * from './types/payment';

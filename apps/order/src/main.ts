@@ -9,29 +9,27 @@ import * as cookieParser from 'cookie-parser';
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   const logger = app.get(Logger);
-  const env = app.get(Env)
+  const env = app.get(Env);
   const rmqService = app.get(RmqService);
 
-  app.connectMicroservice(
-    rmqService.getMicroserviceOptions(
-      QUEUE_NAME.ORDER
-    )
-  )
+  app.connectMicroservice(rmqService.getMicroserviceOptions(QUEUE_NAME.ORDER));
 
   app.enableCors({
     origin: true,
-    credentials: true
+    credentials: true,
   });
 
-  app.useGlobalPipes(new ValidationPipe({
-    whitelist: true,
-    forbidNonWhitelisted: true
-  }))
-  app.useGlobalInterceptors(new ReshapeDataInteceptor())
+  app.useGlobalPipes(
+    new ValidationPipe({
+      whitelist: true,
+      forbidNonWhitelisted: true,
+    }),
+  );
+  app.useGlobalInterceptors(new ReshapeDataInteceptor());
 
   app.use(cookieParser());
 
-  await app.startAllMicroservices()
+  await app.startAllMicroservices();
   await app.listen(env.SERVICE_PORT);
   logger.log(`Order service is listening on port ${env.SERVICE_PORT}`);
 }

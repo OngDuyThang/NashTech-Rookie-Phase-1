@@ -1,17 +1,18 @@
 import { DynamicModule, Module } from '@nestjs/common';
-import { CACHE_MANAGER, CacheModule as NestCacheModule } from '@nestjs/cache-manager';
+import {
+  CACHE_MANAGER,
+  CacheModule as NestCacheModule,
+} from '@nestjs/cache-manager';
 import * as redisStore from 'cache-manager-redis-store';
 import { Cache, Store } from 'cache-manager';
 import { Env } from '@app/env';
-import * as Redis from "redis";
+import * as Redis from 'redis';
 
-export const CACHE_SERVICE = 'CACHE_SERVICE'
+export const CACHE_SERVICE = 'CACHE_SERVICE';
 
 @Module({})
 export class CacheModule {
-  static register(
-    ttl: number
-  ): DynamicModule {
+  static register(ttl: number): DynamicModule {
     return {
       module: CacheModule,
       imports: [
@@ -25,16 +26,18 @@ export class CacheModule {
             password: env.REDIS_PASSWORD,
             no_ready_check: true,
             ttl,
-          })
-        })
+          }),
+        }),
       ],
-      providers: [{
-        provide: CACHE_SERVICE,
-        inject: [CACHE_MANAGER],
-        useFactory: (cacheManager: Cache) => cacheManager
-      }],
-      exports: [CACHE_SERVICE]
-    }
+      providers: [
+        {
+          provide: CACHE_SERVICE,
+          inject: [CACHE_MANAGER],
+          useFactory: (cacheManager: Cache) => cacheManager,
+        },
+      ],
+      exports: [CACHE_SERVICE],
+    };
   }
 }
 
@@ -43,7 +46,7 @@ export interface RedisCache extends Cache {
 }
 
 export interface RedisStore extends Store {
-  name: "redis";
+  name: 'redis';
   getClient: () => Redis.RedisClientType;
   isCacheableValue: (value: any) => boolean;
 }

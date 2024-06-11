@@ -1,1 +1,1 @@
-export * from './hash-password.pipe'
+export * from './hash-password.pipe';

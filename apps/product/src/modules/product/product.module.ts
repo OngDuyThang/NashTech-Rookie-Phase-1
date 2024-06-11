@@ -12,26 +12,14 @@ import { CategoryModule } from '../category/category.module';
 
 @Module({
   imports: [
-    DatabaseModule.forFeature([
-      ProductEntity
-    ]),
+    DatabaseModule.forFeature([ProductEntity]),
     ScheduleModule.forRoot(),
     CacheModule.register(),
     CategoryModule,
-    ReviewModule
+    ReviewModule,
   ],
-  controllers: [
-    ProductController
-  ],
-  providers: [
-    ProductService,
-    ProductRepository,
-    ProductResolver,
-    Logger
-  ],
-  exports: [
-    ProductService,
-    ProductRepository,
-  ],
+  controllers: [ProductController],
+  providers: [ProductService, ProductRepository, ProductResolver, Logger],
+  exports: [ProductService, ProductRepository],
 })
 export class ProductModule {}

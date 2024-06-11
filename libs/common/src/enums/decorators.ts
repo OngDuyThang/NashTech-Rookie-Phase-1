@@ -1,3 +1,3 @@
 export enum DECORATOR_KEY {
-    ROLES = 'ROLES'
+  ROLES = 'ROLES',
 }

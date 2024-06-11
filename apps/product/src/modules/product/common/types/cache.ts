@@ -1,4 +1,4 @@
 export type TCacheLastProduct = {
-    id: string,
-    created_at: Date
-}
+  id: string;
+  created_at: Date;
+};

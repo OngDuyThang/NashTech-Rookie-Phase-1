@@ -8,7 +8,14 @@ import {
 } from '@nestjs/common';
 import * as bcrypt from 'bcrypt';
 import * as crypto from 'crypto';
-import { TEnableTwoFactorResponse, TForgotPasswordResponse, TGoogleLoginResponse, TJwtPayload, TLoginResponse, TTokenResponse } from './common/types';
+import {
+  TEnableTwoFactorResponse,
+  TForgotPasswordResponse,
+  TGoogleLoginResponse,
+  TJwtPayload,
+  TLoginResponse,
+  TTokenResponse,
+} from './common/types';
 import { Request, Response } from 'express';
 import { ERROR_MESSAGE, SUCCESS_MESSAGE, getUrlEndpoint } from '@app/common';
 import { RegisterDto, UserEntity, UserService } from './modules/user';
@@ -18,8 +25,12 @@ import { Env } from '@app/env';
 import { Transporter } from 'nodemailer';
 import { MAILER_SERVICE } from '@app/mailer';
 import { resetPwMailTemplate } from './views';
-import { OAuth2Client } from 'google-auth-library'
-import { OPENID_PROVIDER, TOKEN_EXPIRY_TIME, TOKEN_KEY_NAME } from './common/enums';
+import { OAuth2Client } from 'google-auth-library';
+import {
+  OPENID_PROVIDER,
+  TOKEN_EXPIRY_TIME,
+  TOKEN_KEY_NAME,
+} from './common/enums';
 import { CACHE_SERVICE } from '@app/cache';
 import { Cache } from 'cache-manager';
 import { isEmpty } from 'lodash';
@@ -36,13 +47,11 @@ export class AuthService {
     @Inject(MAILER_SERVICE)
     private readonly mailerService: Transporter,
     @Inject(CACHE_SERVICE)
-    private readonly cacheService: Cache
+    private readonly cacheService: Cache,
   ) {}
 
-  async register(
-    registerDto: RegisterDto
-  ): Promise<void> {
-    await this.userService.create(registerDto)
+  async register(registerDto: RegisterDto): Promise<void> {
+    await this.userService.create(registerDto);
   }
 
   async validateCredential(
@@ -70,120 +79,102 @@ export class AuthService {
   }
 
   generateFingerprint(): string {
-    return crypto.randomBytes(32).toString("hex")
+    return crypto.randomBytes(32).toString('hex');
   }
 
-  async hashFingerprint(
-    fingerprint: string
-  ): Promise<string> {
+  async hashFingerprint(fingerprint: string): Promise<string> {
     try {
-      const salt = await bcrypt.genSalt()
-      return await bcrypt.hash(fingerprint, salt)
+      const salt = await bcrypt.genSalt();
+      return await bcrypt.hash(fingerprint, salt);
     } catch (e) {
-      throw e
+      throw e;
     }
   }
 
-  private async cacheAuthCode(
-    authCode: string,
-    userId: string
-  ): Promise<void> {
+  private async cacheAuthCode(authCode: string, userId: string): Promise<void> {
     try {
-      const existCache = await this.cacheService.get<string>(authCode)
+      const existCache = await this.cacheService.get<string>(authCode);
       if (existCache) {
-        return
+        return;
       }
 
-      await this.cacheService.set(
-        authCode,
-        userId
-      )
+      await this.cacheService.set(authCode, userId);
     } catch (e) {
-      throw e
+      throw e;
     }
   }
 
-  private async getClientCallbackUrl(
-    userId: string
-  ): Promise<string> {
-    const authCode = this.generateFingerprint()
-    await this.cacheAuthCode(authCode, userId)
+  private async getClientCallbackUrl(userId: string): Promise<string> {
+    const authCode = this.generateFingerprint();
+    await this.cacheAuthCode(authCode, userId);
 
     // Url to trigger client to send token request
     return getUrlEndpoint(
       this.env.FRONTEND_HOST_NAME,
       this.env.FRONTEND_PORT,
       '/callback',
-      { code: authCode }
-    )
+      { code: authCode },
+    );
   }
 
-  private async getDashboardCallbackUrl(
-    userId: string
-  ): Promise<string> {
-    const authCode = this.generateFingerprint()
-    await this.cacheAuthCode(authCode, userId)
+  private async getDashboardCallbackUrl(userId: string): Promise<string> {
+    const authCode = this.generateFingerprint();
+    await this.cacheAuthCode(authCode, userId);
 
     // Url to trigger client to send token request
     return getUrlEndpoint(
       this.env.MVC_HOST_NAME,
       this.env.MVC_PORT,
       '/callback',
-      { code: authCode }
-    )
+      { code: authCode },
+    );
   }
 
-  async login(
-    user: UserEntity
-  ): Promise<TLoginResponse> {
+  async login(user: UserEntity): Promise<TLoginResponse> {
     if (user.enable_two_factor) {
       return {
         validateOtpEndpoint: getUrlEndpoint(
           this.env.SERVICE_HOST_NAME,
           this.env.SERVICE_PORT,
-          this.env.VALIDATE_OTP_PATH_NAME
+          this.env.VALIDATE_OTP_PATH_NAME,
         ),
         userId: user.id,
       };
     }
 
     // Return client callback url to client with authorization code in query
-    const clientCallbackUrl = await this.getClientCallbackUrl(user.id)
+    const clientCallbackUrl = await this.getClientCallbackUrl(user.id);
     return {
-      clientCallbackUrl
-    }
+      clientCallbackUrl,
+    };
   }
 
-  async dashboardLogin(
-    user: UserEntity
-  ): Promise<TLoginResponse> {
+  async dashboardLogin(user: UserEntity): Promise<TLoginResponse> {
     if (user.enable_two_factor) {
       return {
         validateOtpEndpoint: getUrlEndpoint(
           this.env.SERVICE_HOST_NAME,
           this.env.SERVICE_PORT,
-          this.env.VALIDATE_OTP_PATH_NAME
+          this.env.VALIDATE_OTP_PATH_NAME,
         ),
         userId: user.id,
       };
     }
 
-    const clientCallbackUrl = await this.getDashboardCallbackUrl(user.id)
+    const clientCallbackUrl = await this.getDashboardCallbackUrl(user.id);
     return {
-      clientCallbackUrl
-    }
+      clientCallbackUrl,
+    };
   }
 
-  async enableTwoFactor(
-    userId: string
-  ): Promise<TEnableTwoFactorResponse> {
+  async enableTwoFactor(userId: string): Promise<TEnableTwoFactorResponse> {
     try {
-      const user = await this.userService.findOneById(userId)
+      const user = await this.userService.findOneById(userId);
 
       if (user.enable_two_factor && user.two_factor_secret) {
         return {
-          twoFactorSecret: user.two_factor_secret
-        }
+          twoFactorSecret: user.two_factor_secret,
+        };
       }
 
       return await this.userService.enableTwoFactor(userId);
@@ -191,20 +182,15 @@ export class AuthService {
       if (e instanceof NotFoundException) {
         throw new NotFoundException(ERROR_MESSAGE.USER_NOT_EXIST);
       }
-      throw e
+      throw e;
     }
   }
 
-  async disableTwoFactor(
-    userId: string
-  ): Promise<void> {
+  async disableTwoFactor(userId: string): Promise<void> {
     await this.userService.disableTwoFactor(userId);
   }
 
-  async validateOtp(
-    otp: string,
-    userId: string
-  ): Promise<TLoginResponse> {
+  async validateOtp(otp: string, userId: string): Promise<TLoginResponse> {
     try {
       const user = await this.userService.findOneById(userId);
       if (!user.enable_two_factor) {
@@ -221,10 +207,10 @@ export class AuthService {
       }
 
       // Return client call back url to client with authorization code in query
-      const clientCallbackUrl = await this.getClientCallbackUrl(user.id)
+      const clientCallbackUrl = await this.getClientCallbackUrl(user.id);
       return {
-        clientCallbackUrl
-      }
+        clientCallbackUrl,
+      };
     } catch (e) {
       throw e;
     }
@@ -232,7 +218,7 @@ export class AuthService {
 
   async dashboardValidateOtp(
     otp: string,
-    userId: string
+    userId: string,
   ): Promise<TLoginResponse> {
     try {
       const user = await this.userService.findOneById(userId);
@@ -250,10 +236,10 @@ export class AuthService {
       }
 
       // Return client call back url to client with authorization code in query
-      const clientCallbackUrl = await this.getDashboardCallbackUrl(user.id)
+      const clientCallbackUrl = await this.getDashboardCallbackUrl(user.id);
       return {
-        clientCallbackUrl
-      }
+        clientCallbackUrl,
+      };
     } catch (e) {
       throw e;
     }
@@ -261,63 +247,78 @@ export class AuthService {
 
   async authenticated(
     user: UserEntity,
-    res: Response
+    res: Response,
   ): Promise<TTokenResponse> {
-    const fingerprint = this.generateFingerprint()
-    const hashedFingerprint = await this.hashFingerprint(fingerprint)
+    const fingerprint = this.generateFingerprint();
+    const hashedFingerprint = await this.hashFingerprint(fingerprint);
 
     const jwtPayload: TJwtPayload = this.tokenService.generateTokenPayload(
       user,
-      hashedFingerprint
-    )
+      hashedFingerprint,
+    );
 
-    const accessToken = this.tokenService.generateToken(jwtPayload, this.env.ACCESS_TOKEN_SECRET, TOKEN_EXPIRY_TIME.ACCESS_TOKEN);
+    const accessToken = this.tokenService.generateToken(
+      jwtPayload,
+      this.env.ACCESS_TOKEN_SECRET,
+      TOKEN_EXPIRY_TIME.ACCESS_TOKEN,
+    );
 
-    delete jwtPayload.fingerprint
-    const refreshToken = this.tokenService.generateToken(jwtPayload, this.env.REFRESH_TOKEN_SECRET, TOKEN_EXPIRY_TIME.REFRESH_TOKEN);
+    delete jwtPayload.fingerprint;
+    const refreshToken = this.tokenService.generateToken(
+      jwtPayload,
+      this.env.REFRESH_TOKEN_SECRET,
+      TOKEN_EXPIRY_TIME.REFRESH_TOKEN,
+    );
 
-    return this.tokenService.sendTokens(accessToken, refreshToken, fingerprint, res);
+    return this.tokenService.sendTokens(
+      accessToken,
+      refreshToken,
+      fingerprint,
+      res,
+    );
   }
 
   async forgotPassword(
     userId: string,
-    email: string
+    email: string,
   ): Promise<TForgotPasswordResponse> {
-    const oneTimeToken = this.generateFingerprint()
-    await this.userService.updateOneTimeToken(userId, oneTimeToken)
+    const oneTimeToken = this.generateFingerprint();
+    await this.userService.updateOneTimeToken(userId, oneTimeToken);
 
     const endpoint = getUrlEndpoint(
       this.env.SERVICE_HOST_NAME,
       this.env.SERVICE_PORT,
       this.env.RESET_PASSWORD_PATH_NAME,
-      { userId }
-    )
+      { userId },
+    );
 
     return new Promise((resolve) => {
-      this.mailerService.sendMail({
-        from: this.env.MAILER_USERNAME,
-        to: email,
-        subject: 'Forgot Password',
-        html: resetPwMailTemplate(endpoint)
-      },
+      this.mailerService.sendMail(
+        {
+          from: this.env.MAILER_USERNAME,
+          to: email,
+          subject: 'Forgot Password',
+          html: resetPwMailTemplate(endpoint),
+        },
         (error, _info) => {
           if (error) {
             throw new NotFoundException(ERROR_MESSAGE.INVALID_EMAIL);
           } else {
             resolve({
-              message: SUCCESS_MESSAGE.EMAIL_SENT
-            })
+              message: SUCCESS_MESSAGE.EMAIL_SENT,
+            });
           }
-        })
-    })
+        },
+      );
+    });
   }
 
   async validateOneTimeToken(
     hashedOneTimeToken: string,
-    oneTimeToken: string
+    oneTimeToken: string,
   ): Promise<boolean> {
     if (!hashedOneTimeToken || !oneTimeToken) {
-      throw new ForbiddenException(ERROR_MESSAGE.UNAUTHORIZED)
+      throw new ForbiddenException(ERROR_MESSAGE.UNAUTHORIZED);
     }
     try {
       return await bcrypt.compare(oneTimeToken, hashedOneTimeToken);
@@ -326,16 +327,11 @@ export class AuthService {
     }
   }
 
-  async resetPassword(
-    userId: string,
-    newPassword: string
-  ): Promise<void> {
-    await this.userService.updatePassword(userId, newPassword)
+  async resetPassword(userId: string, newPassword: string): Promise<void> {
+    await this.userService.updatePassword(userId, newPassword);
   }
 
-  async validateGoogleIdToken(
-    idToken: string
-  ): Promise<void> {
+  async validateGoogleIdToken(idToken: string): Promise<void> {
     try {
       const ticket = await this.googleOAuthClient.verifyIdToken({
         idToken,
@@ -344,108 +340,110 @@ export class AuthService {
       const payload = ticket.getPayload();
       const userId = payload['sub'];
 
-      console.log('payload: ', payload)
-      console.log('userId: ', userId)
+      console.log('payload: ', payload);
+      console.log('userId: ', userId);
     } catch (e) {
-      throw e
+      throw e;
     }
   }
 
   async loginWithGoogle(
     googleRes: TGoogleLoginResponse,
-    res: Response
+    res: Response,
   ): Promise<void> {
-    const { email, verify } = googleRes
+    const { email, verify } = googleRes;
     if (!verify) {
-      throw new UnauthorizedException(ERROR_MESSAGE.UNAUTHORIZED_GOOGLE_ACCOUNT)
+      throw new UnauthorizedException(
+        ERROR_MESSAGE.UNAUTHORIZED_GOOGLE_ACCOUNT,
+      );
     }
 
     const user = await this.userService.validateExistEmail(email);
     if (user) {
       if (user.openid_provider == OPENID_PROVIDER.google) {
         // Return client call back url to client with authorization code in query
-        const clientCallbackUrl = await this.getClientCallbackUrl(user.id)
-        res.redirect(clientCallbackUrl)
+        const clientCallbackUrl = await this.getClientCallbackUrl(user.id);
+        res.redirect(clientCallbackUrl);
       } else {
         // Redirect to exist email page
-        res.redirect(getUrlEndpoint(
-          this.env.SERVICE_HOST_NAME,
-          this.env.SERVICE_PORT,
-          '/auth/used-email'
-        ))
+        res.redirect(
+          getUrlEndpoint(
+            this.env.SERVICE_HOST_NAME,
+            this.env.SERVICE_PORT,
+            '/auth/used-email',
+          ),
+        );
       }
     } else {
       // Redirect to register page
-      res.redirect(getUrlEndpoint(
-        this.env.SERVICE_HOST_NAME,
-        this.env.SERVICE_PORT,
-        '/auth/register',
-        { gmail: email }
-      ))
+      res.redirect(
+        getUrlEndpoint(
+          this.env.SERVICE_HOST_NAME,
+          this.env.SERVICE_PORT,
+          '/auth/register',
+          { gmail: email },
+        ),
+      );
     }
   }
 
   async refresh(
     req: Request,
     res: Response,
-    accessToken: string
+    accessToken: string,
   ): Promise<TTokenResponse> {
-    const error = new UnauthorizedException(ERROR_MESSAGE.USER_UNAUTHORIZED)
-    const refreshToken = req.cookies?.[TOKEN_KEY_NAME.REFRESH_TOKEN]
+    const error = new UnauthorizedException(ERROR_MESSAGE.USER_UNAUTHORIZED);
+    const refreshToken = req.cookies?.[TOKEN_KEY_NAME.REFRESH_TOKEN];
     if (!refreshToken) {
-      throw error
+      throw error;
     }
 
     try {
       // Validate refresh token and user exist
       const refreshPayload = this.tokenService.validateToken(
         refreshToken,
-        this.env.REFRESH_TOKEN_SECRET
-      )
+        this.env.REFRESH_TOKEN_SECRET,
+      );
       if (isEmpty(refreshPayload)) {
-        throw error
+        throw error;
       }
       if (Date.now() >= refreshPayload.exp * 1000) {
-        throw error
+        throw error;
       }
 
       // Validate access token and expired time under 5 minutes
-      const accessPayload = this.tokenService.decodeToken(accessToken)
+      const accessPayload = this.tokenService.decodeToken(accessToken);
       if (isEmpty(accessPayload)) {
-        throw error
+        throw error;
       }
       if (Date.now() < accessPayload.exp * 1000) {
-        throw new MethodNotAllowedException(ERROR_MESSAGE.USER_NOT_EXPIRED_YET)
+        throw new MethodNotAllowedException(ERROR_MESSAGE.USER_NOT_EXPIRED_YET);
       }
-      if (Date.now() - (accessPayload.exp * 1000) > (5 * 60 * 1000)) {
-        throw error
+      if (Date.now() - accessPayload.exp * 1000 > 5 * 60 * 1000) {
+        throw error;
       }
 
       // Set new fingerprint to cookie and send new access token
-      const user = await this.userService.findOneById(accessPayload.id)
-      const fingerprint = this.generateFingerprint()
-      const hashedFingerprint = await this.hashFingerprint(fingerprint)
+      const user = await this.userService.findOneById(accessPayload.id);
+      const fingerprint = this.generateFingerprint();
+      const hashedFingerprint = await this.hashFingerprint(fingerprint);
 
       const newPayload = this.tokenService.generateTokenPayload(
         user,
-        hashedFingerprint
-      )
+        hashedFingerprint,
+      );
       const newToken = this.tokenService.generateToken(
         newPayload,
         this.env.ACCESS_TOKEN_SECRET,
-        TOKEN_EXPIRY_TIME.ACCESS_TOKEN
-      )
+        TOKEN_EXPIRY_TIME.ACCESS_TOKEN,
+      );
 
-      return this.tokenService.refreshToken(
-        newToken,
-        fingerprint,
-        res
-      )
+      return this.tokenService.refreshToken(newToken, fingerprint, res);
     } catch (e) {
       if (e instanceof TokenExpiredError) {
-        throw error
+        throw error;
       }
-      throw e
+      throw e;
     }
   }
 }

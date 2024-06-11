@@ -22,7 +22,7 @@ export class TokenService {
 
   generateTokenPayload(
     user: UserEntity,
-    hashedFingerprint: string
+    hashedFingerprint: string,
   ): TJwtPayload {
     const { id, username, email, picture } = user;
     return {
@@ -30,7 +30,7 @@ export class TokenService {
       username,
       email,
       picture,
-      fingerprint: hashedFingerprint
+      fingerprint: hashedFingerprint,
     };
   }
 
@@ -49,49 +49,44 @@ export class TokenService {
     accessToken: string,
     refreshToken: string,
     originalFingerprint: string | undefined,
-    res: Response
+    res: Response,
   ): TTokenResponse {
     res.cookie(TOKEN_KEY_NAME.REFRESH_TOKEN, refreshToken, {
       ...this.cookieOptions,
-      maxAge: TOKEN_EXPIRY_TIME.REFRESH_TOKEN
+      maxAge: TOKEN_EXPIRY_TIME.REFRESH_TOKEN,
     });
     res.cookie(TOKEN_KEY_NAME.FINGERPRINT, originalFingerprint, {
       ...this.cookieOptions,
-      maxAge: TOKEN_EXPIRY_TIME.ACCESS_TOKEN // fingerprint inside cookie combine with access token, so equal expiry time
-    })
+      maxAge: TOKEN_EXPIRY_TIME.ACCESS_TOKEN, // fingerprint inside cookie combine with access token, so equal expiry time
+    });
 
     return {
-      [TOKEN_KEY_NAME.ACCESS_TOKEN]: accessToken
-    }
+      [TOKEN_KEY_NAME.ACCESS_TOKEN]: accessToken,
+    };
   }
 
-  validateToken(
-    token: string,
-    secret: string
-  ): TJwtPayload {
+  validateToken(token: string, secret: string): TJwtPayload {
     return this.jwtService.verify(token, {
-      secret
+      secret,
     });
   }
 
-  decodeToken(
-    token: string
-  ): TJwtPayload {
+  decodeToken(token: string): TJwtPayload {
     return this.jwtService.decode(token);
   }
 
   refreshToken(
     accessToken: string,
     originalFingerprint: string | undefined,
-    res: Response
+    res: Response,
   ): TTokenResponse {
     res.cookie(TOKEN_KEY_NAME.FINGERPRINT, originalFingerprint, {
       ...this.cookieOptions,
-      maxAge: TOKEN_EXPIRY_TIME.ACCESS_TOKEN
-    })
+      maxAge: TOKEN_EXPIRY_TIME.ACCESS_TOKEN,
+    });
 
     return {
       [TOKEN_KEY_NAME.ACCESS_TOKEN]: accessToken,
-    }
+    };
   }
 }
